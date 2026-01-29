@@ -1,9 +1,33 @@
+import json
 import os
 import yt_dlp
 import argparse
 import time
 
 from pathlib import Path
+
+from yt_dlp import YoutubeDL
+
+def get_playlist_info(link):
+    info_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "skip_download": True,
+        "extract_flat": True,
+        "dump_single_json": True
+    }
+
+    print("Getting playlist data...")
+
+    info_dict = None
+
+    with YoutubeDL(info_opts) as ydl:
+        try:
+            info_dict = ydl.extract_info(link, download=False)
+        except Exception as e:
+            print(f"Couldn't get playlist data: {e}")
+
+    return info_dict
 
 def download_playlist():
     parser = argparse.ArgumentParser()
@@ -37,7 +61,15 @@ def download_playlist():
         if deletion_confirmation.lower() != "y":
             return
 
-    ydl_opts = {
+    playlist_info = get_playlist_info(link)
+
+    if playlist_info:
+        print(f"{playlist_info.get("title")}'s info (found {playlist_info.get("playlist_count")} songs):")
+        print(json.dumps(playlist_info, indent=4))
+
+    input("Continue?")
+
+    download_opts = {
         "format": "bestaudio/best",
         "extractaudio": True,
         "audioformat": filetype,
@@ -54,7 +86,7 @@ def download_playlist():
         }]
     }
 
-    queue_download(link, ydl_opts)
+    queue_download(link, download_opts)
 
 def queue_download(link: str, ydl_opts: dict, sleep_for: int = 1):
     try:

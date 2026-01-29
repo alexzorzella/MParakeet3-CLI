@@ -117,10 +117,10 @@ class Mix:
             if move_from_local_index < move_to_local_index:
                 self.track_groups[move_to_group_index].insert(0, from_track)
             else:
-                self.track_groups[move_to_group_index].insert(move_to_local_index, from_track)
+                self.track_groups[move_to_group_index].insert(move_to_local_index + 1, from_track)
 
-            move_from_group_index, move_from_local_index = self.track_location_by_abs_index(first_track_index)
             del self.track_groups[move_from_group_index][move_from_local_index]
+            move_from_group_index, move_from_local_index = self.track_location_by_abs_index(first_track_index)
 
             if len(self.track_groups[move_from_group_index]) <= 0:
                 del self.track_groups[move_from_group_index]

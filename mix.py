@@ -95,7 +95,35 @@ class Mix:
         if first_track_index == second_track_index:
             return
 
-        # self.move_track_or_group(from_index=first_track_index, to_index=second_track_index, force_group=True)
+        move_from_group_index, move_from_local_index = self.track_location_by_abs_index(first_track_index)
+        move_to_group_index, move_to_local_index = self.track_location_by_abs_index(second_track_index)
+
+        if self.group_mode:
+            move_from_group = self.track_groups[move_from_group_index]
+            move_to_group = self.track_groups[move_to_group_index]
+
+            if move_from_group_index == move_to_group_index:
+                return
+            elif move_from_group_index < move_to_group_index:
+                combined_group = move_from_group + move_to_group
+            else:
+                combined_group = move_to_group + move_from_group
+
+            self.track_groups[move_to_group_index] = combined_group
+            del self.track_groups[move_from_group_index]
+        else:
+            from_track = self.track_groups[move_from_group_index][move_from_local_index]
+
+            if move_from_local_index < move_to_local_index:
+                self.track_groups[move_to_group_index].insert(0, from_track)
+            else:
+                self.track_groups[move_to_group_index].insert(move_to_local_index, from_track)
+
+            move_from_group_index, move_from_local_index = self.track_location_by_abs_index(first_track_index)
+            del self.track_groups[move_from_group_index][move_from_local_index]
+
+            if len(self.track_groups[move_from_group_index]) <= 0:
+                del self.track_groups[move_from_group_index]
 
     def swap_tracks_or_groups(self, first_track_index, second_track_index):
         first_track_group_index, first_track_local_index = self.track_location_by_abs_index(first_track_index)

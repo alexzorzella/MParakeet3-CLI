@@ -1,4 +1,3 @@
-import json
 import os
 from collections import defaultdict
 
@@ -11,6 +10,7 @@ from pathlib import Path
 from sconfig import parse_config_with_fallbacks
 
 from yt_dlp import YoutubeDL
+from colorama import Fore, Style
 
 def get_playlist_info(link):
     info_opts = {
@@ -74,9 +74,33 @@ def download_playlist():
     for song_info in playlist_info.get("entries", []):
         title = song_info.get("title")
         id = song_info.get("id")
-        songs[id] = title
+        songs[title] = id
 
-    input("Continue?")
+    print(f"Found data for {len(songs)} songs")
+
+    downloaded_songs: defaultdict[str, str] = defaultdict(str)
+    to_download: defaultdict[str, str] = defaultdict(str)
+
+    existing_files = list(Path(output).rglob("*.mp3"))
+
+    for song in songs.keys():
+        if song in existing_files:
+            downloaded_songs[song] = songs[song]
+        else:
+            to_download[song] = songs[song]
+
+    if len(downloaded_songs) > 0:
+        update_cache = input(f"It looks like there are {len(downloaded_songs)} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. Wanna update downloaded.txt? (y/n): ").lower()
+
+        if update_cache == "y":
+            with open("downloaded.txt", "w", encoding="utf-8") as file:
+                for song_id in downloaded_songs.values():
+                    file.write(f"youtube {song_id}")
+
+    proceed = input("Start downloads? (y/n): ").lower()
+
+    if proceed != "y":
+        return
 
     download_opts = {
         "format": "bestaudio/best",

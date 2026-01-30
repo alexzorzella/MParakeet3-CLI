@@ -111,7 +111,7 @@ def download_playlist():
                 for song in to_download.keys():
                     print(song)
 
-        if not Path("downloaded.txt").is_dir():
+        if not Path("downloaded.txt").is_file():
             try:
                 Path("downloaded.txt").mkdir(parents=True, exist_ok=False)
             except:

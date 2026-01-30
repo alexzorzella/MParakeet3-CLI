@@ -92,7 +92,19 @@ def download_playlist():
             to_download[song] = songs[song]
 
     if len(downloaded_songs) > 0:
-        update_cache = input(f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.LIGHTMAGENTA_EX}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n): ").lower()
+        update_cache = ""
+
+        while update_cache == "" or update_cache == "r":
+            update_cache = input(f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.LIGHTMAGENTA_EX}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n/r): ").lower()
+
+            if update_cache == "r":
+                do_display = input(f"{Fore.YELLOW}Display {len(to_download)} undownloaded tracks?{Style.RESET_ALL} (y/n): ").lower()
+
+                if do_display != "y":
+                    continue
+
+                for song in to_download.keys():
+                    print(song)
 
         if update_cache == "y":
             with open("downloaded.txt", "w", encoding="utf-8") as file:

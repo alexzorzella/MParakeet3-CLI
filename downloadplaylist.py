@@ -119,9 +119,6 @@ def download_playlist():
 
         num_lines = 0
 
-        with open("downloaded.txt", "r", encoding="utf-8") as file:
-            num_lines = len(file.readlines())
-
         with open("downloaded.txt", "w", encoding="utf-8") as file:
             if update_cache == "y":
                 for song_id in downloaded_songs.values():
@@ -129,8 +126,11 @@ def download_playlist():
 
                 print("Updated downloaded.txt")
 
-            print(
-                f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} tracks will be ignored during download, what a time saver!")
+        with open("downloaded.txt", "r", encoding="utf-8") as file:
+            num_lines = len(file.readlines())
+
+        print(
+            f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} tracks will be ignored during download, what a time saver!")
 
     proceed = input("Start downloads? (y/n): ").lower()
 

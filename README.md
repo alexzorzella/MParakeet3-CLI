@@ -60,12 +60,17 @@ MParakeet3 reads information from a local `config.ini` file if provided one. MPa
 
 ```
 [music]
-source=path
-output=path
-maxthreads=int
-foldertracklimit=int
+source=string: path to directory with raw tracks
+output=string: path to directory encoded songs will be exported to
+maxthreads=int: number of CPU cores to use
+foldertracklimit=int: maximum number of tracks per folder
 
 [mix]
-search=path
-output=path
+search=string: path to directory of tracks to search from
+output=string: path to directory to export mixes to
+filetype=string
+
+[download]
+link=string: link to playlist
+output=string: path to directory to download files into
 ```

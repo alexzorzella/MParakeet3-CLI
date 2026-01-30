@@ -107,16 +107,19 @@ def download_playlist():
                 for song in to_download.keys():
                     print(song)
 
-        with open("downloaded.txt", "w", encoding="utf-8") as file:
+        num_lines = 0
+
+        with open("downloaded.txt", "r", encoding="utf-8") as file:
             num_lines = len(file.readlines())
 
+        with open("downloaded.txt", "w", encoding="utf-8") as file:
             if update_cache == "y":
                 for song_id in downloaded_songs.values():
                     file.write(f"youtube {song_id}\n")
 
                 print("Updated downloaded.txt")
 
-            print(f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} will be ignored during download, what a time saver!")
+            print(f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} tracks will be ignored during download, what a time saver!")
 
     proceed = input("Start downloads? (y/n): ").lower()
 
@@ -127,7 +130,7 @@ def download_playlist():
     total_seconds = sleep_interval * len(to_download)
     estimated_completion_time = now + timedelta(seconds=total_seconds)
 
-    print(f"Downloading {Fore.YELLOW}{len(to_download)}{Style.RESET_ALL} tracks. {Fore.CYAN}Estimated completion time: {estimated_completion_time}{Style.RESET_ALL}")
+    print(f"Downloading {Fore.CYAN}{len(to_download)}{Style.RESET_ALL} tracks. {Fore.CYAN}Estimated completion time: {estimated_completion_time}{Style.RESET_ALL}")
 
     download_opts = {
         "format": "bestaudio/best",

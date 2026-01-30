@@ -107,13 +107,16 @@ def download_playlist():
                 for song in to_download.keys():
                     print(song)
 
-        if update_cache == "y":
-            with open("downloaded.txt", "w", encoding="utf-8") as file:
+        with open("downloaded.txt", "w", encoding="utf-8") as file:
+            num_lines = len(file.readlines())
+
+            if update_cache == "y":
                 for song_id in downloaded_songs.values():
                     file.write(f"youtube {song_id}\n")
-            print("Updated downloaded.txt")
 
-        print(f"{Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} will be ignored during download, what a time saver!")
+                print("Updated downloaded.txt")
+
+            print(f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} will be ignored during download, what a time saver!")
 
     proceed = input("Start downloads? (y/n): ").lower()
 

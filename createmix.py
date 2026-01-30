@@ -10,7 +10,7 @@ from pyfzf.pyfzf import FzfPrompt
 from mix import Mix
 from loader import Loader
 from ottlog import logger
-from sconfig import parse_config_with_defaults
+from sconfig import parse_config_with_fallbacks
 from ffmparakeet import run_ffmpeg
 
 from colorama import Fore
@@ -28,7 +28,7 @@ def main():
     search = args.search
     output = args.output
 
-    config = parse_config_with_defaults(section="mix", params=[("search", str, search), ("output", str, output)])
+    config = parse_config_with_fallbacks(section="mix", params=[("search", str, search), ("output", str, output)])
     search, output = config["search"], config["output"]
 
     while search is None or not Path(search).is_dir():

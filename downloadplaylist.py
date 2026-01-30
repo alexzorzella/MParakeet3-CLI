@@ -6,7 +6,7 @@ import time
 
 from pathlib import Path
 
-from sconfig import parse_config_with_defaults
+from sconfig import parse_config_with_fallbacks
 
 from yt_dlp import YoutubeDL
 
@@ -45,7 +45,7 @@ def download_playlist():
     filetype = args.filetype
     quiet = args.quiet
 
-    config = parse_config_with_defaults(section="download", params=[("link", str, link), ("output", str, output), ("filetype", str, filetype)])
+    config = parse_config_with_fallbacks(section="download", params=[("link", str, link), ("output", str, output), ("filetype", str, filetype)])
     link, output, filetype = config["link"], config["output"], config["filetype"]
 
     while link is None:

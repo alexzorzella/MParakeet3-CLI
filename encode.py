@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
 from jobdata import JobData
-from sconfig import parse_config_with_defaults
+from sconfig import parse_config_with_fallbacks
 from ffmparakeet import run_ffmpeg, ffmpeg_encoders
 
 def convert_and_partition():
@@ -34,7 +34,7 @@ def convert_and_partition():
     filetype = default_filetype if args.filetype is None else args.filetype
 
     config_variables = (
-        parse_config_with_defaults(
+        parse_config_with_fallbacks(
             section="music",
             params=[
                 ("source", str, source),

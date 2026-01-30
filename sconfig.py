@@ -11,7 +11,13 @@ def get_config_param(config_section, cast_to, param_name):
 def parse_config(config_filename="config.ini", section="", params: list[tuple[str, type]] | None = None):
     return parse_config_with_defaults(config_filename=config_filename, section=section, params=[(item[0], item[1], None) for item in params])
 
-def parse_config_with_defaults(config_filename="config.ini", section="", params: list[tuple[str, type, object]] | None = None):
+def parse_config_with_fallbacks(config_filename="config.ini", section="", params: list[tuple[str, type, object]] | None = None):
+    return parse_config_with_defaults(config_filename=config_filename, section=section, params=params)
+
+def parse_config_with_overrides(config_filename="config.ini", section="", params: list[tuple[str, type, object]] | None = None):
+    return parse_config_with_defaults(config_filename=config_filename, section=section, params=params, override=True)
+
+def parse_config_with_defaults(config_filename="config.ini", section="", params: list[tuple[str, type, object]] | None = None, override=False):
     default_result = defaultdict(lambda: None, {n: default for n, _, default in params })
 
     if params is None or len(params) <= 0 or section == "":
@@ -38,10 +44,18 @@ def parse_config_with_defaults(config_filename="config.ini", section="", params:
             param_type = parameter[1]
             param_default = parameter[2]
 
-            if param_default is not None:
-                cast_variable = param_default
+            config_param = get_config_param(config_section=import_section, cast_to=param_type, param_name=param_name)
+
+            if override:
+                if param_default is not None:
+                    cast_variable = param_default
+                else:
+                    cast_variable = config_param
             else:
-                cast_variable = get_config_param(config_section=import_section, cast_to=param_type, param_name=param_name)
+                if config_param is not None:
+                    cast_variable = config_param
+                else:
+                    cast_variable = param_default
 
             results[param_name] = cast_variable
 

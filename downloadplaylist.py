@@ -5,6 +5,7 @@ import yt_dlp
 import argparse
 import time
 
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from sconfig import parse_config_with_fallbacks
@@ -46,6 +47,7 @@ def download_playlist():
     output = args.output
     filetype = args.filetype
     quiet = args.quiet
+    sleep_interval = 1
 
     config = parse_config_with_fallbacks(section="download", params=[("link", str, link), ("output", str, output), ("filetype", str, filetype)])
     link, output, filetype = config["link"], config["output"], config["filetype"]
@@ -67,7 +69,7 @@ def download_playlist():
     if playlist_info:
         title = playlist_info.get("title")
         song_count = playlist_info.get("playlist_count")
-        print(f"{title} has {song_count} songs")
+        print(f"{Fore.GREEN}{title}{Style.RESET_ALL} has {song_count} songs")
 
     songs: defaultdict[str, str] = defaultdict(str)
 
@@ -81,7 +83,7 @@ def download_playlist():
     downloaded_songs: defaultdict[str, str] = defaultdict(str)
     to_download: defaultdict[str, str] = defaultdict(str)
 
-    existing_files = list(Path(output).rglob("*.mp3"))
+    existing_files = list(track.stem for track in Path(output).rglob("*.mp3"))
 
     for song in songs.keys():
         if song in existing_files:
@@ -90,17 +92,25 @@ def download_playlist():
             to_download[song] = songs[song]
 
     if len(downloaded_songs) > 0:
-        update_cache = input(f"It looks like there are {len(downloaded_songs)} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. Wanna update downloaded.txt? (y/n): ").lower()
+        update_cache = input(f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.MAGENTA}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n): ").lower()
 
         if update_cache == "y":
             with open("downloaded.txt", "w", encoding="utf-8") as file:
                 for song_id in downloaded_songs.values():
-                    file.write(f"youtube {song_id}")
+                    file.write(f"youtube {song_id}\n")
+
+        print(f"{Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} will be ignored during download, what a time saver!")
 
     proceed = input("Start downloads? (y/n): ").lower()
 
     if proceed != "y":
         return
+
+    now = datetime.now()
+    total_seconds = sleep_interval * len(to_download)
+    estimated_completion_time = now + timedelta(seconds=total_seconds)
+
+    print(f"Downloading {Fore.YELLOW}{len(to_download)}{Style.RESET_ALL} tracks. {Fore.CYAN}Estimated completion time: {estimated_completion_time}{Style.RESET_ALL}")
 
     download_opts = {
         "format": "bestaudio/best",
@@ -112,7 +122,7 @@ def download_playlist():
         "no_warnings": quiet,
         "download_archive": "downloaded.txt",
         "progress_hooks": [hook],
-        "sleep_interval" : 1,
+        "sleep_interval" : sleep_interval,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": filetype,

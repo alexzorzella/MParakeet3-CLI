@@ -111,12 +111,6 @@ def download_playlist():
                 for song in to_download.keys():
                     print(song)
 
-        if not Path("downloaded.txt").is_file():
-            try:
-                Path("downloaded.txt").mkdir(parents=True, exist_ok=False)
-            except:
-                pass
-
         num_lines = 0
 
         with open("downloaded.txt", "w", encoding="utf-8") as file:

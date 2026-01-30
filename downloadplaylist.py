@@ -1,5 +1,7 @@
 import json
 import os
+from collections import defaultdict
+
 import yt_dlp
 import argparse
 import time
@@ -60,19 +62,19 @@ def download_playlist():
     if quiet is None:
         quiet = True
 
-    # if Path(output).is_dir():
-    #     deletion_confirmation = input(f"The directory {output} already exists. Music already present there will be skipped. Continue? (y/n): ")
-    #
-    #     if deletion_confirmation.lower() != "y":
-    #         return
-
-    input("Continue?")
-
     playlist_info = get_playlist_info(link)
 
     if playlist_info:
-        print(f"{playlist_info.get("title")}'s info (found {playlist_info.get("playlist_count")} songs):")
-        print(json.dumps(playlist_info, indent=4))
+        title = playlist_info.get("title")
+        song_count = playlist_info.get("playlist_count")
+        print(f"{title} has {song_count} songs")
+
+    songs: defaultdict[str, str] = defaultdict(str)
+
+    for song_info in playlist_info.get("entries", []):
+        title = song_info.get("title")
+        id = song_info.get("id")
+        songs[id] = title
 
     input("Continue?")
 

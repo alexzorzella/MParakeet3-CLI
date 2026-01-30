@@ -92,12 +92,13 @@ def download_playlist():
             to_download[song] = songs[song]
 
     if len(downloaded_songs) > 0:
-        update_cache = input(f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.MAGENTA}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n): ").lower()
+        update_cache = input(f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.LIGHTMAGENTA_EX}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n): ").lower()
 
         if update_cache == "y":
             with open("downloaded.txt", "w", encoding="utf-8") as file:
                 for song_id in downloaded_songs.values():
                     file.write(f"youtube {song_id}\n")
+            print("Updated downloaded.txt")
 
         print(f"{Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} will be ignored during download, what a time saver!")
 

@@ -1,16 +1,18 @@
 <div align="center">
-<h1>MParakeet3</h1>  
+<img width="351" height="255" alt="mparakeet3_logo" src="https://github.com/user-attachments/assets/a2a02ff1-5e80-4368-bf8d-861ee0b62990" />
 </div>
 
+MParakeet3 makes it easy to download playlists, encode them with metadata, automatically partition music files in folders (for MP3 players with per-folder track limits), and most importantly, mixtape creation.
+
 ## Requirements
-- [FZF](https://github.com/junegunn/fzf)
-- [ffmpeg](https://www.ffmpeg.org/download.html)
-- [VLC](https://images.videolan.org/vlc/download-windows.html)
+- [FZF](https://github.com/junegunn/fzf) (Fuzzy Finder)
+- [ffmpeg](https://www.ffmpeg.org/download.html) (Audio/Video encoder)
+- [VLC](https://images.videolan.org/vlc/download-windows.html) (Audio/Video player)
 
 To install them on Windows, use `winget install fzf`, `winget install ffmpeg`, and `winget install VideoLAN.VLC`.<br>To install them on Mac, use [Homebrew](https://brew.sh/) to run `brew install fzf`, `brew install ffmpeg`, and `brew install vlc`.
 
 ## Download Playlist
-`downloadplaylist.py` allows you to download a playlist from a link into a specified output encoded as a passed audio filetype using `yt-dlp`. If rate limited, it will wait and try again in increasing intervals.
+`downloadplaylist.py` allows you to download a playlist from a YouTube link into a specified output encoded as a passed audio filetype using `yt-dlp`. If rate limited, it will wait and try again in increasing intervals.
 
 ```
 downloadplaylist.py [-h] [-l LINK] [-o OUTPUT] [-f FILETYPE] [-q QUIET]
@@ -68,7 +70,7 @@ foldertracklimit=int: maximum number of tracks per folder
 [mix]
 search=string: path to directory of tracks to search from
 output=string: path to directory to export mixes to
-filetype=string
+filetype=string: the filetype of the downloaded tracks, i.e. mp3, aac, m4a, flac, wav, ogg
 
 [download]
 link=string: link to playlist

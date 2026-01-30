@@ -1,4 +1,5 @@
 import os
+import re
 from collections import defaultdict
 
 import yt_dlp
@@ -83,10 +84,10 @@ def download_playlist():
     downloaded_songs: defaultdict[str, str] = defaultdict(str)
     to_download: defaultdict[str, str] = defaultdict(str)
 
-    existing_files = list(track.stem for track in Path(output).rglob("*.mp3"))
+    existing_files = list(normalize_string(track.stem) for track in Path(output).rglob("*.mp3"))
 
     for song in songs.keys():
-        if song in existing_files:
+        if normalize_string(song) in existing_files:
             downloaded_songs[song] = songs[song]
         else:
             to_download[song] = songs[song]
@@ -165,6 +166,13 @@ def hook(d):
     if d["status"] == "finished":
         filename = Path(d["filename"]).stem
         print(f" Downloaded {filename}")
+
+def normalize_string(input):
+    input = input.lower()
+    input = re.sub(r"[^a-z0-9\s()-]", "", input)
+    input = re.sub(r"\s+", "", input)
+    input = input.strip()
+    return input
 
 if __name__ == '__main__':
     download_playlist()

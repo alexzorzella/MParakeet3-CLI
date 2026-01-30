@@ -35,6 +35,7 @@ def get_playlist_info(link):
 
     return info_dict
 
+
 def download_playlist():
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--link", type=str, help="Playlist link. Required")
@@ -50,7 +51,8 @@ def download_playlist():
     quiet = args.quiet
     sleep_interval = 1
 
-    config = parse_config_with_fallbacks(section="download", params=[("link", str, link), ("output", str, output), ("filetype", str, filetype)])
+    config = parse_config_with_fallbacks(section="download", params=[("link", str, link), ("output", str, output),
+                                                                     ("filetype", str, filetype)])
     link, output, filetype = config["link"], config["output"], config["filetype"]
 
     while link is None:
@@ -96,16 +98,24 @@ def download_playlist():
         update_cache = ""
 
         while update_cache == "" or update_cache == "r":
-            update_cache = input(f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.LIGHTMAGENTA_EX}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n/r): ").lower()
+            update_cache = input(
+                f"It looks like there are {Fore.GREEN}{len(downloaded_songs)}{Style.RESET_ALL} songs in {Fore.CYAN}{output}{Style.RESET_ALL}. {Fore.LIGHTMAGENTA_EX}Wanna update downloaded.txt?{Style.RESET_ALL} (y/n/r): ").lower()
 
             if update_cache == "r":
-                do_display = input(f"{Fore.YELLOW}Display {len(to_download)} undownloaded tracks?{Style.RESET_ALL} (y/n): ").lower()
+                do_display = input(
+                    f"{Fore.YELLOW}Display {len(to_download)} undownloaded tracks?{Style.RESET_ALL} (y/n): ").lower()
 
                 if do_display != "y":
                     continue
 
                 for song in to_download.keys():
                     print(song)
+
+        if not Path("downloaded.txt").is_dir():
+            try:
+                Path("downloaded.txt").mkdir(parents=True, exist_ok=False)
+            except:
+                pass
 
         num_lines = 0
 
@@ -119,7 +129,8 @@ def download_playlist():
 
                 print("Updated downloaded.txt")
 
-            print(f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} tracks will be ignored during download, what a time saver!")
+            print(
+                f"{Fore.GREEN}{num_lines}{Style.RESET_ALL} tracks will be ignored during download, what a time saver!")
 
     proceed = input("Start downloads? (y/n): ").lower()
 
@@ -130,7 +141,8 @@ def download_playlist():
     total_seconds = sleep_interval * len(to_download)
     estimated_completion_time = now + timedelta(seconds=total_seconds)
 
-    print(f"Downloading {Fore.CYAN}{len(to_download)}{Style.RESET_ALL} tracks. {Fore.CYAN}Estimated completion time: {estimated_completion_time}{Style.RESET_ALL}")
+    print(
+        f"Downloading {Fore.CYAN}{len(to_download)}{Style.RESET_ALL} tracks. {Fore.CYAN}Estimated completion time: {estimated_completion_time}{Style.RESET_ALL}")
 
     download_opts = {
         "format": "bestaudio/best",
@@ -142,7 +154,7 @@ def download_playlist():
         "no_warnings": quiet,
         "download_archive": "downloaded.txt",
         "progress_hooks": [hook],
-        "sleep_interval" : sleep_interval,
+        "sleep_interval": sleep_interval,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": filetype,
@@ -151,6 +163,7 @@ def download_playlist():
     }
 
     queue_download(link, download_opts)
+
 
 def queue_download(link: str, ydl_opts: dict, sleep_for: int = 1):
     try:
@@ -168,10 +181,12 @@ def queue_download(link: str, ydl_opts: dict, sleep_for: int = 1):
     except Exception as e:
         print(f"An error occurred while trying to download the playlist: {e}")
 
+
 def hook(d):
     if d["status"] == "finished":
         filename = Path(d["filename"]).stem
         print(f" Downloaded {filename}")
+
 
 def normalize_string(input):
     input = input.lower()
@@ -179,6 +194,7 @@ def normalize_string(input):
     input = re.sub(r"\s+", "", input)
     input = input.strip()
     return input
+
 
 if __name__ == '__main__':
     download_playlist()

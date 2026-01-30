@@ -6,6 +6,8 @@ import time
 
 from pathlib import Path
 
+from sconfig import parse_config_with_defaults
+
 from yt_dlp import YoutubeDL
 
 def get_playlist_info(link):
@@ -39,15 +41,18 @@ def download_playlist():
     args = parser.parse_args()
 
     link = args.link
-    output_directory = args.output
+    output = args.output
     filetype = args.filetype
     quiet = args.quiet
+
+    config = parse_config_with_defaults(section="download", params=[("link", str, link), ("output", str, output), ("filetype", str, filetype)])
+    link, output, filetype = config["link"], config["output"], config["filetype"]
 
     while link is None:
         link = input("Playlist link: ")
 
-    while output_directory is None:
-        output_directory = input("Output directory: ").strip('"')
+    while output is None:
+        output = input("Output directory: ").strip('"')
 
     if filetype is None:
         filetype = "mp3"
@@ -55,11 +60,13 @@ def download_playlist():
     if quiet is None:
         quiet = True
 
-    if Path(output_directory).is_dir():
-        deletion_confirmation = input(f"The directory {output_directory} already exists. Music already present there will be skipped. Continue? (y/n): ")
+    # if Path(output).is_dir():
+    #     deletion_confirmation = input(f"The directory {output} already exists. Music already present there will be skipped. Continue? (y/n): ")
+    #
+    #     if deletion_confirmation.lower() != "y":
+    #         return
 
-        if deletion_confirmation.lower() != "y":
-            return
+    input("Continue?")
 
     playlist_info = get_playlist_info(link)
 
@@ -73,7 +80,7 @@ def download_playlist():
         "format": "bestaudio/best",
         "extractaudio": True,
         "audioformat": filetype,
-        "outtmpl": os.path.join(output_directory, "%(title)s.%(ext)s"),
+        "outtmpl": os.path.join(output, "%(title)s.%(ext)s"),
         "noplaylist": False,
         "quiet": quiet,
         "no_warnings": quiet,

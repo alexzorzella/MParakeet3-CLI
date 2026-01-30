@@ -2,15 +2,10 @@ import configparser
 from collections import defaultdict
 from pathlib import Path
 
-from ottlog import logger
-
-def get_config_param(config_filename, config_section, cast_to, param_name):
+def get_config_param(config_section, cast_to, param_name):
     try:
         return cast_to(config_section[param_name])
     except:
-        error = f"{param_name} not found in {config_filename}."
-        logger.exception(error)
-
         return None
 
 def parse_config(config_filename="config.ini", section="", params: list[tuple[str, type]] | None = None):
@@ -46,7 +41,7 @@ def parse_config_with_defaults(config_filename="config.ini", section="", params:
             if param_default is not None:
                 cast_variable = param_default
             else:
-                cast_variable = get_config_param(config_filename=config_filename, config_section=import_section, cast_to=param_type, param_name=param_name)
+                cast_variable = get_config_param(config_section=import_section, cast_to=param_type, param_name=param_name)
 
             results[param_name] = cast_variable
 

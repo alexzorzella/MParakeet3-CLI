@@ -6,12 +6,23 @@ from colorama import Fore, Style
 from mutagen.mp3 import MP3
 from pyfzf import FzfPrompt
 
+from loader import Loader
+
 class Mix:
     mix_title = ""
     track_groups: list[list] = []
 
-    def __init__(self, mix_title):
+    output = None
+    loader: Loader | None = None
+
+    group_mode = False
+
+    def __init__(self, mix_title, output=None):
         self.mix_title = mix_title
+        self.output = output
+
+    def current_mode(self):
+        return f"{Fore.LIGHTGREEN_EX}(Group Mode){Style.RESET_ALL}" if self.group_mode else f"{Fore.LIGHTCYAN_EX}(Track Mode){Style.RESET_ALL}"
 
     def add_track_or_break(self, new_track):
         self.track_groups.append([new_track])
@@ -34,70 +45,111 @@ class Mix:
 
                 index += 1
 
-        return -1, -1
+        return len(self.track_groups), 0
 
     def group_length(self, group_index):
         return len(self.track_groups[group_index])
 
-    def move_track(self, from_index, to_index, force_group=False):
+    def move_track_or_group(self, from_index, to_index):
         if from_index == to_index:
             return
 
         group_index, local_index = self.track_location_by_abs_index(from_index)
-        move_track = self.track_groups[group_index][local_index]
-        move_to_track = self.get_tracks()[to_index]
+        move = self.track_groups[group_index] if self.group_mode else self.track_groups[group_index][local_index]
+        move_to_track = self.get_tracks()[to_index] if to_index < self.track_count() else None
 
-        self.remove_track(from_index)
+        self.remove_track_or_group(from_index)
 
-        if to_index <= 0:
-            self.track_groups.insert(0, [move_track])
-            return
-
-        to_index = self.get_tracks().index(move_to_track)
-        move_to_group_index, move_to_local_index = self.track_location_by_abs_index(to_index)
-
-        move_to_track_group = self.track_groups[move_to_group_index]
-
-        if len(move_to_track_group) <= 1 and not force_group:
-            self.track_groups.insert(move_to_group_index + 1, [move_track])
+        if self.group_mode:
+            to_index = self.get_tracks().index(move_to_track) if to_index < self.track_count() else self.track_count()
+            move_to_group_index, _ = self.track_location_by_abs_index(to_index)
         else:
-            if move_to_local_index == len(move_to_track_group) - 1:
-                if not force_group:
-                    do_insert = input(
-                        f"Do you want to insert {Fore.YELLOW}{self.get_track_title(move_track)}{Style.RESET_ALL} into "
-                        f"{Fore.YELLOW}{self.get_track_title(move_to_track)}'s{Style.RESET_ALL} group? (y/n): ").lower()
-                else:
-                    do_insert = True
+            if to_index <= 0:
+                self.track_groups.insert(0, [move])
+                return
 
-                if do_insert:
-                    move_to_track_group.insert(move_to_local_index + 1, move_track)
-                else:
-                    self.track_groups.insert(move_to_group_index + 1, [move_track])
+            to_index = self.get_tracks().index(move_to_track) if to_index < self.track_count() else self.track_count()
+            move_to_group_index, move_to_local_index = self.track_location_by_abs_index(to_index)
+
+            if move_to_group_index >= len(self.track_groups):
+                self.track_groups.append([])
+
+            move_to_track_group = self.track_groups[move_to_group_index]
+
+            if len(move_to_track_group) <= 1:
+                self.track_groups.insert(move_to_group_index, [move])
             else:
-                self.track_groups.insert(move_to_group_index + 1, [move_track])
+                if move_to_local_index == len(move_to_track_group) - 1:
+                    do_insert = input(
+                        f"Do you want to insert {Fore.YELLOW}{self.get_track_title(move)}{Style.RESET_ALL} into "
+                        f"{Fore.YELLOW}{self.get_track_title(move_to_track)}'s{Style.RESET_ALL} group? (y/n): ").lower()
 
-    def group_tracks(self, first_track_index, second_track_index):
+                    if do_insert:
+                        move_to_track_group.insert(move_to_local_index, move)
+                    else:
+                        self.track_groups.insert(move_to_group_index, [move])
+                else:
+                    self.track_groups.insert(move_to_group_index, [move])
+
+    def group_tracks_or_groups(self, first_track_index, second_track_index):
         if first_track_index == second_track_index:
             return
 
-        self.move_track(from_index=first_track_index, to_index=second_track_index, force_group=True)
+        move_from_group_index, move_from_local_index = self.track_location_by_abs_index(first_track_index)
+        move_to_group_index, move_to_local_index = self.track_location_by_abs_index(second_track_index)
 
-    def swap_tracks(self, first_track_index, second_track_index):
+        if self.group_mode:
+            move_from_group = self.track_groups[move_from_group_index]
+            move_to_group = self.track_groups[move_to_group_index]
+
+            if move_from_group_index == move_to_group_index:
+                return
+            elif move_from_group_index < move_to_group_index:
+                combined_group = move_from_group + move_to_group
+            else:
+                combined_group = move_to_group + move_from_group
+
+            self.track_groups[move_to_group_index] = combined_group
+            del self.track_groups[move_from_group_index]
+        else:
+            from_track = self.track_groups[move_from_group_index][move_from_local_index]
+
+            if move_from_local_index < move_to_local_index:
+                self.track_groups[move_to_group_index].insert(0, from_track)
+            else:
+                self.track_groups[move_to_group_index].insert(move_to_local_index + 1, from_track)
+
+            del self.track_groups[move_from_group_index][move_from_local_index]
+            move_from_group_index, move_from_local_index = self.track_location_by_abs_index(first_track_index)
+
+            if len(self.track_groups[move_from_group_index]) <= 0:
+                del self.track_groups[move_from_group_index]
+
+    def swap_tracks_or_groups(self, first_track_index, second_track_index):
         first_track_group_index, first_track_local_index = self.track_location_by_abs_index(first_track_index)
         second_track_group_index, second_track_local_index = self.track_location_by_abs_index(second_track_index)
 
-        (self.track_groups[first_track_group_index][first_track_local_index],
-         self.track_groups[second_track_group_index][second_track_local_index]) = (
-            self.track_groups[second_track_group_index][second_track_local_index],
-            self.track_groups[first_track_group_index][first_track_local_index])
+        if self.group_mode:
+            (self.track_groups[first_track_group_index],
+             self.track_groups[second_track_group_index]) = (
+                self.track_groups[second_track_group_index],
+                self.track_groups[first_track_group_index])
+        else:
+            (self.track_groups[first_track_group_index][first_track_local_index],
+             self.track_groups[second_track_group_index][second_track_local_index]) = (
+                self.track_groups[second_track_group_index][second_track_local_index],
+                self.track_groups[first_track_group_index][first_track_local_index])
 
-    def remove_track(self, track_index):
+    def remove_track_or_group(self, track_index):
         group_index, local_index = self.track_location_by_abs_index(track_index)
 
-        del self.track_groups[group_index][local_index]
-
-        if self.group_length(group_index) <= 0:
+        if self.group_mode:
             del self.track_groups[group_index]
+        else:
+            del self.track_groups[group_index][local_index]
+
+            if self.group_length(group_index) <= 0:
+                del self.track_groups[group_index]
 
     def get_track_title(self, track):
         if isinstance(track, MP3):
@@ -106,6 +158,10 @@ class Mix:
         return track
 
     def display(self):
+        if self.track_count() <= 0:
+            print(f"{Fore.GREEN}{self.mix_title}{Style.RESET_ALL} is empty. Add breaks and tracks below!\n\n")
+            return
+
         longest_title = max(
             len(song.get('Title', Path(song.filename).stem)[0]) for song in self.get_tracks() if isinstance(song, MP3)) + 20
         section_num = 0
@@ -117,7 +173,7 @@ class Mix:
         title_a = "Song Title"
         title_b = "Length"
         print(
-            f"{padding}{Fore.GREEN}{self.mix_title}\n\n{Style.RESET_ALL}{Fore.YELLOW}{padding}{title_a.ljust(longest_title)} {title_b}{Style.RESET_ALL}")
+            f"{padding}{Fore.GREEN}{self.mix_title}{Style.RESET_ALL}\n\n{Fore.YELLOW}{padding}{title_a.ljust(longest_title)} {title_b}{Style.RESET_ALL}")
 
         index = 0
         group_number = 0
@@ -219,8 +275,9 @@ class Mix:
 
     BACK_TO_MIX = ".back_to_mix"
     BEGINNING_OF_MIX = ".beginning"
+    END_OF_MIX = ".end"
 
-    def prompt_track_selection(self, action_prompt="", include_beginning=False):
+    def prompt_track_selection(self, action_prompt="", include_beginning=False, include_end=False):
         if action_prompt.strip() != "":
             action_prompt = f"{action_prompt.strip()} "
 
@@ -230,7 +287,10 @@ class Mix:
 
         min_choice = 0 if include_beginning else 1
 
-        while choice_index < (min_choice - 1) or choice_index >= mix_length:
+        if include_end:
+            mix_length += 1
+
+        while choice_index < (min_choice - 1) or choice_index > mix_length:
             mix_choice_input = input(
                 f"Select a track or break {action_prompt}using {min_choice}-{mix_length}, [S]earch Mix, or [E]xit: ").lower()
 
@@ -243,6 +303,9 @@ class Mix:
 
                 if include_beginning:
                     options.append(Mix.BEGINNING_OF_MIX)
+
+                if include_end:
+                    options.append(Mix.END_OF_MIX)
 
                 options.append(Mix.BACK_TO_MIX)
 
@@ -259,6 +322,8 @@ class Mix:
                     return "e", None
                 elif selected == Mix.BEGINNING_OF_MIX:
                     return None, 0
+                elif selected == Mix.END_OF_MIX:
+                    return None, mix_length
 
                 choice_index = options.index(selected)
             else:

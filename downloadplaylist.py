@@ -9,7 +9,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from sconfig import parse_config_with_fallbacks
+from sconfig import parse_config_with_fallbacks, parse_config_with_overrides
 
 from yt_dlp import YoutubeDL
 from colorama import Fore, Style
@@ -51,7 +51,7 @@ def download_playlist():
     quiet = args.quiet
     sleep_interval = 1
 
-    config = parse_config_with_fallbacks(section="download", params=[("link", str, link), ("output", str, output),
+    config = parse_config_with_overrides(section="download", params=[("link", str, link), ("output", str, output),
                                                                      ("filetype", str, filetype)])
     link, output, filetype = config["link"], config["output"], config["filetype"]
 

@@ -149,6 +149,7 @@ def download_playlist():
         "download_archive": "downloaded.txt",
         "progress_hooks": [hook],
         "sleep_interval": sleep_interval,
+        "ignoreerrors": True,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": filetype,

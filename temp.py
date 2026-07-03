@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
@@ -7,13 +6,17 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListView, QFileDialog, QHBoxLayout, QMainWindow
 
 from baklava import create_label, create_button, set_tooltip
+from load_file_action import FileLoadAction
 
 class MixWindow(QMainWindow):
+    list_widget: QListWidget | None = None
+    add_song_file_load_action: FileLoadAction | None = None
+
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Edit Mix")
-        self.resize(400, 300)
+        self.resize(800, 600)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -35,21 +38,31 @@ class MixWindow(QMainWindow):
 
         file_menu = menu_bar.addMenu("File")
         export_menu = menu_bar.addMenu("Export")
+        mix_menu = menu_bar.addMenu("Mix")
 
         file_menu.setToolTipsVisible(True)
         export_menu.setToolTipsVisible(True)
+        mix_menu.setToolTipsVisible(True)
 
         load_mix_action = file_menu.addAction("&Load Mix")
         export_mix_as_file = export_menu.addAction("As &File")
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
 
+        add_song_action = mix_menu.addAction("&Add Song(s)")
+        add_song_action.triggered.connect(self.add_song_to_mix)
+
         load_mix_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
         export_mix_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
         export_mix_as_tracks_shortcut = QShortcut(QKeySequence("Ctrl+E"), self)
+        add_song_shortcut = QShortcut(QKeySequence("Ctrl++"), self)
+        add_song_shortcut.activated.connect(self.add_song_to_mix)
+
+        self.add_song_file_load_action = FileLoadAction(menu=mix_menu, name="&Recent", action=self.add_song_to_mix)
 
         set_tooltip(widget=load_mix_action, text="Load a mix from a .txt file (Ctrl+L)")
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
         set_tooltip(widget=export_mix_as_tracks, text="Export a mix as ordered audio file (Ctrl+E)")
+        set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl++)")
 
     def create_text_entry(self, text_content: str):
         list_widget_item = QListWidgetItem()
@@ -63,26 +76,28 @@ class MixWindow(QMainWindow):
         return list_widget_item, parent_widget
 
     def create_list_widget(self, parent):
-        listWidget = QListWidget()
-        listWidget.setDragDropMode(QAbstractItemView.InternalMove)
-        listWidget.setFlow(QListView.TopToBottom)
-        listWidget.setWrapping(False)
-        listWidget.setResizeMode(QListView.Adjust)
-        listWidget.setMovement(QListView.Snap)
-        listWidget.setIconSize(QSize(200,200))
+        list_widget = QListWidget()
+        list_widget.setDragDropMode(QAbstractItemView.InternalMove)
+        list_widget.setFlow(QListView.TopToBottom)
+        list_widget.setWrapping(False)
+        list_widget.setResizeMode(QListView.Adjust)
+        list_widget.setMovement(QListView.Snap)
+        list_widget.setIconSize(QSize(200,200))
+        list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.list_widget = list_widget
 
-        listWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        parent.addWidget(list_widget)
 
-        folder = QFileDialog.getExistingDirectory(None, "Open Folder")
-        files = os.listdir(folder)
-        files = [f for f in files if os.path.isfile(os.path.join(folder,f))]
+    def add_song_to_mix(self):
+        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", file_filter="File (*.mp3 *.wav *.ogg *.opus);;")
 
-        for filepath in files:
-            list_widget_item, parent_widget = self.create_text_entry(Path(filepath).name)
-            listWidget.addItem(list_widget_item)
-            listWidget.setItemWidget(list_widget_item, parent_widget)
+        if paths is None or len(paths) <= 0:
+            return
 
-        parent.addWidget(listWidget)
+        for path in paths:
+            list_widget_item, parent_widget = self.create_text_entry(Path(path).name)
+            self.list_widget.addItem(list_widget_item)
+            self.list_widget.setItemWidget(list_widget_item, parent_widget)
 
 def main():
     app = QApplication()

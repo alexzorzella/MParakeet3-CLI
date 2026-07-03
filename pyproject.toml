@@ -10,6 +10,8 @@ dependencies = [
     "pathvalidate>=3.3.1",
     "pydub>=0.25.1",
     "pyfzf>=0.3.1",
+    "pyside6>=6.11.1",
     "python-vlc>=3.0.21203",
-    "tqdm>=4.67.1"
+    "tqdm>=4.67.1",
+    "yt-dlp>=2026.6.9",
 ]

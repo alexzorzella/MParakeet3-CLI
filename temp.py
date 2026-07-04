@@ -1,20 +1,37 @@
+from collections import defaultdict
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView,QListWidgetItem
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QListView, QFileDialog, QHBoxLayout, QMainWindow
+from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow
 
-from baklava import create_label, create_button, set_tooltip
+from baklava import create_label, create_button, set_tooltip, is_null_or_whitespace
 from load_file_action import FileLoadAction
+from sconfig import parse_config_with_fallbacks
+
+from mutagen.mp3 import MP3
+from mutagen.easyid3 import EasyID3
+
+DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
+DEFAULT_OUTPUT_DIR: Path = Path(__file__).resolve().parent / "Mixes"
 
 class MixWindow(QMainWindow):
     list_widget: QListWidget | None = None
     add_song_file_load_action: FileLoadAction | None = None
 
+    search_path: Path
+    output_path: Path
+
+    music: defaultdict[str, MP3] = defaultdict()
+
     def __init__(self):
         super().__init__()
+        self.parse_config_file()
+        self.load_music()
+        self.create_window()
 
+    def create_window(self):
         self.setWindowTitle("Edit Mix")
         self.resize(800, 600)
 
@@ -28,10 +45,25 @@ class MixWindow(QMainWindow):
         hotbar = QHBoxLayout()
         height = 30
 
-        add_song = create_button(container=hotbar, text="Add Song(s)", height=height, tooltip="Add one or more audio files")
-        add_break = create_button(container=hotbar, text="Add Break", height=height, tooltip="Add a break (good for cassettes, CDs)")
+        add_song = create_button(container=hotbar, text="Add Song(s)", height=height,
+                                 tooltip="Add one or more audio files")
+        add_break = create_button(container=hotbar, text="Add Break", height=height,
+                                  tooltip="Add a break (good for cassettes, CDs)")
 
         vertical_layout.addLayout(hotbar)
+
+    def parse_config_file(self):
+        params = parse_config_with_fallbacks(config_path="config.ini", section="mix",
+                                             params=[("search", str, ""), ("output", str, "")])
+
+        self.search_path = Path(params["search"]) if not is_null_or_whitespace(params["search"]) else DEFAULT_MUSIC_DIR
+        self.output_path = Path(params["output"]) if not is_null_or_whitespace(params["output"]) else DEFAULT_OUTPUT_DIR
+
+        if not self.search_path.is_dir():
+            self.search_path.mkdir(parents=True, exist_ok=False)
+
+        if not self.output_path.is_dir():
+            self.output_path.mkdir(parents=True, exist_ok=False)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -89,15 +121,26 @@ class MixWindow(QMainWindow):
         parent.addWidget(list_widget)
 
     def add_song_to_mix(self):
-        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", file_filter="File (*.mp3 *.wav *.ogg *.opus);;")
+        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", file_filter="File (*.mp3);;")
 
         if paths is None or len(paths) <= 0:
             return
 
         for path in paths:
-            list_widget_item, parent_widget = self.create_text_entry(Path(path).name)
+            list_widget_item, parent_widget = self.create_text_entry(Path(path).stem)
             self.list_widget.addItem(list_widget_item)
             self.list_widget.setItemWidget(list_widget_item, parent_widget)
+
+    def load_music(self):
+        files = list(self.search_path.rglob("*.mp3"))
+
+        mp3s = [MP3(file) for file in files]
+
+        for mp3 in mp3s:
+            track_name = mp3.get('Title', Path(mp3.filename).stem)
+            self.music[track_name] = mp3
+
+        self.statusBar().showMessage(f"Loaded {len(self.music)} mp3(s) from {self.search_path}", 8000)
 
 def main():
     app = QApplication()

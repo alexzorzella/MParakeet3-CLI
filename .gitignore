@@ -1,4 +1,6 @@
-*.ini*
+*.ini
 *.txt
 .idea
 __pycache__
+/Music/
+/Mixes/

@@ -1,43 +1,21 @@
 from collections import defaultdict
 from pathlib import Path
 
-from PySide6.QtGui import QKeySequence, QShortcut, Qt
-from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView,QListWidgetItem
+from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow
 
-from baklava import create_label, create_button, set_tooltip, is_null_or_whitespace
+from baklava import create_button, set_tooltip, is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 
 from mutagen.mp3 import MP3
 
+from song_entry import SongEntry
+
 DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
 DEFAULT_OUTPUT_DIR: Path = Path(__file__).resolve().parent / "Mixes"
-
-class SongEntry:
-    filepath: Path
-    mp3: MP3
-    list_widget_item: QListWidgetItem
-    widget: QWidget
-
-    def __init__(self, filepath: Path):
-        self.filepath = filepath
-        self.mp3 = MP3(filepath)
-
-        list_widget_item = QListWidgetItem()
-
-        parent_widget = QWidget()
-        vertical_layout = QVBoxLayout(parent_widget)
-        create_label(container=vertical_layout, text=self.name())
-
-        list_widget_item.setSizeHint(parent_widget.sizeHint())
-
-        self.widget = parent_widget
-        self.list_widget_item = list_widget_item
-
-    def name(self):
-        return self.mp3.get('Title', self.filepath.stem)
 
 class MixWindow(QMainWindow):
     list_widget: QListWidget | None = None
@@ -58,7 +36,7 @@ class MixWindow(QMainWindow):
 
     def create_window(self):
         self.setWindowTitle("Edit Mix")
-        self.resize(800, 600)
+        self.resize(880, 660)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -145,6 +123,15 @@ class MixWindow(QMainWindow):
             self.current_tracklist[song_entry.widget] = song_entry
             self.list_widget.addItem(song_entry.list_widget_item)
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
+
+        self.update_cumulative_times()
+
+    def update_cumulative_times(self):
+        current_runtime: int = 0
+
+        for widget, song_entry in self.current_tracklist.items():
+            current_runtime += song_entry.length()
+            song_entry.update_time_label(time=current_runtime)
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

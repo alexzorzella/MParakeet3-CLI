@@ -54,7 +54,7 @@ class FileLoadAction():
         else:
             self.dropdown_menu.addAction("None")
 
-    def load_files(self, parent=None, caption="Select a file", directory=os.getcwd(), file_filter="File (*.*);;", limit_to_single_file=False):
+    def load_files(self, parent=None, caption="Select a file", directory: str=os.getcwd(), file_filter="File (*.*);;", limit_to_single_file=False):
         """Loads one or more files and appends them to the history"""
 
         if not parent:
@@ -74,7 +74,7 @@ class FileLoadAction():
 
         return paths
 
-    def load_file(self, parent=None, caption="Select a file", directory=os.getcwd(), file_filter="File (*.*);;"):
+    def load_file(self, parent=None, caption="Select a file", directory: str=os.getcwd(), file_filter="File (*.*);;"):
         """Loads a single file and appends it to the history"""
 
         paths = self.load_files(parent=parent, caption=caption, directory=directory, file_filter=file_filter, limit_to_single_file=True)

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from pathlib import Path
 
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QKeySequence, QShortcut, Qt
 from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView,QListWidgetItem
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow
@@ -11,10 +11,33 @@ from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 
 from mutagen.mp3 import MP3
-from mutagen.easyid3 import EasyID3
 
 DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
 DEFAULT_OUTPUT_DIR: Path = Path(__file__).resolve().parent / "Mixes"
+
+class SongEntry:
+    filepath: Path
+    mp3: MP3
+    list_widget_item: QListWidgetItem
+    widget: QWidget
+
+    def __init__(self, filepath: Path):
+        self.filepath = filepath
+        self.mp3 = MP3(filepath)
+
+        list_widget_item = QListWidgetItem()
+
+        parent_widget = QWidget()
+        vertical_layout = QVBoxLayout(parent_widget)
+        create_label(container=vertical_layout, text=self.name())
+
+        list_widget_item.setSizeHint(parent_widget.sizeHint())
+
+        self.widget = parent_widget
+        self.list_widget_item = list_widget_item
+
+    def name(self):
+        return self.mp3.get('Title', self.filepath.stem)
 
 class MixWindow(QMainWindow):
     list_widget: QListWidget | None = None
@@ -24,6 +47,8 @@ class MixWindow(QMainWindow):
     output_path: Path
 
     music: defaultdict[str, MP3] = defaultdict()
+
+    current_tracklist: defaultdict[QWidget, SongEntry] = defaultdict()
 
     def __init__(self):
         super().__init__()
@@ -46,7 +71,7 @@ class MixWindow(QMainWindow):
         height = 30
 
         add_song = create_button(container=hotbar, text="Add Song(s)", height=height,
-                                 tooltip="Add one or more audio files")
+                                 tooltip="Add one or more audio files", connect_to_method=self.add_song_to_mix)
         add_break = create_button(container=hotbar, text="Add Break", height=height,
                                   tooltip="Add a break (good for cassettes, CDs)")
 
@@ -86,7 +111,7 @@ class MixWindow(QMainWindow):
         load_mix_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
         export_mix_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
         export_mix_as_tracks_shortcut = QShortcut(QKeySequence("Ctrl+E"), self)
-        add_song_shortcut = QShortcut(QKeySequence("Ctrl++"), self)
+        add_song_shortcut = QShortcut(QKeySequence("Ctrl+="), self)
         add_song_shortcut.activated.connect(self.add_song_to_mix)
 
         self.add_song_file_load_action = FileLoadAction(menu=mix_menu, name="&Recent", action=self.add_song_to_mix)
@@ -94,18 +119,7 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=load_mix_action, text="Load a mix from a .txt file (Ctrl+L)")
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
         set_tooltip(widget=export_mix_as_tracks, text="Export a mix as ordered audio file (Ctrl+E)")
-        set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl++)")
-
-    def create_text_entry(self, text_content: str):
-        list_widget_item = QListWidgetItem()
-
-        parent_widget = QWidget()
-        vertical_layout = QVBoxLayout(parent_widget)
-        create_label(container=vertical_layout, text=text_content)
-
-        list_widget_item.setSizeHint(parent_widget.sizeHint())
-
-        return list_widget_item, parent_widget
+        set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
 
     def create_list_widget(self, parent):
         list_widget = QListWidget()
@@ -121,15 +135,16 @@ class MixWindow(QMainWindow):
         parent.addWidget(list_widget)
 
     def add_song_to_mix(self):
-        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", file_filter="File (*.mp3);;")
+        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", directory=self.search_path.as_posix(), file_filter="File (*.mp3);;")
 
         if paths is None or len(paths) <= 0:
             return
 
         for path in paths:
-            list_widget_item, parent_widget = self.create_text_entry(Path(path).stem)
-            self.list_widget.addItem(list_widget_item)
-            self.list_widget.setItemWidget(list_widget_item, parent_widget)
+            song_entry = SongEntry(filepath=Path(path))
+            self.current_tracklist[song_entry.widget] = song_entry
+            self.list_widget.addItem(song_entry.list_widget_item)
+            self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

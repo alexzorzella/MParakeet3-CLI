@@ -48,10 +48,16 @@ class MixWindow(QMainWindow):
         hotbar = QHBoxLayout()
         height = 30
 
-        add_song = create_button(container=hotbar, text="Add Song(s)", height=height,
-                                 tooltip="Add one or more audio files", connect_to_method=self.add_song_to_mix)
-        add_break = create_button(container=hotbar, text="Add Break", height=height,
-                                  tooltip="Add a break (good for cassettes, CDs)")
+        create_button(container=hotbar,
+                      text="Add Song(s)",
+                      height=height,
+                      tooltip="Add one or more audio files",
+                      connect_to_method=self.add_song_to_mix)
+        create_button(container=hotbar,
+                      text="Add Break",
+                      height=height,
+                      tooltip="Add a break (good for cassettes, CDs)",
+                      connect_to_method=self.add_break)
 
         vertical_layout.addLayout(hotbar)
 
@@ -123,6 +129,14 @@ class MixWindow(QMainWindow):
             self.current_tracklist[song_entry.widget] = song_entry
             self.list_widget.addItem(song_entry.list_widget_item)
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
+
+        self.update_cumulative_times()
+
+    def add_break(self):
+        song_entry = SongEntry(filepath=None, break_duration=45 * 60)
+        self.current_tracklist[song_entry.widget] = song_entry
+        self.list_widget.addItem(song_entry.list_widget_item)
+        self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
         self.update_cumulative_times()
 

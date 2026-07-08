@@ -81,8 +81,8 @@ class SongEntry:
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 
         create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete")
-        create_button(container=container, height=length, width=length, icon=resource_path("img/up_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Up")
-        create_button(container=container, height=length, width=length, icon=resource_path("img/down_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Down")
+        # create_button(container=container, height=length, width=length, icon=resource_path("img/up_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Up")
+        # create_button(container=container, height=length, width=length, icon=resource_path("img/down_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Down")
 
         self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

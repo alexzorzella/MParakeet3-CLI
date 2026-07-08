@@ -64,12 +64,12 @@ class SongEntry:
 
         if not self.is_break:
             create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/play.svg"), icon_color="white", tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
-            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/list_end.svg"), tooltip="Queue", connect_to_method=lambda: queue_func(list_widget_item))
-            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/ear.svg"), tooltip="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
+            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/list_end.svg"), icon_color="white", tooltip="Queue", connect_to_method=lambda: queue_func(list_widget_item))
+            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/ear.svg"), icon_color="white", tooltip="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
 
-        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/delete.svg"), tooltip="Delete")
-        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/up_arrow.svg"), tooltip="Move Up")
-        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/down_arrow.svg"), tooltip="Move Down")
+        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/delete.svg"), icon_color="white", tooltip="Delete")
+        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/up_arrow.svg"), icon_color="white", tooltip="Move Up")
+        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/down_arrow.svg"), icon_color="white", tooltip="Move Down")
 
         self.time_label = create_label(container=song_utility_layout, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

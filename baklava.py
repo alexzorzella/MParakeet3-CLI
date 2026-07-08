@@ -4,10 +4,12 @@ import time
 from enum import Enum
 from pathlib import Path
 
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtGui import QPixmap, QIcon, QPainter
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QSizePolicy, QLabel, QPushButton, QLineEdit, QPlainTextEdit, QScrollArea, QWidget, \
     QHBoxLayout, QVBoxLayout, QCheckBox
-from PySide6.QtCore import Qt, Signal, QSize
+from PySide6.QtCore import Qt, Signal, QSize, QByteArray
+
 
 class SizePolicy(Enum):
     FIXED = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -107,16 +109,28 @@ def create_button(container=None, text="", font_size=10, text_align="center", wi
         button.clicked.connect(connect_to_method)
 
     if icon is not None:
-        button.setIcon(QIcon(str(icon)))
+        button.setIcon(svg(str(icon), icon_color if icon_color is not None else "currentColor"))
         button.setIconSize(icon_size if icon_size is not None else button.sizeHint())
-
-        if icon_color is not None:
-            button.setIconColor
 
     if not is_null_or_whitespace(tooltip):
         set_tooltip(widget=button, text=tooltip)
 
     return button
+
+def svg(path, color):
+    renderer = QSvgRenderer(path)
+    pixmap = QPixmap(24, 24)
+
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(pixmap)
+    renderer.render(painter)  # this is the destination, and only its alpha is used!
+
+    painter.setCompositionMode(
+        painter.CompositionMode.CompositionMode_SourceIn)
+    painter.fillRect(pixmap.rect(), color)
+    painter.end()
+
+    return QIcon(pixmap)
 
 def create_checkbox(container=None, default_value: bool | int = False, font_size=10, text_align="center", width=-1,
                     height=-1, horizontal_padding=0, vertical_padding=0, connect_to_method=None):

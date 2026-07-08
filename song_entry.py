@@ -2,7 +2,7 @@ from idlelib.macosx import preferTabsPreferenceWarning
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, \
@@ -62,14 +62,17 @@ class SongEntry:
                                                    connect_to_method=self.update_break_duration,
                                                    on_deselected=self.format_duration_input)
 
-        if not self.is_break:
-            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/play.svg"), icon_color="white", tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
-            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/list_end.svg"), icon_color="white", tooltip="Queue", connect_to_method=lambda: queue_func(list_widget_item))
-            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/ear.svg"), icon_color="white", tooltip="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
+        icon_side_length = 35
+        icon_size = QSize(28, 28)
 
-        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/delete.svg"), icon_color="white", tooltip="Delete")
-        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/up_arrow.svg"), icon_color="white", tooltip="Move Up")
-        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/down_arrow.svg"), icon_color="white", tooltip="Move Down")
+        if not self.is_break:
+            create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/play.svg"), icon_color="white", icon_size=icon_size, tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
+            create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/list_end.svg"), icon_color="white", icon_size=icon_size, tooltip="Queue", connect_to_method=lambda: queue_func(list_widget_item))
+            create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/ear.svg"), icon_color="white", icon_size=icon_size, tooltip="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
+
+        create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/delete.svg"), icon_color="white", icon_size=icon_size, tooltip="Delete")
+        create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/up_arrow.svg"), icon_color="white", icon_size=icon_size, tooltip="Move Up")
+        create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/down_arrow.svg"), icon_color="white", icon_size=icon_size, tooltip="Move Down")
 
         self.time_label = create_label(container=song_utility_layout, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

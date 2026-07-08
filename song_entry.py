@@ -47,7 +47,7 @@ class SongEntry:
         if not self.is_break:
             create_label(container=song_utility_layout, text=length_as_string, img_width=30, alignment=AQtAlignCenterRight)
         else:
-            create_label(container=song_utility_layout, text="Duration:", alignment=AQtAlignCenterRight)
+            create_label(container=song_utility_layout, text="Section Duration:", alignment=AQtAlignCenterRight)
             self.duration_input = create_line_edit(container=song_utility_layout,
                                                    placeholder_text="Length",
                                                    default_value=length_as_string,

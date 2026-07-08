@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
-from baklava import create_label, create_button, create_line_edit, int_str_to_int, BaklavaLineEdit
+from baklava import create_label, create_button, create_line_edit, int_str_to_int, BaklavaLineEdit, time_int_str_to_int
 
 AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
 AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
@@ -82,7 +82,7 @@ class SongEntry:
         self.list_widget_item = list_widget_item
 
     def update_break_duration(self, new_duration):
-        self.break_duration = int_str_to_int(new_duration)
+        self.break_duration = time_int_str_to_int(new_duration)
         self.update_time_label(time=self.last_cached_cumulative_duration)
 
     def format_duration_input(self):

@@ -335,6 +335,22 @@ def is_null_or_whitespace(string):
 
     return result
 
+def time_int_str_to_int(value) -> int:
+    sections = value.split(':')
+    sections.reverse()
+
+    result: int = 0
+
+    for i, section in enumerate(sections):
+        local_value = section.strip().lower()
+
+        try:
+            result += int(local_value) * (pow(60, i) if i > 0 else 1)
+        except:
+            pass
+
+    return result
+
 def int_str_to_int(value) -> int:
     if isinstance(value, int):
         return value
@@ -345,7 +361,7 @@ def int_str_to_int(value) -> int:
     value = value.strip().lower()
 
     try:
-        return int(value, 16)
+        return int(value)
     except:
         pass
 

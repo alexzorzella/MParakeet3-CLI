@@ -22,8 +22,9 @@ class ThreadedVlcPlayer:
     def __init__(self):
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
+
         events = self.player.event_manager()
-        events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self.play_head(advance=True))
+        events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self._on_end())
 
         self.commands = queue.Queue()
 
@@ -34,6 +35,9 @@ class ThreadedVlcPlayer:
         while True:
             func, args = self.commands.get()
             func(*args)
+
+    def _on_end(self):
+        self.commands.put((self.play_head, (True,)))
 
     def play(self):
         if self.player is not None:

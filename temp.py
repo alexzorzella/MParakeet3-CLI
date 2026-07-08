@@ -1,21 +1,25 @@
+import time
 from collections import defaultdict
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow
+from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow, QListWidgetItem
 
 from baklava import create_button, set_tooltip, is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 
+import vlc
 from mutagen.mp3 import MP3
 
 from song_entry import SongEntry
 
 DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
 DEFAULT_OUTPUT_DIR: Path = Path(__file__).resolve().parent / "Mixes"
+
+PREVIEW_LENGTH = 5
 
 class MixWindow(QMainWindow):
     list_widget: QListWidget | None = None
@@ -129,7 +133,7 @@ class MixWindow(QMainWindow):
             return
 
         for path in paths:
-            song_entry = SongEntry(filepath=Path(path))
+            song_entry = SongEntry(filepath=Path(path), preview_transition_func=self.preview_transition_from)
             self.current_tracklist[song_entry.widget] = song_entry
             self.list_widget.addItem(song_entry.list_widget_item)
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
@@ -157,6 +161,44 @@ class MixWindow(QMainWindow):
 
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
+
+    def preview_transition_from(self, list_widget_item: QListWidgetItem):
+        index = self.list_widget.row(list_widget_item)
+        from_widget = self.list_widget.itemWidget(self.list_widget.item(index - 1)) if index > 0 else None
+        to_widget = self.list_widget.itemWidget(list_widget_item)
+
+        if from_widget is None:
+            return
+
+        from_path = self.current_tracklist[from_widget].filepath
+        to_path = self.current_tracklist[to_widget].filepath
+
+        if not Path(from_path).exists():
+            self.statusBar().showMessage(f"{from_path} doesn't exist")
+        elif not Path(to_path).exists():
+            self.statusBar().showMessage(f"{to_path} doesn't exist")
+
+        song_ending = MP3(from_path)
+        song_ending_length = song_ending.info.length
+
+        start_song_ending_at = max(0, song_ending_length - PREVIEW_LENGTH)
+
+        song_ending_player = vlc.MediaPlayer(from_path)
+        song_starting_player = vlc.MediaPlayer(to_path)
+
+        print("Playing preview...")
+        song_ending_player.play()
+
+        time.sleep(0.1)
+
+        song_ending_player.set_time(int(start_song_ending_at * 1000))
+
+        time.sleep(PREVIEW_LENGTH + 0.1)
+
+        song_starting_player.play()
+
+        input("Press enter to stop playback ")
+        song_starting_player.stop()
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

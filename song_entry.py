@@ -1,4 +1,6 @@
+from idlelib.macosx import preferTabsPreferenceWarning
 from pathlib import Path
+from typing import Callable
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
@@ -11,8 +13,10 @@ AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRigh
 class SongEntry:
     filepath: Path
     mp3: MP3
+
     list_widget_item: QListWidgetItem
     widget: QWidget
+
     time_label: QLabel
 
     is_break: bool = False
@@ -20,7 +24,7 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
-    def __init__(self, filepath: Path | None, break_duration: int | None = None):
+    def __init__(self, filepath: Path | None, preview_transition_func: Callable | None = None, break_duration: int | None = None):
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
@@ -58,7 +62,7 @@ class SongEntry:
                                                    on_deselected=self.format_duration_input)
 
         if not self.is_break:
-            create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition")
+            create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
 
         create_button(container=song_utility_layout, height=35, width=50, text="Delete")
         create_button(container=song_utility_layout, height=35, width=35, text="↑")

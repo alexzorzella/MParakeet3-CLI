@@ -340,8 +340,8 @@ def preview_transition(song_ending_path, song_starting_path, preview_length=1):
 
     start_song_ending_at = max(0, song_ending_length - preview_length)
 
-    # song_ending_player = vlc.mediaplayer(song_ending_path)
-    # song_starting_player = vlc.mediaplayer(song_starting_path)
+    # song_ending_player = vlc.MediaPlayer(song_ending_path)
+    # song_starting_player = vlc.MediaPlayer(song_starting_path)
 
     # print("Playing preview...")
     # song_ending_player.play()

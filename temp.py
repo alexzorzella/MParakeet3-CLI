@@ -116,6 +116,10 @@ class MixWindow(QMainWindow):
         list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.list_widget = list_widget
 
+        list_model = self.list_widget.model()
+
+        list_model.rowsMoved.connect(self.update_cumulative_times)
+
         parent.addWidget(list_widget)
 
     def add_song_to_mix(self):
@@ -141,9 +145,16 @@ class MixWindow(QMainWindow):
         self.update_cumulative_times()
 
     def update_cumulative_times(self):
+        print("Updating cumulative times")
+
         current_runtime: int = 0
 
-        for widget, song_entry in self.current_tracklist.items():
+        for i in range(self.list_widget.count()):
+            list_widget_item = self.list_widget.item(i)
+            widget = self.list_widget.itemWidget(list_widget_item)
+
+            song_entry = self.current_tracklist[widget]
+
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
 

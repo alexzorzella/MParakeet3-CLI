@@ -47,6 +47,7 @@ class SongEntry:
         if not self.is_break:
             create_label(container=song_utility_layout, text=length_as_string, img_width=30, alignment=AQtAlignCenterRight)
         else:
+            create_label(container=song_utility_layout, text="Duration:", alignment=AQtAlignCenterRight)
             self.duration_input = create_line_edit(container=song_utility_layout,
                                                    placeholder_text="Length",
                                                    default_value=length_as_string,
@@ -56,7 +57,9 @@ class SongEntry:
                                                    connect_to_method=self.update_break_duration,
                                                    on_deselected=self.format_duration_input)
 
-        create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition")
+        if not self.is_break:
+            create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition")
+
         create_button(container=song_utility_layout, height=35, width=50, text="Delete")
         create_button(container=song_utility_layout, height=35, width=35, text="↑")
         create_button(container=song_utility_layout, height=35, width=35, text="↓")

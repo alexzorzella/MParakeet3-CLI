@@ -216,6 +216,8 @@ class MixWindow(QMainWindow):
         row = self.list_widget.row(list_widget_item)
         self.list_widget.takeItem(row)
 
+        print(f"Deleted item at index {row} with widget {widget}, removed from tracklist, Current tracklist -> (length {len(self.current_tracklist)}), tracks: {", ".join([Path(song_entry.filepath).stem for widget, song_entry in self.current_tracklist.items()])}")
+
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))
 

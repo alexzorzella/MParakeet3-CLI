@@ -59,6 +59,9 @@ class ThreadedVlcPlayer:
 
         try:
             current_song = self.song_queue[self.current_head_index]
+
+            print(f"Current song now: {Path(current_song).stem}, attempting to play it")
+
             media = self.vlc_instance.media_new(current_song)
             self.player.set_media(media)
             self.player.play()

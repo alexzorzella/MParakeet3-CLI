@@ -171,7 +171,7 @@ class MixWindow(QMainWindow):
         if not Path(path).exists():
             self.statusBar().showMessage(f"{path} doesn't exist")
 
-        thread = threading.Thread(target=self.player.play, args=(path,), daemon=True)
+        thread = threading.Thread(target=self.player.queue_song_force_play, args=(path,), daemon=True)
         thread.start()
 
     def preview_transition_from(self, list_widget_item: QListWidgetItem):

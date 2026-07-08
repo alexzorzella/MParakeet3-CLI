@@ -1,3 +1,5 @@
+import queue
+import threading
 from pathlib import Path
 
 import vlc
@@ -12,11 +14,25 @@ class ThreadedVlcPlayer:
     song_queue = []
     current_head_index = -1
 
+    thread = None
+
+    commands = None
+
     def __init__(self):
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
         events = self.player.event_manager()
         events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self.play_head(advance=True))
+
+        self.commands = queue.Queue()
+
+        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread.start()
+
+    def _run(self):
+        while True:
+            func, args = self.commands.get()
+            func(*args)
 
     def play(self):
         if self.player is not None:

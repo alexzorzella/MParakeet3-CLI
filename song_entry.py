@@ -65,16 +65,22 @@ class SongEntry:
         icon_side_length = 35
         icon_size = QSize(28, 28)
 
+        container = song_utility_layout
+        length = icon_side_length
+        color = "white"
+        size = icon_size
+
         if not self.is_break:
-            create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/play.svg"), icon_color="white", icon_size=icon_size, tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
-            create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/list_end.svg"), icon_color="white", icon_size=icon_size, tooltip="Queue", connect_to_method=lambda: queue_func(list_widget_item))
-            create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/ear.svg"), icon_color="white", icon_size=icon_size, tooltip="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track", connect_to_method=lambda: queue_func(list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next", connect_to_method=lambda: queue_func(list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
 
-        create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/delete.svg"), icon_color="white", icon_size=icon_size, tooltip="Delete")
-        create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/up_arrow.svg"), icon_color="white", icon_size=icon_size, tooltip="Move Up")
-        create_button(container=song_utility_layout, height=icon_side_length, width=icon_side_length, icon=resource_path("img/down_arrow.svg"), icon_color="white", icon_size=icon_size, tooltip="Move Down")
+        create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete")
+        create_button(container=container, height=length, width=length, icon=resource_path("img/up_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Up")
+        create_button(container=container, height=length, width=length, icon=resource_path("img/down_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Down")
 
-        self.time_label = create_label(container=song_utility_layout, text="00:00:00", alignment=Qt.AlignCenter)
+        self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         list_widget_item.setSizeHint(parent_widget.sizeHint())

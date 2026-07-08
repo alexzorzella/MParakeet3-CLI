@@ -24,7 +24,7 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
-    def __init__(self, filepath: Path | None, play_func: Callable | None = None, preview_transition_func: Callable | None = None, break_duration: int | None = None):
+    def __init__(self, filepath: Path | None, play_func: Callable | None = None, queue_func: Callable | None = None, preview_transition_func: Callable | None = None, break_duration: int | None = None):
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
@@ -63,6 +63,7 @@ class SongEntry:
 
         if not self.is_break:
             create_button(container=song_utility_layout, height=35, width=50, text="Play", connect_to_method=lambda: play_func(list_widget_item))
+            create_button(container=song_utility_layout, height=35, width=50, text="Queue", connect_to_method=lambda: queue_func(list_widget_item))
             create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
 
         create_button(container=song_utility_layout, height=35, width=50, text="Delete")

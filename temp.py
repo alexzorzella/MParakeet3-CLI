@@ -1,5 +1,6 @@
 import threading
 from collections import defaultdict
+from logging import setLogRecordFactory
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
@@ -133,7 +134,7 @@ class MixWindow(QMainWindow):
             return
 
         for path in paths:
-            song_entry = SongEntry(filepath=Path(path), player=self.player, generic_func=self.call_generic_player_command, preview_transition_func=self.preview_transition_from)
+            song_entry = SongEntry(filepath=Path(path), player=self.player, generic_func=self.call_generic_player_command, preview_transition_func=self.preview_transition_from, delete_item=self.delete_list_widget_item)
             self.current_tracklist[song_entry.widget] = song_entry
             self.list_widget.addItem(song_entry.list_widget_item)
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
@@ -208,6 +209,12 @@ class MixWindow(QMainWindow):
             self.statusBar().showMessage(f"{to_path} doesn't exist")
 
         self.queue_player_command(self.player.preview, (from_path, to_path,))
+
+    def delete_list_widget_item(self, list_widget_item):
+        widget = self.list_widget.itemWidget(list_widget_item)
+        self.current_tracklist.__delitem__(widget)
+        row = self.list_widget.row(list_widget_item)
+        self.list_widget.takeItem(row)
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

@@ -25,7 +25,7 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
-    def __init__(self, filepath: Path | None, player: ThreadedVlcPlayer | None = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, break_duration: int | None = None):
+    def __init__(self, filepath: Path | None, player: ThreadedVlcPlayer | None = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, delete_item: Callable | None = None, break_duration: int | None = None):
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
@@ -80,7 +80,8 @@ class SongEntry:
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 
-        create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete")
+        create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
+                          connect_to_method=lambda: delete_item(list_widget_item))
         # create_button(container=container, height=length, width=length, icon=resource_path("img/up_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Up")
         # create_button(container=container, height=length, width=length, icon=resource_path("img/down_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Down")
 

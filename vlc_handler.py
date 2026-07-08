@@ -1,6 +1,7 @@
 import queue
 import threading
 from pathlib import Path
+from time import sleep
 
 import vlc
 from mutagen.mp3 import MP3
@@ -70,8 +71,6 @@ class ThreadedVlcPlayer:
         if self.current_head_index >= len(self.song_queue):
             print(f"Queue exhausted")
             return
-
-        self.stop()
 
         try:
             current_song = self.song_queue[self.current_head_index]

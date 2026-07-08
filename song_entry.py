@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
-from baklava import create_label, create_button, create_line_edit
+from baklava import create_label, create_button, create_line_edit, int_str_to_int, BaklavaLineEdit
 
 AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
 AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
@@ -29,6 +29,8 @@ class SongEntry:
 
     is_break: bool = False
     break_duration: int = 75 * 60
+    last_cached_cumulative_duration: int = 0
+    duration_input: BaklavaLineEdit
 
     def __init__(self, filepath: Path | None, break_duration: int | None = None):
         if filepath is not None:
@@ -52,18 +54,19 @@ class SongEntry:
         song_utility_layout = QHBoxLayout()
         horizontal_layout.addLayout(song_utility_layout)
 
-        length_as_string: str = track_length_to_str(self.length())
+        length_as_string: str = track_length_to_str(self.absolute_length())
 
         if not self.is_break:
             create_label(container=song_utility_layout, text=length_as_string, img_width=30, alignment=AQtAlignCenterRight)
         else:
-            create_line_edit(container=song_utility_layout,
-                             placeholder_text="Length",
-                             default_value=length_as_string,
-                             width=70,
-                             height=35,
-                             connect_to_method=self.update_break_duration,
-                             alignment=Qt.AlignCenter)
+            self.duration_input = create_line_edit(container=song_utility_layout,
+                                                   placeholder_text="Length",
+                                                   default_value=length_as_string,
+                                                   width=70,
+                                                   height=35,
+                                                   alignment=Qt.AlignCenter,
+                                                   connect_to_method=self.update_break_duration,
+                                                   on_deselected=self.format_duration_input)
 
         create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition")
         create_button(container=song_utility_layout, height=35, width=50, text="Delete")
@@ -79,13 +82,19 @@ class SongEntry:
         self.list_widget_item = list_widget_item
 
     def update_break_duration(self, new_duration):
-        self.break_duration = new_duration
+        self.break_duration = int_str_to_int(new_duration)
+        self.update_time_label(time=self.last_cached_cumulative_duration)
+
+    def format_duration_input(self):
+        self.duration_input.setText(track_length_to_str(self.break_duration))
 
     def update_time_label(self, time: int):
         if not self.is_break:
             time_label_text = track_length_to_str(total_seconds=time)
         else:
+            self.last_cached_cumulative_duration = time
             time_diff = self.break_duration - time
+
             time_label_text = ""
 
             color = "white"
@@ -107,6 +116,10 @@ class SongEntry:
         result = self.mp3.get('Title', self.filepath.stem)
         return result
 
-    def length(self) -> int:
+    def absolute_length(self):
         result = self.mp3.info.length if not self.is_break else self.break_duration
+        return result
+
+    def length(self) -> int:
+        result = self.mp3.info.length if not self.is_break else 0
         return int(result)

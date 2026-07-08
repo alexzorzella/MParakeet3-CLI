@@ -335,12 +335,7 @@ def is_null_or_whitespace(string):
 
     return result
 
-def hex_or_int_str_to_int(value) -> int:
-    """
-    Converts a value that's either a string with a hex or int value into a string, i.e. 10 and 0x0A are the same value.
-    Hex values must be preceded by '0x'.
-    """
-
+def int_str_to_int(value) -> int:
     if isinstance(value, int):
         return value
 
@@ -350,13 +345,7 @@ def hex_or_int_str_to_int(value) -> int:
     value = value.strip().lower()
 
     try:
-        if value[0:2] == "0x":
-            if len(value) > 2:
-                return int(value[2:], 16)
-
-            return 0
-        else:
-            return int(value, 16)
+        return int(value, 16)
     except:
         pass
 

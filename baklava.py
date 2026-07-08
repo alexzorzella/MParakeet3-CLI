@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+import time
 from enum import Enum
 from pathlib import Path
 
@@ -350,6 +351,15 @@ def time_int_str_to_int(value) -> int:
             pass
 
     return result
+
+def time_int_to_str(total_seconds: int) -> str:
+
+    if total_seconds < 60 * 60:
+        format = '%M:%S'
+    else:
+        format = '%H:%M:%S'
+
+    return time.strftime(format, time.gmtime(total_seconds))
 
 def int_str_to_int(value) -> int:
     if isinstance(value, int):

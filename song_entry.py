@@ -3,22 +3,10 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
-from baklava import create_label, create_button, create_line_edit, int_str_to_int, BaklavaLineEdit, time_int_str_to_int
+from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int
 
 AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
 AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
-
-def track_length_to_str(total_seconds: int) -> str:
-    hours: int = int((total_seconds - (total_seconds % 60 * 24)) / (60 * 24))
-    minutes: int = int((total_seconds - (total_seconds % 60)) / 60)
-    seconds: int = total_seconds % 60
-
-    if hours > 0:
-        time = f"{hours}:{minutes:02d}:{seconds:02d}"
-    else:
-        time = f"{minutes}:{seconds:02d}"
-
-    return time
 
 class SongEntry:
     filepath: Path
@@ -54,7 +42,7 @@ class SongEntry:
         song_utility_layout = QHBoxLayout()
         horizontal_layout.addLayout(song_utility_layout)
 
-        length_as_string: str = track_length_to_str(self.absolute_length())
+        length_as_string: str = time_int_to_str(self.absolute_length())
 
         if not self.is_break:
             create_label(container=song_utility_layout, text=length_as_string, img_width=30, alignment=AQtAlignCenterRight)
@@ -86,11 +74,11 @@ class SongEntry:
         self.update_time_label(time=self.last_cached_cumulative_duration)
 
     def format_duration_input(self):
-        self.duration_input.setText(track_length_to_str(self.break_duration))
+        self.duration_input.setText(time_int_to_str(self.break_duration))
 
     def update_time_label(self, time: int):
         if not self.is_break:
-            time_label_text = track_length_to_str(total_seconds=time)
+            time_label_text = time_int_to_str(total_seconds=time)
         else:
             self.last_cached_cumulative_duration = time
             time_diff = self.break_duration - time
@@ -106,7 +94,7 @@ class SongEntry:
                 color = "red"
                 time_label_text += "+"
 
-            time_label_text += track_length_to_str(abs(time_diff))
+            time_label_text += time_int_to_str(abs(time_diff))
 
             self.time_label.setStyleSheet(f"color: {color};")
 

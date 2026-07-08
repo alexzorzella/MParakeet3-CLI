@@ -1,4 +1,4 @@
-import time
+import threading
 from collections import defaultdict
 from pathlib import Path
 
@@ -11,15 +11,13 @@ from baklava import create_button, set_tooltip, is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 
-import vlc
 from mutagen.mp3 import MP3
 
 from song_entry import SongEntry
+from vlc_handler import ThreadedVlcPlayer
 
 DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
 DEFAULT_OUTPUT_DIR: Path = Path(__file__).resolve().parent / "Mixes"
-
-PREVIEW_LENGTH = 5
 
 class MixWindow(QMainWindow):
     list_widget: QListWidget | None = None
@@ -178,27 +176,9 @@ class MixWindow(QMainWindow):
         elif not Path(to_path).exists():
             self.statusBar().showMessage(f"{to_path} doesn't exist")
 
-        song_ending = MP3(from_path)
-        song_ending_length = song_ending.info.length
-
-        start_song_ending_at = max(0, song_ending_length - PREVIEW_LENGTH)
-
-        song_ending_player = vlc.MediaPlayer(from_path)
-        song_starting_player = vlc.MediaPlayer(to_path)
-
-        print("Playing preview...")
-        song_ending_player.play()
-
-        time.sleep(0.1)
-
-        song_ending_player.set_time(int(start_song_ending_at * 1000))
-
-        time.sleep(PREVIEW_LENGTH + 0.1)
-
-        song_starting_player.play()
-
-        input("Press enter to stop playback ")
-        song_starting_player.stop()
+        player = ThreadedVlcPlayer()
+        thread = threading.Thread(target=player.preview, args=(from_path, to_path), daemon=True)
+        thread.start()
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

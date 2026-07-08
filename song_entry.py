@@ -1,4 +1,3 @@
-from idlelib.macosx import preferTabsPreferenceWarning
 from pathlib import Path
 from typing import Callable
 
@@ -7,6 +6,7 @@ from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, \
     time_int_str_to_int, resource_path
+from vlc_handler import ThreadedVlcPlayer
 
 AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
 AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
@@ -25,7 +25,7 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
-    def __init__(self, filepath: Path | None, play_func: Callable | None = None, queue_func: Callable | None = None, preview_transition_func: Callable | None = None, break_duration: int | None = None):
+    def __init__(self, filepath: Path | None, player: ThreadedVlcPlayer | None = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, break_duration: int | None = None):
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
@@ -71,10 +71,14 @@ class SongEntry:
         size = icon_size
 
         if not self.is_break:
-            create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
-            create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track", connect_to_method=lambda: queue_func(list_widget_item))
-            create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next", connect_to_method=lambda: queue_func(list_widget_item))
-            create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
+                          connect_to_method=lambda: generic_func(player.queue_song_force_play, list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
+                          connect_to_method=lambda: generic_func(player.queue_song, list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
+                          connect_to_method=lambda: generic_func(player.queue_song_next, list_widget_item))
+            create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
+                          connect_to_method=lambda: preview_transition_func(list_widget_item))
 
         create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete")
         create_button(container=container, height=length, width=length, icon=resource_path("img/up_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Up")

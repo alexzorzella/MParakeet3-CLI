@@ -133,7 +133,7 @@ class MixWindow(QMainWindow):
             return
 
         for path in paths:
-            song_entry = SongEntry(filepath=Path(path), play_func=self.play, queue_func=self.queue, preview_transition_func=self.preview_transition_from)
+            song_entry = SongEntry(filepath=Path(path), player=self.player, generic_func=self.call_generic_player_command, preview_transition_func=self.preview_transition_from)
             self.current_tracklist[song_entry.widget] = song_entry
             self.list_widget.addItem(song_entry.list_widget_item)
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
@@ -148,61 +148,66 @@ class MixWindow(QMainWindow):
 
         self.update_cumulative_times()
 
+    def get_track_by_list_widget_item(self, list_widget_item: QListWidgetItem):
+        widget = self.list_widget.itemWidget(list_widget_item)
+
+        if self.current_tracklist.__contains__(widget):
+            song_entry = self.current_tracklist[widget]
+        else:
+            return None
+
+        return song_entry
+
+    def get_track_by_index(self, index):
+        list_widget_item = self.list_widget.item(index)
+        return self.get_track_by_list_widget_item(list_widget_item)
+
     def update_cumulative_times(self):
         current_runtime: int = 0
 
         for i in range(self.list_widget.count()):
-            list_widget_item = self.list_widget.item(i)
-            widget = self.list_widget.itemWidget(list_widget_item)
+            song_entry = self.get_track_by_index(i)
 
-            song_entry = self.current_tracklist[widget]
+            if song_entry is None:
+                continue
 
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
 
-    def play(self, list_widget_item: QListWidgetItem):
-        widget = self.list_widget.itemWidget(list_widget_item)
+    def queue_player_command(self, function, args):
+        self.player.commands.put((function, args))
 
-        if widget is None:
+    def call_generic_player_command(self, function, list_widget_item: QListWidgetItem):
+        song_entry = self.get_track_by_list_widget_item(list_widget_item)
+
+        if song_entry is None:
             return
 
-        path = self.current_tracklist[widget].filepath
+        path = song_entry.filepath
 
         if not Path(path).exists():
             self.statusBar().showMessage(f"{path} doesn't exist")
 
-        self.player.commands.put((self.player.queue_song_force_play, (path,)))
-
-    def queue(self, list_widget_item: QListWidgetItem):
-        widget = self.list_widget.itemWidget(list_widget_item)
-
-        if widget is None:
-            return
-
-        path = self.current_tracklist[widget].filepath
-
-        if not Path(path).exists():
-            self.statusBar().showMessage(f"{path} doesn't exist")
-
-        self.player.commands.put((self.player.queue_song, (path,)))
+        self.queue_player_command(function=function, args=(path,))
 
     def preview_transition_from(self, list_widget_item: QListWidgetItem):
         index = self.list_widget.row(list_widget_item)
-        from_widget = self.list_widget.itemWidget(self.list_widget.item(index - 1)) if index > 0 else None
-        to_widget = self.list_widget.itemWidget(list_widget_item)
 
-        if from_widget is None:
+        from_track = self.get_track_by_index(index - 1) if index > 0 else None
+        to_track = self.get_track_by_list_widget_item(list_widget_item)
+
+        if from_track is None:
             return
 
-        from_path = self.current_tracklist[from_widget].filepath
-        to_path = self.current_tracklist[to_widget].filepath
+        from_path = from_track.filepath
+        to_path = to_track.filepath
 
         if not Path(from_path).exists():
             self.statusBar().showMessage(f"{from_path} doesn't exist")
         elif not Path(to_path).exists():
             self.statusBar().showMessage(f"{to_path} doesn't exist")
 
-        self.player.commands.put((self.player.preview, (from_path, to_path,)))
+        self.queue_player_command(self.player.preview, (from_path, to_path,))
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

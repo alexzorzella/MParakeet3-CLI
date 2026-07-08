@@ -1,50 +1,20 @@
-import time
-from email.charset import add_codec
 from pathlib import Path
 
 import vlc
 from mutagen.mp3 import MP3
-from yt_dlp.aes import aes_gcm_decrypt_and_verify
 
 PREVIEW_LENGTH = 5
 
 class ThreadedVlcPlayer:
+    vlc_instance = None
     player = None
 
     song_queue = []
-    current_head_index = 0
+    current_head_index = -1
 
-    def queue_song_force_play(self, path):
-        self.queue_song_next(path=path)
-        self.play_head(advance=True if len(self.song_queue) > 1 else False)
-
-    def queue_song_next(self, path):
-        self.song_queue.insert(self.current_head_index + 1, path)
-
-        print(f"Queued next, {self.song_queue}")
-
-    def queue_song(self, path):
-        self.song_queue.append(path)
-
-        print(f"Queued to end, {self.song_queue}")
-
-    def play_head(self, advance: bool = False):
-        print(f"play_head called while pointing to element {self.current_head_index}")
-
-        if self.current_head_index >= len(self.song_queue):
-            return
-
-        if advance:
-            self.current_head_index += 1
-
-        # self.stop()
-
-        first_song = self.song_queue[self.current_head_index]
-        self.player = vlc.MediaPlayer(first_song)
-        self.player.play()
-
-        print(f"Played {Path(first_song).stem} (Queue element {self.current_head_index})")
-
+    def __init__(self):
+        self.vlc_instance = vlc.Instance()
+        self.player = self.vlc_instance.media_player_new()
         events = self.player.event_manager()
         events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self.play_head(advance=True))
 
@@ -56,13 +26,50 @@ class ThreadedVlcPlayer:
         if self.player is not None:
             self.player.stop()
 
+    def queue_song_force_play(self, path):
+        self.queue_song_next(path=path)
+        self.play_head(advance=True)
+
+    def debug_print_queue(self, paths):
+        return f"{[Path(path).stem for path in paths]}"
+
+    def queue_song_next(self, path):
+        if len(self.song_queue) > 0:
+            self.song_queue.insert(self.current_head_index + 1, path)
+            print(f"Queued {Path(path).stem} next, current queue: {self.debug_print_queue(paths=self.song_queue)}")
+        else:
+            self.queue_song(path=path)
+
+    def queue_song(self, path):
+        self.song_queue.append(path)
+
+        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue(paths=self.song_queue)}")
+
+    def play_head(self, advance: bool = False):
+        if advance:
+            self.current_head_index += 1
+
+        print(f"play_head called while pointing to element {self.current_head_index}")
+
+        if self.current_head_index >= len(self.song_queue):
+            print(f"Queue exhausted")
+            return
+
+        self.stop()
+        current_song = self.song_queue[self.current_head_index]
+        media = self.vlc_instance.media_new(current_song)
+        self.player.set_media(media)
+        self.player.play()
+
+        print(f"Played {Path(current_song).stem} (Queue element {self.current_head_index})")
+
     def preview(self, from_path, to_path):
         self.stop()
 
-        self.queue_song_next(path=from_path)
         self.queue_song_next(path=to_path)
+        self.queue_song_next(path=from_path)
 
-        self.play_head(advance=True if len(self.song_queue) > 2 else False)
+        self.play_head(advance=True)
 
         song_ending = MP3(from_path)
         song_ending_length = song_ending.info.length

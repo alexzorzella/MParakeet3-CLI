@@ -74,6 +74,7 @@ class ThreadedVlcPlayer:
 
         if self.current_head_index >= len(self.song_queue):
             print(f"Queue exhausted")
+            self.current_head_index -= 1
             return
 
         try:

@@ -75,7 +75,7 @@ def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, 
     return label
 
 def create_button(container=None, text="", font_size=10, text_align="center", width=-1, height=-1, horizontal_padding=0,
-                  vertical_padding=0, connect_to_method=None, is_checkbox=False, icon=None, icon_size: QSize | None = None, tooltip=""):
+                  vertical_padding=0, connect_to_method=None, is_checkbox=False, icon=None, icon_color=None, icon_size: QSize | None = None, tooltip=""):
     """Creates a button under the passed container with the passed specifications"""
 
     if not is_checkbox:
@@ -109,6 +109,9 @@ def create_button(container=None, text="", font_size=10, text_align="center", wi
     if icon is not None:
         button.setIcon(QIcon(str(icon)))
         button.setIconSize(icon_size if icon_size is not None else button.sizeHint())
+
+        if icon_color is not None:
+            button.setIconColor
 
     if not is_null_or_whitespace(tooltip):
         set_tooltip(widget=button, text=tooltip)

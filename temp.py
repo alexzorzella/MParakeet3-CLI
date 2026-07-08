@@ -30,6 +30,8 @@ class MixWindow(QMainWindow):
 
     current_tracklist: defaultdict[QWidget, SongEntry] = defaultdict()
 
+    player = ThreadedVlcPlayer()
+
     def __init__(self):
         super().__init__()
         self.parse_config_file()
@@ -147,8 +149,6 @@ class MixWindow(QMainWindow):
         self.update_cumulative_times()
 
     def update_cumulative_times(self):
-        print("Updating cumulative times")
-
         current_runtime: int = 0
 
         for i in range(self.list_widget.count()):
@@ -176,8 +176,7 @@ class MixWindow(QMainWindow):
         elif not Path(to_path).exists():
             self.statusBar().showMessage(f"{to_path} doesn't exist")
 
-        player = ThreadedVlcPlayer()
-        thread = threading.Thread(target=player.preview, args=(from_path, to_path), daemon=True)
+        thread = threading.Thread(target=self.player.preview, args=(from_path, to_path), daemon=True)
         thread.start()
 
     def load_music(self):

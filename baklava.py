@@ -123,7 +123,7 @@ def svg(path, color):
 
     pixmap.fill(Qt.GlobalColor.transparent)
     painter = QPainter(pixmap)
-    renderer.render(painter)  # this is the destination, and only its alpha is used!
+    renderer.render(painter)
 
     painter.setCompositionMode(
         painter.CompositionMode.CompositionMode_SourceIn)

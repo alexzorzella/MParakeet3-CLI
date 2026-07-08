@@ -133,7 +133,7 @@ class MixWindow(QMainWindow):
             return
 
         for path in paths:
-            song_entry = SongEntry(filepath=Path(path), preview_transition_func=self.preview_transition_from)
+            song_entry = SongEntry(filepath=Path(path), play_func=self.play, preview_transition_func=self.preview_transition_from)
             self.current_tracklist[song_entry.widget] = song_entry
             self.list_widget.addItem(song_entry.list_widget_item)
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
@@ -160,6 +160,20 @@ class MixWindow(QMainWindow):
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
 
+    def play(self, list_widget_item: QListWidgetItem):
+        widget = self.list_widget.itemWidget(list_widget_item)
+
+        if widget is None:
+            return
+
+        path = self.current_tracklist[widget].filepath
+
+        if not Path(path).exists():
+            self.statusBar().showMessage(f"{path} doesn't exist")
+
+        thread = threading.Thread(target=self.player.play, args=(path,), daemon=True)
+        thread.start()
+
     def preview_transition_from(self, list_widget_item: QListWidgetItem):
         index = self.list_widget.row(list_widget_item)
         from_widget = self.list_widget.itemWidget(self.list_widget.item(index - 1)) if index > 0 else None
@@ -176,7 +190,7 @@ class MixWindow(QMainWindow):
         elif not Path(to_path).exists():
             self.statusBar().showMessage(f"{to_path} doesn't exist")
 
-        thread = threading.Thread(target=self.player.preview, args=(from_path, to_path), daemon=True)
+        thread = threading.Thread(target=self.player.preview, args=(from_path, to_path,), daemon=True)
         thread.start()
 
     def load_music(self):

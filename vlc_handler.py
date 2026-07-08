@@ -49,19 +49,23 @@ class ThreadedVlcPlayer:
         if advance:
             self.current_head_index += 1
 
-        print(f"play_head called while pointing to element {self.current_head_index}")
+        print(f"play_head called while pointing to track {self.current_head_index}")
 
         if self.current_head_index >= len(self.song_queue):
             print(f"Queue exhausted")
             return
 
         self.stop()
-        current_song = self.song_queue[self.current_head_index]
-        media = self.vlc_instance.media_new(current_song)
-        self.player.set_media(media)
-        self.player.play()
 
-        print(f"Played {Path(current_song).stem} (Queue element {self.current_head_index})")
+        try:
+            current_song = self.song_queue[self.current_head_index]
+            media = self.vlc_instance.media_new(current_song)
+            self.player.set_media(media)
+            self.player.play()
+
+            print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
+        except Exception as e:
+            print(f"Error while attempting to play next song: {e}")
 
     def preview(self, from_path, to_path):
         self.stop()

@@ -5,7 +5,8 @@ from typing import Callable
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
-from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int
+from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, \
+    time_int_str_to_int, resource_path
 
 AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
 AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
@@ -62,13 +63,13 @@ class SongEntry:
                                                    on_deselected=self.format_duration_input)
 
         if not self.is_break:
-            create_button(container=song_utility_layout, height=35, width=50, text="Play", connect_to_method=lambda: play_func(list_widget_item))
-            create_button(container=song_utility_layout, height=35, width=50, text="Queue", connect_to_method=lambda: queue_func(list_widget_item))
-            create_button(container=song_utility_layout, height=35, width=120, text="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
+            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/play.png"), tooltip="Play", connect_to_method=lambda: play_func(list_widget_item))
+            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/list_end.png"), tooltip="Queue", connect_to_method=lambda: queue_func(list_widget_item))
+            create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/ear.png"), tooltip="Preview Transition", connect_to_method=lambda: preview_transition_func(list_widget_item))
 
-        create_button(container=song_utility_layout, height=35, width=50, text="Delete")
-        create_button(container=song_utility_layout, height=35, width=35, text="↑")
-        create_button(container=song_utility_layout, height=35, width=35, text="↓")
+        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/delete.png"), tooltip="Delete")
+        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/up_arrow.png"), tooltip="Move Up")
+        create_button(container=song_utility_layout, height=35, width=35, icon=resource_path("img/down_arrow.png"), tooltip="Move Down")
 
         self.time_label = create_label(container=song_utility_layout, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

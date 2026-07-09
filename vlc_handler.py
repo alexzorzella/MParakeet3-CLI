@@ -4,7 +4,11 @@ from pathlib import Path
 from time import sleep
 
 import vlc
+from PySide6.QtWidgets import QVBoxLayout
 from mutagen.mp3 import MP3
+
+from baklava import create_label
+from song_entry import AQtAlignCenterTop
 
 PREVIEW_LENGTH = 5
 
@@ -38,6 +42,11 @@ class ThreadedVlcPlayer:
 
     def _on_end(self):
         self.commands.put((self.play_head, (True,)))
+
+    def populate_gui(self, parent):
+        queue_parent_layout = QVBoxLayout()
+        parent.addLayout(queue_parent_layout)
+        create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
 
     def play(self):
         if self.player is not None:

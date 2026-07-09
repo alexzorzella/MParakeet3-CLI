@@ -9,7 +9,8 @@ from baklava import create_label, create_button, create_line_edit, time_int_to_s
 from vlc_handler import ThreadedVlcPlayer
 
 AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
-AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
+AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+AQtAlignCenterTop = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignTop
 
 class SongEntry:
     filepath: Path

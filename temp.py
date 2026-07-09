@@ -53,6 +53,8 @@ class MixWindow(QMainWindow):
         export_menu.setToolTipsVisible(True)
         mix_menu.setToolTipsVisible(True)
 
+        new_mix_action = file_menu.addAction("&New Mix")
+        new_mix_action.triggered.connect(self.create_new_mix)
         load_mix_action = file_menu.addAction("&Load Mix")
         load_mix_action.triggered.connect(self.load_mix)
         export_mix_as_file = export_menu.addAction("As &File")

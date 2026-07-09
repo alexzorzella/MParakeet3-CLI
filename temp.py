@@ -59,17 +59,17 @@ class MixWindow(QMainWindow):
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
 
         add_song_action = mix_menu.addAction("&Add Song(s)")
-        add_song_action.triggered.connect(self.currently_selected_mix().add_song_to_mix)
+        add_song_action.triggered.connect(self.add_song_to_currently_selected_mix)
 
         load_mix_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
         load_mix_shortcut.activated.connect(self.load_mix)
         export_mix_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
-        export_mix_shortcut.activated.connect(self.currently_selected_mix().save)
+        export_mix_shortcut.activated.connect(self.save_currently_selected_mix)
         export_mix_as_tracks_shortcut = QShortcut(QKeySequence("Ctrl+E"), self)
         add_song_shortcut = QShortcut(QKeySequence("Ctrl+="), self)
-        add_song_shortcut.activated.connect(self.currently_selected_mix().add_song_to_mix)
+        add_song_shortcut.activated.connect(self.add_song_to_currently_selected_mix)
 
-        self.mix_util.add_song_file_load_action = FileLoadAction(menu=mix_menu, name="&Recent", action=self.currently_selected_mix().add_song_to_mix)
+        self.mix_util.add_song_file_load_action = FileLoadAction(menu=mix_menu, name="&Recent", action=self.add_song_to_currently_selected_mix)
 
         set_tooltip(widget=load_mix_action, text="Load a mix from a .txt file (Ctrl+L)")
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
@@ -82,6 +82,12 @@ class MixWindow(QMainWindow):
     def on_tab_changed(self, new_index):
         self.currently_selected_tab = new_index
         print(f"Switched view to {new_index}")
+
+    def add_song_to_currently_selected_mix(self):
+        self.currently_selected_mix().add_song_to_mix()
+
+    def save_currently_selected_mix(self):
+        self.currently_selected_mix().save()
 
     def create_new_mix(self, path: Path | None = None):
         mix_view = MixView(parent_tab_widget=self.mix_tabs, mix_util=self.mix_util, mix_path=path)

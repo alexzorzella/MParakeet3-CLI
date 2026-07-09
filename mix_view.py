@@ -6,8 +6,8 @@ from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QTabWidget
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
+from mix_utility import MixUtility
 from song_entry import SongEntry
-from temp import MixUtility
 
 HEADER_FONT_SIZE: int = 20
 

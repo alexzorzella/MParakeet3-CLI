@@ -5,8 +5,6 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QTabWidget
 
-import mix
-import mix_utility
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from mix_utility import MixUtility
 from song_entry import SongEntry

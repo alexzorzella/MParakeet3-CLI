@@ -18,14 +18,14 @@ from song_entry import SongEntry
 from vlc_handler import ThreadedVlcPlayer
 
 DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
-DEFAULT_OUTPUT_DIR: Path = Path(__file__).resolve().parent / "Mixes"
+DEFAULT_MIX_DIR: Path = Path(__file__).resolve().parent / "Mixes"
 
 class MixWindow(QMainWindow):
     list_widget: QListWidget | None = None
     add_song_file_load_action: FileLoadAction | None = None
 
     search_path: Path
-    output_path: Path
+    mix_path: Path
 
     music: defaultdict[str, MP3] = defaultdict()
 
@@ -40,7 +40,7 @@ class MixWindow(QMainWindow):
         self.create_window()
 
     def create_window(self):
-        self.setWindowTitle("Edit Mix")
+        self.setWindowTitle("Parakeet")
         self.resize(880, 660)
 
         central_widget = QWidget()
@@ -57,7 +57,7 @@ class MixWindow(QMainWindow):
                       text="Add Song(s)",
                       height=height,
                       tooltip="Add one or more audio files",
-                      connect_to_method=self.add_song_to_mix)
+                      connect_to_method= lambda: self.add_song_to_mix())
         create_button(container=hotbar,
                       text="Add Break",
                       height=height,
@@ -68,16 +68,16 @@ class MixWindow(QMainWindow):
 
     def parse_config_file(self):
         params = parse_config_with_fallbacks(config_path="config.ini", section="mix",
-                                             params=[("search", str, ""), ("output", str, "")])
+                                             params=[("search", str, ""), ("mixes", str, "")])
 
         self.search_path = Path(params["search"]) if not is_null_or_whitespace(params["search"]) else DEFAULT_MUSIC_DIR
-        self.output_path = Path(params["output"]) if not is_null_or_whitespace(params["output"]) else DEFAULT_OUTPUT_DIR
+        self.mix_path = Path(params["mixes"]) if not is_null_or_whitespace(params["mixes"]) else DEFAULT_MIX_DIR
 
         if not self.search_path.is_dir():
             self.search_path.mkdir(parents=True, exist_ok=False)
 
-        if not self.output_path.is_dir():
-            self.output_path.mkdir(parents=True, exist_ok=False)
+        if not self.mix_path.is_dir():
+            self.mix_path.mkdir(parents=True, exist_ok=False)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -127,8 +127,11 @@ class MixWindow(QMainWindow):
 
         parent.addWidget(list_widget)
 
-    def add_song_to_mix(self):
-        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", directory=self.search_path.as_posix(), file_filter="File (*.mp3);;")
+    def add_song_to_mix(self, passed_path=None):
+        if passed_path is None:
+            paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", directory=self.search_path.as_posix(), file_filter="File (*.mp3);;")
+        else:
+            paths = [passed_path]
 
         if paths is None or len(paths) <= 0:
             return
@@ -217,6 +220,13 @@ class MixWindow(QMainWindow):
         self.list_widget.takeItem(row)
 
         # print(f"Deleted item at index {row} with widget {widget}, removed from tracklist, Current tracklist -> (length {len(self.current_tracklist)}), tracks: {", ".join([Path(song_entry.filepath).stem for widget, song_entry in self.current_tracklist.items()])}")
+
+    def save_mix(self):
+        pass
+
+    def load_mix(self):
+        # files = list(self.search_path.glob("*.txt"))
+        paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", directory=self.search_path.as_posix(), file_filter="File (*.mp3);;")
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

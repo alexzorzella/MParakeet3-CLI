@@ -13,6 +13,8 @@ from vlc_handler import ThreadedVlcPlayer
 from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR
 
 class MixUtility:
+    parent_window = None
+
     list_widget: QListWidget | None = None
     add_song_file_load_action: FileLoadAction | None = None
 
@@ -24,7 +26,8 @@ class MixUtility:
 
     show_status_bar_message: Callable
 
-    def __init__(self, show_status_bar_message: Callable):
+    def __init__(self, parent_window, show_status_bar_message: Callable):
+        self.parent_window = parent_window
         self.music_library = defaultdict()
         self.show_status_bar_message = show_status_bar_message
         self.parse_config_file()

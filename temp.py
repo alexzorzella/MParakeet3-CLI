@@ -20,7 +20,7 @@ class MixWindow(QMainWindow):
         super().__init__()
 
         self.mix_tab_views = []
-        self.mix_util = MixUtility(self.show_status_bar_message)
+        self.mix_util = MixUtility(parent_window=self, show_status_bar_message=self.show_status_bar_message)
 
         self.create_window()
 

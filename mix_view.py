@@ -5,6 +5,8 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QTabWidget
 
+import mix
+import mix_utility
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from mix_utility import MixUtility
 from song_entry import SongEntry
@@ -68,7 +70,7 @@ class MixView:
 
     def add_song_to_mix(self, passed_path=None):
         if passed_path is None:
-            paths = self.add_song_file_load_action.load_files(parent=self, caption="Select track(s)", directory=self.mix_util.search_path.as_posix(), file_filter="File (*.mp3);;")
+            paths = self.mix_util.add_song_file_load_action.load_files(parent=self.mix_util.parent_window, caption="Select track(s)", directory=self.mix_util.search_path.as_posix(), file_filter="File (*.mp3);;")
         else:
             paths = [passed_path]
 

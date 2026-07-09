@@ -12,14 +12,9 @@ from mix_view import MixView
 class MixWindow(QMainWindow):
     mix_util: MixUtility
 
-    mix_tabs: QTabWidget
-    currently_selected_tab = 0
-    mix_tab_views: list[MixView]
-
     def __init__(self):
         super().__init__()
 
-        self.mix_tab_views = []
         self.mix_util = MixUtility(parent_window=self, show_status_bar_message=self.show_status_bar_message)
 
         self.create_window()
@@ -34,9 +29,9 @@ class MixWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         horizontal_layout = QHBoxLayout(central_widget)
 
-        self.mix_tabs = QTabWidget()
-        horizontal_layout.addWidget(self.mix_tabs)
-        self.mix_tabs.currentChanged.connect(self.on_tab_changed)
+        self.mix_util.parent_tab_widget = QTabWidget()
+        horizontal_layout.addWidget(self.mix_util.parent_tab_widget)
+        self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
         self.mix_util.player.populate_gui(parent=horizontal_layout)
 
@@ -79,10 +74,10 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
 
     def currently_selected_mix(self):
-        return self.mix_tab_views[self.currently_selected_tab]
+        return self.mix_util.mix_tab_views[self.mix_util.currently_selected_tab]
 
     def on_tab_changed(self, new_index):
-        self.currently_selected_tab = new_index
+        self.mix_util.currently_selected_tab = new_index
         print(f"Switched view to {new_index}")
 
     def add_song_to_currently_selected_mix(self):
@@ -92,8 +87,8 @@ class MixWindow(QMainWindow):
         self.currently_selected_mix().save()
 
     def create_new_mix(self, path: Path | None = None):
-        mix_view = MixView(parent_tab_widget=self.mix_tabs, mix_util=self.mix_util, mix_path=path)
-        self.mix_tab_views.append(mix_view)
+        mix_view = MixView(mix_util=self.mix_util, mix_path=path)
+        self.mix_util.mix_tab_views.append(mix_view)
 
     def load_mix(self):
         path = self.mix_util.add_song_file_load_action.load_file(parent=self, caption="Select mix", directory=self.mix_util.mix_path.as_posix(), file_filter="File (*.txt);;")

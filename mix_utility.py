@@ -2,7 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtWidgets import QListWidget
+from PySide6.QtWidgets import QListWidget, QTabWidget
 from mutagen.mp3 import MP3
 
 from baklava import is_null_or_whitespace
@@ -14,6 +14,10 @@ from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR
 
 class MixUtility:
     parent_window = None
+
+    parent_tab_widget: QTabWidget
+    currently_selected_tab = 0
+    mix_tab_views = None
 
     list_widget: QListWidget | None = None
     add_song_file_load_action: FileLoadAction | None = None
@@ -27,6 +31,7 @@ class MixUtility:
     show_status_bar_message: Callable
 
     def __init__(self, parent_window, show_status_bar_message: Callable):
+        self.mix_tab_views = []
         self.parent_window = parent_window
         self.music_library = defaultdict()
         self.show_status_bar_message = show_status_bar_message

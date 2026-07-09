@@ -30,6 +30,7 @@ class MixWindow(QMainWindow):
         horizontal_layout = QHBoxLayout(central_widget)
 
         self.mix_util.parent_tab_widget = QTabWidget()
+        self.mix_util.parent_tab_widget.setMovable(True)
         horizontal_layout.addWidget(self.mix_util.parent_tab_widget)
         self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
@@ -89,6 +90,7 @@ class MixWindow(QMainWindow):
     def create_new_mix(self, path: Path | None = None):
         mix_view = MixView(mix_util=self.mix_util, mix_path=path)
         self.mix_util.mix_tab_views.append(mix_view)
+        # self.mix_util.parent_tab_widget.
 
     def load_mix(self):
         path = self.mix_util.add_song_file_load_action.load_file(parent=self, caption="Select mix", directory=self.mix_util.mix_path.as_posix(), file_filter="File (*.txt);;")

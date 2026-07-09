@@ -1,13 +1,10 @@
-import threading
 from collections import defaultdict
-from logging import setLogRecordFactory
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow, QListWidgetItem
-from yt_dlp.downloader.external import list_external_downloaders
 
 from baklava import create_button, set_tooltip, is_null_or_whitespace, create_line_edit
 from load_file_action import FileLoadAction

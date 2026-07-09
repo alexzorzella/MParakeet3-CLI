@@ -90,7 +90,7 @@ class MixWindow(QMainWindow):
     def create_new_mix(self, path: Path | None = None):
         mix_view = MixView(mix_util=self.mix_util, mix_path=path)
         self.mix_util.mix_tab_views.append(mix_view)
-        # self.mix_util.parent_tab_widget.
+        self.mix_util.parent_tab_widget.setCurrentIndex(self.mix_util.parent_tab_widget.count() - 1)
 
     def load_mix(self):
         path = self.mix_util.add_song_file_load_action.load_file(parent=self, caption="Select mix", directory=self.mix_util.mix_path.as_posix(), file_filter="File (*.txt);;")

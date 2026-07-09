@@ -2,7 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtWidgets import QListWidget, QTabWidget
+from PySide6.QtWidgets import QListWidget
 from mutagen.mp3 import MP3
 
 from baklava import is_null_or_whitespace
@@ -20,14 +20,13 @@ class MixUtility:
     search_path: Path
     mix_path: Path
 
-    music_library: defaultdict[str, MP3] = defaultdict()
+    music_library: defaultdict[str, MP3]
     player = ThreadedVlcPlayer()
-
-    mix_tabs: QTabWidget
 
     show_status_bar_message: Callable
 
     def __init__(self, show_status_bar_message: Callable):
+        self.music_library = defaultdict()
         self.show_status_bar_message = show_status_bar_message
         self.parse_config_file()
         self.load_music()

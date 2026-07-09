@@ -1,6 +1,5 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import Callable
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
@@ -15,10 +14,11 @@ HEADER_FONT_SIZE: int = 20
 class MixView:
     mix_util: MixUtility
 
-    current_tracklist: defaultdict[QWidget, SongEntry] = defaultdict()
+    current_tracklist: defaultdict[QWidget, SongEntry]
     mix_name_line_edit: BaklavaLineEdit
 
     def __init__(self, parent_tab_widget: QTabWidget, mix_util, mix_path: Path | None = None):
+        self.current_tracklist = defaultdict()
         self.mix_util = mix_util
         self.initialize_gui(parent_tab_widget=parent_tab_widget)
 
@@ -118,7 +118,7 @@ class MixView:
             song_entry.update_time_label(time=current_runtime)
 
     def queue_player_command(self, function, args):
-        self.player.commands.put((function, args))
+        self.mix_util.player.commands.put((function, args))
 
     def call_generic_player_command(self, function, list_widget_item: QListWidgetItem):
         song_entry = self.get_track_by_list_widget_item(list_widget_item)
@@ -150,7 +150,7 @@ class MixView:
         elif not Path(to_path).exists():
             self.mix_util.show_status_bar_message(f"{to_path} doesn't exist")
 
-        self.queue_player_command(self.player.preview, (from_path, to_path,))
+        self.queue_player_command(self.mix_util.player.preview, (from_path, to_path,))
 
     def delete_list_widget_item(self, list_widget_item):
         widget = self.list_widget.itemWidget(list_widget_item)
@@ -159,5 +159,5 @@ class MixView:
         self.list_widget.takeItem(row)
         # print(f"Deleted item at index {row} with widget {widget}, removed from tracklist, Current tracklist -> (length {len(self.current_tracklist)}), tracks: {", ".join([Path(song_entry.filepath).stem for widget, song_entry in self.current_tracklist.items()])}")
 
-        def save_mix(self):
-            pass
+    def save(self):
+        pass

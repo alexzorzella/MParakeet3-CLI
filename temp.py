@@ -4,7 +4,7 @@ from pathlib import Path
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView
 from PySide6.QtCore import QSize
-from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow, QListWidgetItem
+from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow, QListWidgetItem, QTabWidget
 
 from baklava import create_button, set_tooltip, is_null_or_whitespace, create_line_edit
 from load_file_action import FileLoadAction
@@ -41,28 +41,17 @@ class MixWindow(QMainWindow):
         self.setWindowTitle("Parakeet")
         self.resize(880, 660)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        vertical_layout = QVBoxLayout(central_widget)
-        self.create_list_widget(parent=vertical_layout)
-
         self.populate_menu_bar()
 
-        hotbar = QHBoxLayout()
-        height = 30
 
-        create_button(container=hotbar,
-                      text="Add Song(s)",
-                      height=height,
-                      tooltip="Add one or more audio files",
-                      connect_to_method= lambda: self.add_song_to_mix())
-        create_button(container=hotbar,
-                      text="Add Break",
-                      height=height,
-                      tooltip="Add a break (good for cassettes, CDs)",
-                      connect_to_method=self.add_break)
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        horizontal_layout = QHBoxLayout(central_widget)
 
-        vertical_layout.addLayout(hotbar)
+        tab_widget = QTabWidget()
+        horizontal_layout.addWidget(tab_widget)
+
+        self.create_list_widget(parent_tab_widget=tab_widget)
 
     def parse_config_file(self):
         params = parse_config_with_fallbacks(config_path="config.ini", section="mix",
@@ -108,9 +97,10 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=export_mix_as_tracks, text="Export a mix as ordered audio file (Ctrl+E)")
         set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
 
-    def create_list_widget(self, parent):
-        vertical_layout = QVBoxLayout()
-        parent.addLayout(vertical_layout)
+    def create_list_widget(self, parent_tab_widget):
+        parent_widget = QWidget()
+        vertical_layout = QVBoxLayout(parent_widget)
+        parent_tab_widget.addTab(parent_widget, "Mix")
 
         line_edit = create_line_edit(container=vertical_layout, placeholder_text="Title", default_value="New Mix", height=40, font_size=20)
 
@@ -128,8 +118,23 @@ class MixWindow(QMainWindow):
 
         list_model.rowsMoved.connect(self.update_cumulative_times)
 
-        # parent.addWidget(list_widget)
         vertical_layout.addWidget(list_widget)
+
+        hotbar = QHBoxLayout()
+        height = 30
+
+        create_button(container=hotbar,
+                      text="Add Song(s)",
+                      height=height,
+                      tooltip="Add one or more audio files",
+                      connect_to_method=lambda: self.add_song_to_mix())
+        create_button(container=hotbar,
+                      text="Add Break",
+                      height=height,
+                      tooltip="Add a break (good for cassettes, CDs)",
+                      connect_to_method=self.add_break)
+
+        vertical_layout.addLayout(hotbar)
 
     def add_song_to_mix(self, passed_path=None):
         if passed_path is None:

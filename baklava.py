@@ -163,7 +163,7 @@ def create_checkbox(container=None, default_value: bool | int = False, font_size
 
 def create_line_edit(container=None, placeholder_text="", default_value="", read_only=False,
                      size_policy=SizePolicy.BOTH, width=-1, height=-1, connect_to_method=None, on_deselected=None,
-                     input_hidden=False, alignment=None):
+                     input_hidden=False, alignment=None, font_size=None):
     """Creates a line input under the passed container with the passed specifications"""
 
     line_edit = BaklavaLineEdit()
@@ -202,6 +202,9 @@ def create_line_edit(container=None, placeholder_text="", default_value="", read
 
     if alignment is not None:
         line_edit.setAlignment(alignment)
+
+    if font_size is not None:
+        line_edit.setStyleSheet(f"font-size: {font_size}px")
 
     return line_edit
 

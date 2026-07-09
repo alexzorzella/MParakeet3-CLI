@@ -7,8 +7,9 @@ from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QListWidget, QWidget, QApplication, QVBoxLayout,QAbstractItemView
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListView, QHBoxLayout, QMainWindow, QListWidgetItem
+from yt_dlp.downloader.external import list_external_downloaders
 
-from baklava import create_button, set_tooltip, is_null_or_whitespace
+from baklava import create_button, set_tooltip, is_null_or_whitespace, create_line_edit
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 
@@ -111,6 +112,11 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
 
     def create_list_widget(self, parent):
+        vertical_layout = QVBoxLayout()
+        parent.addLayout(vertical_layout)
+
+        line_edit = create_line_edit(container=vertical_layout, placeholder_text="Title", default_value="New Mix", height=40, font_size=20)
+
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
         list_widget.setFlow(QListView.TopToBottom)
@@ -125,7 +131,8 @@ class MixWindow(QMainWindow):
 
         list_model.rowsMoved.connect(self.update_cumulative_times)
 
-        parent.addWidget(list_widget)
+        # parent.addWidget(list_widget)
+        vertical_layout.addWidget(list_widget)
 
     def add_song_to_mix(self, passed_path=None):
         if passed_path is None:

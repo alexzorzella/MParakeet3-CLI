@@ -4,12 +4,9 @@ from typing import Callable
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
-from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, \
-    time_int_str_to_int, resource_path
+from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
+from globals import AQtAlignCenterLeft, AQtAlignCenterRight
 from vlc_handler import ThreadedVlcPlayer
-
-AQtAlignCenterLeft = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
-AQtAlignCenterRight = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight
 
 class SongEntry:
     filepath: Path

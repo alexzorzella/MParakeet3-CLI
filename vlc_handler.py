@@ -1,14 +1,13 @@
 import queue
 import threading
 from pathlib import Path
-from time import sleep
 
 import vlc
 from PySide6.QtWidgets import QVBoxLayout
 from mutagen.mp3 import MP3
 
 from baklava import create_label
-from song_entry import AQtAlignCenterTop
+from globals import AQtAlignCenterTop
 
 PREVIEW_LENGTH = 5
 

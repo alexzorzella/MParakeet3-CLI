@@ -10,8 +10,7 @@ from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 from vlc_handler import ThreadedVlcPlayer
 
-DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
-DEFAULT_MIX_DIR: Path = Path(__file__).resolve().parent / "Mixes"
+from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR
 
 class MixUtility:
     list_widget: QListWidget | None = None

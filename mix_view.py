@@ -29,7 +29,8 @@ class MixView:
         self.mix_util = mix_util
         self.initialize_gui()
 
-        if isinstance(mix_path, Path):
+        if mix_path is not None:
+            mix_path = Path(mix_path)
             self.load_mix(loaded_mix_path=mix_path)
 
     def load_mix(self, loaded_mix_path: Path):

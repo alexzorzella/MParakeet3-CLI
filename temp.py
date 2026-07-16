@@ -95,7 +95,7 @@ class MixWindow(QMainWindow):
         path = self.mix_util.add_song_file_load_action.load_file(parent=self, caption="Select mix", directory=self.mix_util.mix_path.as_posix(), file_filter="File (*.txt);;")
 
         if path is not None and len(path) > 0:
-            mix_path = path[0]
+            mix_path = path
             print(f"Loading mix from {mix_path}")
             self.create_new_mix(path=mix_path)
 

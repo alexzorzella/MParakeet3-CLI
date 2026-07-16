@@ -236,8 +236,8 @@ class MixView:
 
         i = 0
         for _, song_entry in self.current_tracklist.items():
-            filepath = Path(song_entry.filepath)
-            destination = output_mix_directory / song_entry.name()
+            filepath = Path(song_entry.filepath).resolve()
+            destination = output_mix_directory / f"{song_entry.name()}.mp3"
             run_ffmpeg(track_num=i + 1, album=self.name, source=filepath, destination=destination)
             i += 1
 

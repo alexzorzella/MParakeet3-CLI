@@ -4,10 +4,14 @@ from pathlib import Path
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QTabWidget
+from mutagen.mp3 import MP3
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
+from ffmparakeet import run_ffmpeg
 from mix_utility import MixUtility
 from song_entry import SongEntry
+
+from globals import DEFAULT_MIX_DIR
 
 HEADER_FONT_SIZE: int = 20
 DEFAULT_MIX_NAME = "New Mix"
@@ -78,6 +82,15 @@ class MixView:
 
         if self.tab_index >= 0:
             self.mix_util.parent_tab_widget.setTabText(self.tab_index, new_name)
+
+    def get_filename(self):
+        return f"{self.name}.txt"
+
+    def get_output_dir(self):
+        return self.mix_util.mix_path / self.name
+
+    def get_output_path(self):
+        return self.mix_util.mix_path / self.get_filename()
 
     def add_song_to_mix(self, passed_path=None):
         if passed_path is None:
@@ -173,4 +186,19 @@ class MixView:
         # print(f"Deleted item at index {row} with widget {widget}, removed from tracklist, Current tracklist -> (length {len(self.current_tracklist)}), tracks: {", ".join([Path(song_entry.filepath).stem for widget, song_entry in self.current_tracklist.items()])}")
 
     def save(self):
-        pass
+        output_mix_filepath = self.get_output_path()
+
+        with open(output_mix_filepath, "w", encoding="utf-8") as file:
+            for _, song_entry in self.current_tracklist.items():
+                track_title = song_entry.name()
+                file.write(f"{track_title}\n")
+
+    def export(self):
+        output_mix_directory = self.get_output_dir()
+        output_mix_directory.mkdir(parents=True, exist_ok=True)
+
+        i = 0
+        for _, song_entry in self.current_tracklist.items():
+            filepath = Path(song_entry.filepath)
+            run_ffmpeg(track_num=i + 1, album=self.name, source=filepath, destination=output_mix_directory)
+            i += 1

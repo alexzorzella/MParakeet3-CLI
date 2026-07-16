@@ -17,7 +17,7 @@ class MixUtility:
 
     parent_tab_widget: QTabWidget
     currently_selected_tab = 0
-    mix_tab_views = None
+    mix_tab_views = None            # This is the list[MixView], but a typehint can't be used with base python util as importing it will lead to a circular dependency
 
     list_widget: QListWidget | None = None
     add_song_file_load_action: FileLoadAction | None = None
@@ -60,3 +60,6 @@ class MixUtility:
             self.music_library[track_name] = mp3
 
         self.show_status_bar_message(f"Loaded {len(self.music_library)} mp3(s) from {self.search_path}", 8000)
+
+    def currently_selected_mix_view(self):
+        return self.mix_tab_views[self.currently_selected_tab]

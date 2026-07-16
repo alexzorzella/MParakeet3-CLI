@@ -53,8 +53,10 @@ class MixWindow(QMainWindow):
         new_mix_action.triggered.connect(self.create_new_mix)
         load_mix_action = file_menu.addAction("&Load Mix")
         load_mix_action.triggered.connect(self.load_mix)
-        export_mix_as_file = export_menu.addAction("As &File")
+        export_mix_as_file = export_menu.addAction("&Save")
+        export_mix_as_file.triggered.connect(self.export_tracklist)
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
+        export_mix_as_tracks.triggered.connect(self.export_tracks)
 
         add_song_action = mix_menu.addAction("&Add Song(s)")
         add_song_action.triggered.connect(self.add_song_to_currently_selected_mix)
@@ -62,7 +64,7 @@ class MixWindow(QMainWindow):
         load_mix_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
         load_mix_shortcut.activated.connect(self.load_mix)
         export_mix_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
-        export_mix_shortcut.activated.connect(self.save_currently_selected_mix)
+        export_mix_shortcut.activated.connect(self.export_tracklist)
         export_mix_as_tracks_shortcut = QShortcut(QKeySequence("Ctrl+E"), self)
         add_song_shortcut = QShortcut(QKeySequence("Ctrl+="), self)
         add_song_shortcut.activated.connect(self.add_song_to_currently_selected_mix)
@@ -75,7 +77,7 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
 
     def currently_selected_mix(self):
-        return self.mix_util.mix_tab_views[self.mix_util.currently_selected_tab]
+        return self.mix_util.currently_selected_mix_view()
 
     def on_tab_changed(self, new_index):
         self.mix_util.currently_selected_tab = new_index
@@ -83,9 +85,6 @@ class MixWindow(QMainWindow):
 
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()
-
-    def save_currently_selected_mix(self):
-        self.currently_selected_mix().save()
 
     def create_new_mix(self, path: Path | None = None):
         mix_view = MixView(mix_util=self.mix_util, mix_path=path)
@@ -102,6 +101,12 @@ class MixWindow(QMainWindow):
 
     def show_status_bar_message(self, message, time=8000):
         self.statusBar().showMessage(message, time)
+
+    def export_tracks(self):
+        self.currently_selected_mix().export()
+
+    def export_tracklist(self):
+        self.currently_selected_mix().save()
 
 def main():
     app = QApplication()

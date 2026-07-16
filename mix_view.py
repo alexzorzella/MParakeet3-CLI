@@ -4,16 +4,12 @@ from pathlib import Path
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QTabWidget
-from mutagen.easyid3 import desc
-from mutagen.mp3 import MP3
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem
 
-from baklava import create_button, create_line_edit, BaklavaLineEdit, is_null_or_whitespace
+from baklava import create_button, create_line_edit, BaklavaLineEdit
 from ffmparakeet import run_ffmpeg
 from mix_utility import MixUtility
 from song_entry import SongEntry
-
-from globals import DEFAULT_MIX_DIR
 
 HEADER_FONT_SIZE: int = 20
 DEFAULT_MIX_NAME = "New Mix"

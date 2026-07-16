@@ -1,12 +1,14 @@
 from collections import defaultdict
+from difflib import SequenceMatcher
 from pathlib import Path
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QTabWidget
+from mutagen.easyid3 import desc
 from mutagen.mp3 import MP3
 
-from baklava import create_button, create_line_edit, BaklavaLineEdit
+from baklava import create_button, create_line_edit, BaklavaLineEdit, is_null_or_whitespace
 from ffmparakeet import run_ffmpeg
 from mix_utility import MixUtility
 from song_entry import SongEntry
@@ -30,6 +32,42 @@ class MixView:
         self.current_tracklist = defaultdict()
         self.mix_util = mix_util
         self.initialize_gui()
+
+        if isinstance(mix_path, Path):
+            self.load_mix(loaded_mix_path=mix_path)
+
+    def load_mix(self, loaded_mix_path: Path):
+        if loaded_mix_path.is_file():
+            mix_title = loaded_mix_path.stem
+
+            with open(loaded_mix_path, 'r') as file:
+                for line in file:
+                    # if line.split(" ")[0] == ".break":
+                        # mix.add_track_or_break(line)
+                    # else:
+                    processed_line = line.strip()
+
+                    closest_track_filepath = None
+                    best_match = 0
+
+                    for track_name, mp3 in self.mix_util.music_library.items():
+                        match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
+
+                        if match_ratio > best_match:
+                            best_match = match_ratio
+                            closest_track_filepath = mp3.filename
+
+                    if closest_track_filepath is not None:
+                        self.add_song_to_mix(closest_track_filepath)
+        # elif loaded_mix_path.is_dir():
+        #     mix_title = loaded_mix_path.stem
+        #
+        #     mix_tracks = list(loaded_mix_path.rglob("*.mp3"))
+        #     mix_audio_files = [MP3(file, ID3=EasyID3) for file in mix_tracks]
+        #
+        #     for audio_file in mix_audio_files:
+        #         audio_file_as_track = self.file_name_to_audio_file[audio_file.get('Title', Path(audio_file.filename).stem)[0]]
+        #         mix.add_track_or_break(audio_file_as_track)
 
     def initialize_gui(self):
         parent_widget = QWidget()
@@ -193,6 +231,8 @@ class MixView:
                 track_title = song_entry.name()
                 file.write(f"{track_title}\n")
 
+        self.mix_util.show_status_bar_message(f"Saved {self.name} to {output_mix_filepath}")
+
     def export(self):
         output_mix_directory = self.get_output_dir()
         output_mix_directory.mkdir(parents=True, exist_ok=True)
@@ -200,5 +240,8 @@ class MixView:
         i = 0
         for _, song_entry in self.current_tracklist.items():
             filepath = Path(song_entry.filepath)
-            run_ffmpeg(track_num=i + 1, album=self.name, source=filepath, destination=output_mix_directory)
+            destination = output_mix_directory / song_entry.name()
+            run_ffmpeg(track_num=i + 1, album=self.name, source=filepath, destination=destination)
             i += 1
+
+        self.mix_util.show_status_bar_message(f"Copied {i} tracks to {output_mix_directory}")

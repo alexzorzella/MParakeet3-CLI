@@ -99,7 +99,7 @@ class MixWindow(QMainWindow):
             print(f"Loading mix from {mix_path}")
             self.create_new_mix(path=mix_path)
 
-    def show_status_bar_message(self, message, time=8000):
+    def show_status_bar_message(self, message, time=12000):
         self.statusBar().showMessage(message, time)
 
     def export_tracks(self):

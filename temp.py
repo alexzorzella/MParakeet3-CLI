@@ -81,8 +81,10 @@ class MixWindow(QMainWindow):
         if len(mixes) <= 0:
             self.create_new_mix()
         else:
+            mixes.reverse()
             for mix in mixes:
                 self.create_new_mix(path=mix)
+            self.mix_util.parent_tab_widget.setCurrentIndex(0)
 
     def currently_selected_mix(self):
         return self.mix_util.currently_selected_mix_view()

@@ -14,7 +14,7 @@ class ThreadedMixExporter(QObject):
         super().__init__()
         self.mix_view = mix_view
 
-        progress_bar_window = ProgressBarWindow(parent=self.mix_view.mix_util.parent_window, size=len(self.mix_view.current_tracklist.items()))
+        progress_bar_window = ProgressBarWindow(parent=self.mix_view.mix_util.parent_window, mix_name=self.mix_view.name, size=len(self.mix_view.current_tracklist.items()))
 
         self.progress_signal.connect(progress_bar_window.update_progress)
         self.finished_signal.connect(progress_bar_window.finish)

@@ -1,15 +1,22 @@
-from PySide6.QtWidgets import QDialog, QProgressBar
+from PySide6.QtWidgets import QDialog, QProgressBar, QSizePolicy, QHBoxLayout
 
 class ProgressBarWindow(QDialog):
     bar: QProgressBar
 
-    def __init__(self, parent=None, size: int = 0):
+    def __init__(self, parent=None, mix_name: str = "", size: int = 0):
         super().__init__(parent)
 
-        self.bar = QProgressBar(self)
+        self.setWindowTitle(f"Exporting {mix_name}")
+
+        horizontal_layout = QHBoxLayout(self)
+
+        self.bar = QProgressBar()
+        self.bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.bar.setRange(0, size)
 
-        self.resize(100, 40)
+        horizontal_layout.addWidget(self.bar)
+
+        self.resize(200, 80)
         self.show()
 
     def update_progress(self, i):

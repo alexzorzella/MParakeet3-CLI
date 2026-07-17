@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
-from ffmparakeet import run_ffmpeg
+from export_handler import ThreadedMixExporter
 from mix_utility import MixUtility
 from song_entry import SongEntry
 
@@ -231,14 +231,4 @@ class MixView:
         self.mix_util.show_status_bar_message(f"Saved {self.name} to {output_mix_filepath}")
 
     def export(self):
-        output_mix_directory = self.get_output_dir()
-        output_mix_directory.mkdir(parents=True, exist_ok=True)
-
-        i = 0
-        for _, song_entry in self.current_tracklist.items():
-            filepath = Path(song_entry.filepath).resolve()
-            destination = output_mix_directory / f"{song_entry.name()}.mp3"
-            run_ffmpeg(track_num=i + 1, album=self.name, source=filepath, destination=destination)
-            i += 1
-
-        self.mix_util.show_status_bar_message(f"Copied {i} tracks to {output_mix_directory}")
+        ThreadedMixExporter(mix_view=self)

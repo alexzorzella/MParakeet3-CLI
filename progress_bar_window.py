@@ -7,6 +7,7 @@ class ProgressBarWindow(QDialog):
         super().__init__(parent)
 
         self.setWindowTitle(f"Exporting {mix_name}")
+        self.setFixedSize(200, 40)
 
         horizontal_layout = QHBoxLayout(self)
 
@@ -16,7 +17,6 @@ class ProgressBarWindow(QDialog):
 
         horizontal_layout.addWidget(self.bar)
 
-        self.resize(200, 80)
         self.show()
 
     def update_progress(self, i):

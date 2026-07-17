@@ -50,7 +50,7 @@ class MixWindow(QMainWindow):
         mix_menu.setToolTipsVisible(True)
 
         new_mix_action = file_menu.addAction("&New Mix")
-        new_mix_action.triggered.connect(self.create_new_mix)
+        new_mix_action.triggered.connect(lambda: self.create_new_mix())
         load_mix_action = file_menu.addAction("&Load Mix")
         load_mix_action.triggered.connect(self.load_mix)
         export_mix_as_file = export_menu.addAction("&Save")
@@ -81,7 +81,7 @@ class MixWindow(QMainWindow):
 
     def on_tab_changed(self, new_index):
         self.mix_util.currently_selected_tab = new_index
-        print(f"Switched view to {new_index}")
+        # print(f"Switched view to {new_index}")
 
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()

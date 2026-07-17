@@ -81,6 +81,8 @@ class MixView:
 
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
+        list_widget.setAutoScroll(True)
+        list_widget.autoScrollMargin = 50
         list_widget.setFlow(QListView.TopToBottom)
         list_widget.setWrapping(False)
         list_widget.setResizeMode(QListView.Adjust)

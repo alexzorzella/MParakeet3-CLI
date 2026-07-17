@@ -2,13 +2,13 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtWidgets import QListWidget, QTabWidget, QStyleFactory, QApplication
+from PySide6.QtWidgets import QListWidget, QTabWidget, QApplication
 from mutagen.mp3 import MP3
 
 from baklava import is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
-from vlc_handler import ThreadedVlcPlayer
+from threaded_vlc_player import ThreadedVlcPlayer
 
 from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR
 

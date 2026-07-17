@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
 from globals import AQtAlignCenterLeft, AQtAlignCenterRight
-from vlc_handler import ThreadedVlcPlayer
+from threaded_vlc_player import ThreadedVlcPlayer
 
 class SongEntry:
     filepath: Path

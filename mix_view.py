@@ -24,7 +24,7 @@ class MixView:
     tab_index = -1
 
     def __init__(self, mix_util, mix_path: Path | None = None):
-        self.name = DEFAULT_MIX_NAME
+        self.update_name(DEFAULT_MIX_NAME if mix_path is None else mix_path.stem)
         self.current_tracklist = defaultdict()
         self.mix_util = mix_util
         self.initialize_gui()

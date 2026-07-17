@@ -4,13 +4,15 @@ from typing import Callable
 
 from PySide6.QtWidgets import QListWidget, QTabWidget, QApplication
 from mutagen.mp3 import MP3
+from yt_dlp.extractor import mx3
 
 from baklava import is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
 from threaded_vlc_player import ThreadedVlcPlayer
 
-from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR
+from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR, DEFAULT_MIX_NAME
+
 
 class MixUtility:
     parent_window = None
@@ -72,14 +74,28 @@ class MixUtility:
     def currently_selected_mix_view(self):
         return self.mix_tab_views[self.currently_selected_tab]
 
+    def get_mix_names(self):
+        return [mix_view.name for mix_view in self.mix_tab_views]
+
+    def get_first_available_default_mix_name(self):
+        name = DEFAULT_MIX_NAME
+        mix_names = self.get_mix_names()
+
+        i = 1
+        while name in mix_names:
+            name = f"{DEFAULT_MIX_NAME} {i}"
+            i += 1
+
+        return name
+
     def get_duplicate_mix_names(self):
         names = []
         duplicate_names = []
 
-        for mix_view in self.mix_tab_views:
-            if mix_view.name in names:
-                duplicate_names.append(mix_view.name)
+        for mix_view_name in self.get_mix_names():
+            if mix_view_name in names:
+                duplicate_names.append(mix_view_name)
             else:
-                names.append(mix_view.name)
+                names.append(mix_view_name)
 
         return duplicate_names

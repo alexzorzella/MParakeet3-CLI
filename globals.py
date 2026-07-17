@@ -8,3 +8,4 @@ AQtAlignCenterTop = Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignTop
 
 DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
 DEFAULT_MIX_DIR: Path = Path(__file__).resolve().parent / "Mixes"
+DEFAULT_MIX_NAME = "New Mix"

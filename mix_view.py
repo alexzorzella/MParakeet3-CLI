@@ -12,7 +12,6 @@ from mix_utility import MixUtility
 from song_entry import SongEntry
 
 HEADER_FONT_SIZE: int = 20
-DEFAULT_MIX_NAME = "New Mix"
 
 class MixView:
     name: str
@@ -24,9 +23,9 @@ class MixView:
     tab_index = -1
 
     def __init__(self, mix_util, mix_path: Path | None = None):
-        self.update_name(DEFAULT_MIX_NAME if mix_path is None else mix_path.stem)
         self.current_tracklist = defaultdict()
         self.mix_util = mix_util
+        self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui()
 
         if mix_path is not None and mix_path.is_file():

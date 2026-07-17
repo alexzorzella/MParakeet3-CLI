@@ -2,7 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtWidgets import QListWidget, QTabWidget
+from PySide6.QtWidgets import QListWidget, QTabWidget, QStyleFactory, QApplication
 from mutagen.mp3 import MP3
 
 from baklava import is_null_or_whitespace
@@ -49,6 +49,14 @@ class MixUtility:
 
         if not self.mix_path.is_dir():
             self.mix_path.mkdir(parents=True, exist_ok=False)
+
+        params = parse_config_with_fallbacks(config_path="config.ini", section="theme", params=[("style", str, "")])
+
+        style = params["style"]
+
+        if style != "":
+            print(style)
+            QApplication.setStyle(style)
 
     def load_music(self):
         files = list(self.search_path.rglob("*.mp3"))

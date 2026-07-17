@@ -373,11 +373,12 @@ def time_int_str_to_int(value) -> int:
     return result
 
 def time_int_to_str(total_seconds: int) -> str:
+    # if total_seconds < 60 * 60:
+    #     format = '%M:%S'
+    # else:
+    #     format = '%H:%M:%S'
 
-    if total_seconds < 60 * 60:
-        format = '%M:%S'
-    else:
-        format = '%H:%M:%S'
+    format = '%H:%M:%S'
 
     return time.strftime(format, time.gmtime(total_seconds))
 

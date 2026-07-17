@@ -63,3 +63,15 @@ class MixUtility:
 
     def currently_selected_mix_view(self):
         return self.mix_tab_views[self.currently_selected_tab]
+
+    def get_duplicate_mix_names(self):
+        names = []
+        duplicate_names = []
+
+        for mix_view in self.mix_tab_views:
+            if mix_view.name in names:
+                duplicate_names.append(mix_view.name)
+            else:
+                names.append(mix_view.name)
+
+        return duplicate_names

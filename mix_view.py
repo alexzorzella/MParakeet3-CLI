@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QMessageBox
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
@@ -221,6 +221,9 @@ class MixView:
         # print(f"Deleted item at index {row} with widget {widget}, removed from tracklist, Current tracklist -> (length {len(self.current_tracklist)}), tracks: {", ".join([Path(song_entry.filepath).stem for widget, song_entry in self.current_tracklist.items()])}")
 
     def save(self):
+        if self.do_cancel_operation_via_duplicate_dialog():
+            return
+
         output_mix_filepath = self.get_output_path()
 
         with open(output_mix_filepath, "w", encoding="utf-8") as file:
@@ -231,4 +234,22 @@ class MixView:
         self.mix_util.show_status_bar_message(f"Saved {self.name} to {output_mix_filepath}")
 
     def export(self):
+        if self.do_cancel_operation_via_duplicate_dialog():
+            return
+
         ThreadedMixExporter(mix_view=self)
+
+    def do_cancel_operation_via_duplicate_dialog(self):
+        if self.name in self.mix_util.get_duplicate_mix_names():
+            choice = QMessageBox.question(
+                self.mix_util.parent_window,
+                f"Export {self.name}",
+                f"There is more than one mix named '{self.name}'. Are you sure you want to export this mix?",
+                QMessageBox.Yes | QMessageBox.No)
+
+            if choice == QMessageBox.Yes:
+                return False
+            else:
+                return True
+
+        return False

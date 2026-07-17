@@ -90,8 +90,8 @@ class MixWindow(QMainWindow):
         return self.mix_util.currently_selected_mix_view()
 
     def on_tab_changed(self, new_index):
-        if self.currently_selected_mix() is not None:
-            self.export_tracklist_to_txt()
+        # if self.currently_selected_mix() is not None:
+        #     self.export_tracklist_to_txt()
 
         self.mix_util.currently_selected_tab = new_index
         # print(f"Switched view to {new_index}")

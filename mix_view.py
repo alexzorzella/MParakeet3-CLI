@@ -36,7 +36,7 @@ class MixView:
         if loaded_mix_path.is_file():
             mix_title = loaded_mix_path.stem
 
-            with open(loaded_mix_path, 'r') as file:
+            with open(loaded_mix_path, 'r', encoding="utf-8") as file:
                 for line in file:
                     # if line.split(" ")[0] == ".break":
                         # mix.add_track_or_break(line)

@@ -97,7 +97,7 @@ class MixWindow(QMainWindow):
         if path is not None and len(path) > 0:
             mix_path = path
             print(f"Loading mix from {mix_path}")
-            self.create_new_mix(path=mix_path)
+            self.create_new_mix(path=Path(mix_path))
 
     def show_status_bar_message(self, message, time=12000):
         self.statusBar().showMessage(message, time)

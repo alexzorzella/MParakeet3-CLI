@@ -53,9 +53,9 @@ class MixWindow(QMainWindow):
         load_mix_action = file_menu.addAction("&Load Mix")
         load_mix_action.triggered.connect(self.load_mix)
         export_mix_as_file = export_menu.addAction("&Save")
-        export_mix_as_file.triggered.connect(self.export_tracklist)
+        export_mix_as_file.triggered.connect(self.export_tracklist_to_txt)
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
-        export_mix_as_tracks.triggered.connect(self.export_tracks)
+        export_mix_as_tracks.triggered.connect(self.copy_mix_to_dir_as_ordered_tracks)
 
         add_song_action = mix_menu.addAction("&Add Song(s)")
         add_song_action.triggered.connect(self.add_song_to_currently_selected_mix)
@@ -63,7 +63,7 @@ class MixWindow(QMainWindow):
         load_mix_shortcut = QShortcut(QKeySequence("Ctrl+L"), self)
         load_mix_shortcut.activated.connect(self.load_mix)
         export_mix_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
-        export_mix_shortcut.activated.connect(self.export_tracklist)
+        export_mix_shortcut.activated.connect(self.export_tracklist_to_txt)
         export_mix_as_tracks_shortcut = QShortcut(QKeySequence("Ctrl+E"), self)
         add_song_shortcut = QShortcut(QKeySequence("Ctrl+="), self)
         add_song_shortcut.activated.connect(self.add_song_to_currently_selected_mix)
@@ -90,6 +90,9 @@ class MixWindow(QMainWindow):
         return self.mix_util.currently_selected_mix_view()
 
     def on_tab_changed(self, new_index):
+        if self.currently_selected_mix() is not None:
+            self.export_tracklist_to_txt()
+
         self.mix_util.currently_selected_tab = new_index
         # print(f"Switched view to {new_index}")
 
@@ -112,10 +115,10 @@ class MixWindow(QMainWindow):
     def show_status_bar_message(self, message, time=12000):
         self.statusBar().showMessage(message, time)
 
-    def export_tracks(self):
+    def copy_mix_to_dir_as_ordered_tracks(self):
         self.currently_selected_mix().export()
 
-    def export_tracklist(self):
+    def export_tracklist_to_txt(self):
         self.currently_selected_mix().save()
 
 def main():

@@ -72,7 +72,10 @@ class MixUtility:
         self.show_status_bar_message(f"Loaded {len(self.music_library)} mp3(s) from {self.search_path}", 8000)
 
     def currently_selected_mix_view(self):
-        return self.mix_tab_views[self.currently_selected_tab]
+        try:
+            return self.mix_tab_views[self.currently_selected_tab]
+        except IndexError:
+            return None
 
     def get_mix_names(self):
         return [mix_view.name for mix_view in self.mix_tab_views]

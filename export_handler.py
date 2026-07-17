@@ -1,3 +1,4 @@
+import shutil
 import threading
 from pathlib import Path
 
@@ -24,6 +25,10 @@ class ThreadedMixExporter(QObject):
 
     def _export(self):
         output_mix_directory = self.mix_view.get_output_dir()
+
+        if output_mix_directory.exists() and output_mix_directory.is_dir():
+            shutil.rmtree(output_mix_directory)
+
         output_mix_directory.mkdir(parents=True, exist_ok=True)
 
         tracklist_iterable = self.mix_view.current_tracklist.items()

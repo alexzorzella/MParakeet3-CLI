@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QStyleFactory
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget
 
 from baklava import set_tooltip
 from load_file_action import FileLoadAction

@@ -18,6 +18,7 @@ class MixWindow(QMainWindow):
         self.mix_util = MixUtility(parent_window=self, show_status_bar_message=self.show_status_bar_message)
 
         self.create_window()
+        self.load_mixes()
 
     def create_window(self):
         self.setWindowTitle("Parakeet")
@@ -35,8 +36,6 @@ class MixWindow(QMainWindow):
         self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
         self.mix_util.player.populate_gui(parent=horizontal_layout)
-
-        self.create_new_mix()
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -75,6 +74,15 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
         set_tooltip(widget=export_mix_as_tracks, text="Export a mix as ordered audio file (Ctrl+E)")
         set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
+
+    def load_mixes(self):
+        mixes = list(self.mix_util.mix_path.rglob("*.txt"))
+
+        if len(mixes) <= 0:
+            self.create_new_mix()
+        else:
+            for mix in mixes:
+                self.create_new_mix(path=mix)
 
     def currently_selected_mix(self):
         return self.mix_util.currently_selected_mix_view()

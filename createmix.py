@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import pathvalidate
 
@@ -15,7 +16,7 @@ from ffmparakeet import run_ffmpeg
 from colorama import Fore
 from colorama import Style
 
-# import vlc
+import vlc
 from mutagen.mp3 import MP3
 
 def main():
@@ -325,13 +326,13 @@ def edit(mix: Mix):
             print(f"{Fore.YELLOW}{padding}{action_message}{Style.RESET_ALL}\n")
 
 def play_song(song_path):
-    # player = vlc.MediaPlayer(song_path)
+    player = vlc.MediaPlayer(song_path)
 
-    # print("Playing preview...")
-    # player.play()
-    #
-    # input("Press enter to stop playback ")
-    # player.stop()
+    print("Playing preview...")
+    player.play()
+
+    input("Press enter to stop playback ")
+    player.stop()
     pass
 
 def preview_transition(song_ending_path, song_starting_path, preview_length=1):
@@ -340,22 +341,22 @@ def preview_transition(song_ending_path, song_starting_path, preview_length=1):
 
     start_song_ending_at = max(0, song_ending_length - preview_length)
 
-    # song_ending_player = vlc.MediaPlayer(song_ending_path)
-    # song_starting_player = vlc.MediaPlayer(song_starting_path)
+    song_ending_player = vlc.MediaPlayer(song_ending_path)
+    song_starting_player = vlc.MediaPlayer(song_starting_path)
 
-    # print("Playing preview...")
-    # song_ending_player.play()
-    #
-    # time.sleep(0.1)
-    #
-    # song_ending_player.set_time(int(start_song_ending_at * 1000))
-    #
-    # time.sleep(preview_length + 0.1)
-    #
-    # song_starting_player.play()
-    #
-    # input("Press enter to stop playback ")
-    # song_starting_player.stop()
+    print("Playing preview...")
+    song_ending_player.play()
+
+    time.sleep(0.1)
+
+    song_ending_player.set_time(int(start_song_ending_at * 1000))
+
+    time.sleep(preview_length + 0.1)
+
+    song_starting_player.play()
+
+    input("Press enter to stop playback ")
+    song_starting_player.stop()
 
 VIEW_OPTION_FUNCS = {
     "a" : add_songs,

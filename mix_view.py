@@ -66,17 +66,17 @@ class MixView:
 
             self.mix_util.parent_tab_widget.addTab(parent_widget, self.name)
             self.tab_index = self.mix_util.parent_tab_widget.count() - 1
+
+            self.mix_name_line_edit = (
+                create_line_edit(
+                    container=vertical_layout,
+                    placeholder_text="Title",
+                    default_value=self.name,
+                    height=40,
+                    font_size=HEADER_FONT_SIZE,
+                    connect_to_method=self.update_name))
         else:
             vertical_layout = QVBoxLayout(parent)
-
-        self.mix_name_line_edit = (
-            create_line_edit(
-                container=vertical_layout,
-                placeholder_text="Title",
-                default_value=self.name,
-                height=40,
-                font_size=HEADER_FONT_SIZE,
-                connect_to_method=self.update_name))
 
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
@@ -96,13 +96,14 @@ class MixView:
 
         vertical_layout.addWidget(list_widget)
 
-        hotbar = QHBoxLayout()
-        height = 30
+        if parent is None:
+            hotbar = QHBoxLayout()
+            height = 30
 
-        create_button(container=hotbar, text="Add Song(s)", height=height, tooltip="Add one or more audio files", connect_to_method=lambda: self.add_song_to_mix())
-        create_button(container=hotbar, text="Add Break", height=height, tooltip="Add a break (good for cassettes, CDs)", connect_to_method=self.add_break)
+            create_button(container=hotbar, text="Add Song(s)", height=height, tooltip="Add one or more audio files", connect_to_method=lambda: self.add_song_to_mix())
+            create_button(container=hotbar, text="Add Break", height=height, tooltip="Add a break (good for cassettes, CDs)", connect_to_method=self.add_break)
 
-        vertical_layout.addLayout(hotbar)
+            vertical_layout.addLayout(hotbar)
 
     def update_name(self, new_name):
         self.name = new_name

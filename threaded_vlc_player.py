@@ -38,8 +38,9 @@ class ThreadedVlcPlayer:
     def _on_end(self):
         self.commands.put((self.play_head, (True,)))
 
-    def play(self):
+    def play(self, media):
         if self.player is not None:
+            self.player.set_media(media)
             self.player.play()
 
     def stop(self):
@@ -64,8 +65,7 @@ class ThreadedVlcPlayer:
             print(f"Current song now: {Path(current_song).stem}, attempting to play it")
 
             media = self.vlc_instance.media_new(current_song)
-            self.player.set_media(media)
-            self.play()
+            self.play(media)
 
             print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
         except Exception as e:

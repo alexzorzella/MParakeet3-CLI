@@ -88,13 +88,13 @@ class MixView:
         list_widget.setMovement(QListView.Snap)
         list_widget.setIconSize(QSize(200,200))
         list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.list_widget = list_widget
 
         list_model = self.list_widget.model()
 
         list_model.rowsMoved.connect(self.update_cumulative_times)
 
         vertical_layout.addWidget(list_widget)
+        self.list_widget = list_widget
 
         if parent is None:
             hotbar = QHBoxLayout()

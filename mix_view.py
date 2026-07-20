@@ -89,7 +89,7 @@ class MixView:
         list_widget.setIconSize(QSize(200,200))
         list_widget.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-        list_model = self.list_widget.model()
+        list_model = list_widget.model()
 
         list_model.rowsMoved.connect(self.update_cumulative_times)
 

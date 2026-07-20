@@ -12,7 +12,6 @@ from threaded_vlc_player import ThreadedVlcPlayer
 
 from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR, DEFAULT_MIX_NAME
 
-
 class MixUtility:
     parent_window = None
 

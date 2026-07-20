@@ -1,13 +1,13 @@
 import queue
-import threading
 from pathlib import Path
 
 import vlc
+from PySide6.QtCore import QThread
 from mutagen.mp3 import MP3
 
 PREVIEW_LENGTH = 5
 
-class ThreadedVlcPlayer:
+class ThreadedVlcPlayer(QThread):
     vlc_instance = None
     player = None
 
@@ -18,24 +18,27 @@ class ThreadedVlcPlayer:
 
     commands = None
 
-    def __init__(self):
+    def __init__(self, queue_mix_view):
+        super().__init__()
+
+        self.queue_mix_view = queue_mix_view
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
 
         events = self.player.event_manager()
-        events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self._on_end())
+        events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self.on_end())
 
         self.commands = queue.Queue()
 
-        self.thread = threading.Thread(target=self._run, daemon=True)
-        self.thread.start()
+        self.start()
 
-    def _run(self):
+    def run(self):
         while True:
             func, args = self.commands.get()
+            print(f"Received {func}({args})")
             func(*args)
 
-    def _on_end(self):
+    def on_end(self):
         self.commands.put((self.play_head, (True,)))
 
     def play(self, media):

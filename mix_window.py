@@ -9,6 +9,8 @@ from globals import AQtAlignCenterTop
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
+from threaded_vlc_player import ThreadedVlcPlayer
+
 
 class MixWindow(QMainWindow):
     mix_util: MixUtility
@@ -47,8 +49,8 @@ class MixWindow(QMainWindow):
 
         queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
         queue_mix_view.name = "Queue"
-        self.mix_util.queue_mix_view = queue_mix_view
-        self.mix_util.player.queue_mix_view = queue_mix_view
+
+        self.mix_util.player = ThreadedVlcPlayer(queue_mix_view)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

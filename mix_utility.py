@@ -4,7 +4,6 @@ from typing import Callable
 
 from PySide6.QtWidgets import QListWidget, QTabWidget, QApplication
 from mutagen.mp3 import MP3
-from yt_dlp.extractor import mx3
 
 from baklava import is_null_or_whitespace
 from load_file_action import FileLoadAction

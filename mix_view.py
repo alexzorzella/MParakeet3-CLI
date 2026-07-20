@@ -165,7 +165,7 @@ class MixView:
 
     def queue_song_force_play(self, path):
         self.queue_song_next(path=path)
-        self.mix_util.player.play(advance=True)
+        self.mix_util.player.play_head(advance=True)
         # self.play_head(advance=True)
 
     def debug_print_queue(self):

@@ -101,19 +101,3 @@ class MixUtility:
                 names.append(mix_view_name)
 
         return duplicate_names
-
-    def queue_song_force_play(self, path):
-        self.queue_song_next(path=path)
-        self.player.play_head(advance=True)
-
-    def queue_song_next(self, path):
-        index = self.player.current_head_index + 1
-        print(f"Queuing {path} to {index}")
-        self.queue_mix_view.add_song_to_mix(passed_path=path, index=index)
-
-    def debug_print_queue(self):
-        return f"{[song_entry.name() for _, song_entry in self.queue_mix_view.current_tracklist.items()]}"
-
-    def queue_song(self, path):
-        self.queue_mix_view.add_song_to_mix(passed_path=path)
-        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue()}")

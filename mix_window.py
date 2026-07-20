@@ -45,7 +45,9 @@ class MixWindow(QMainWindow):
         queue_mix_view_parent = QWidget()
         queue_parent_layout.addWidget(queue_mix_view_parent)
 
-        self.mix_util.queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
+        queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
+        self.mix_util.queue_mix_view = queue_mix_view
+        self.mix_util.player.queue_mix_view = queue_mix_view
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

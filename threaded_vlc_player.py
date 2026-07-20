@@ -3,11 +3,7 @@ import threading
 from pathlib import Path
 
 import vlc
-from PySide6.QtWidgets import QVBoxLayout
 from mutagen.mp3 import MP3
-
-from baklava import create_label
-from globals import AQtAlignCenterTop
 
 PREVIEW_LENGTH = 5
 
@@ -15,7 +11,7 @@ class ThreadedVlcPlayer:
     vlc_instance = None
     player = None
 
-    song_queue = []
+    queue_mix_view = None
     current_head_index = -1
 
     thread = None
@@ -56,13 +52,14 @@ class ThreadedVlcPlayer:
 
         print(f"play_head called while pointing to track {self.current_head_index}")
 
-        if self.current_head_index >= len(self.song_queue):
+        if self.current_head_index >= self.queue_mix_view.tracks():
             print(f"Queue exhausted")
             self.current_head_index -= 1
             return
 
         try:
-            current_song = self.song_queue[self.current_head_index]
+            current_song_entry = self.queue_mix_view.get_track_by_index(self.current_head_index)
+            current_song = current_song_entry.filepath
 
             print(f"Current song now: {Path(current_song).stem}, attempting to play it")
 
@@ -73,6 +70,22 @@ class ThreadedVlcPlayer:
             print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
+
+    def queue_song_force_play(self, path):
+        self.queue_song_next(path=path)
+        self.play_head(advance=True)
+
+    def queue_song_next(self, path):
+        index = self.current_head_index + 1
+        print(f"Queuing {path} to {index}")
+        self.queue_mix_view.add_song_to_mix(passed_path=path, index=index)
+
+    def debug_print_queue(self):
+        return f"{[song_entry.name() for _, song_entry in self.queue_mix_view.current_tracklist.items()]}"
+
+    def queue_song(self, path):
+        self.queue_mix_view.add_song_to_mix(passed_path=path)
+        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue()}")
 
     def preview(self, from_path, to_path):
         self.stop()

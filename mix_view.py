@@ -158,7 +158,7 @@ class MixView:
 
         self.update_cumulative_times()
 
-    def get_track_by_list_widget_item(self, list_widget_item: QListWidgetItem):
+    def get_track_by_list_widget_item(self, list_widget_item: QListWidgetItem) -> SongEntry | None:
         widget = self.list_widget.itemWidget(list_widget_item)
 
         if self.current_tracklist.__contains__(widget):
@@ -168,7 +168,7 @@ class MixView:
 
         return song_entry
 
-    def get_track_by_index(self, index):
+    def get_track_by_index(self, index) -> SongEntry | None:
         list_widget_item = self.list_widget.item(index)
         return self.get_track_by_list_widget_item(list_widget_item)
 
@@ -259,3 +259,6 @@ class MixView:
                 return True
 
         return False
+
+    def tracks(self) -> int:
+        return len(self.current_tracklist.items())

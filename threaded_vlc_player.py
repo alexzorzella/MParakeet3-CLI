@@ -65,7 +65,7 @@ class ThreadedVlcPlayer:
 
             media = self.vlc_instance.media_new(current_song)
             self.player.set_media(media)
-            self.player.play()
+            self.play()
 
             print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
         except Exception as e:

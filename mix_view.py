@@ -139,12 +139,12 @@ class MixView:
                     delete_item=self.delete_list_widget_item)
             )
 
-            self.current_tracklist[song_entry.widget] = song_entry
-
-            if index < 0 or index > len(self.current_tracklist.items()) - 1:
+            if index < 0 or index >= len(self.current_tracklist.items()):
                 self.list_widget.addItem(song_entry.list_widget_item)
             else:
                 self.list_widget.insertItem(index, song_entry.list_widget_item)
+
+            self.current_tracklist[song_entry.widget] = song_entry
 
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 

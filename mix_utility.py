@@ -107,7 +107,9 @@ class MixUtility:
         self.player.play_head(advance=True)
 
     def queue_song_next(self, path):
-        self.queue_mix_view.add_song_to_mix(passed_path=path, index=self.player.current_head_index + 1)
+        index = self.player.current_head_index + 1
+        print(f"Queuing {path} to {index}")
+        self.queue_mix_view.add_song_to_mix(passed_path=path, index=index)
 
     def debug_print_queue(self):
         return f"{[song_entry.name() for _, song_entry in self.queue_mix_view.current_tracklist.items()]}"

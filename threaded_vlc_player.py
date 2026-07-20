@@ -50,25 +50,6 @@ class ThreadedVlcPlayer:
         if self.player is not None:
             self.player.stop()
 
-    # def queue_song_force_play(self, path):
-    #     self.queue_song_next(path=path)
-    #     self.play_head(advance=True)
-    #
-    # def debug_print_queue(self, paths):
-    #     return f"{[Path(path).stem for path in paths]}"
-    #
-    # def queue_song_next(self, path):
-    #     if len(self.song_queue) > 0:
-    #         self.song_queue.insert(self.current_head_index + 1, path)
-    #         print(f"Queued {Path(path).stem} next, current queue: {self.debug_print_queue(paths=self.song_queue)}")
-    #     else:
-    #         self.queue_song(path=path)
-    #
-    # def queue_song(self, path):
-    #     self.song_queue.append(path)
-    #
-    #     print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue(paths=self.song_queue)}")
-
     def play_head(self, advance: bool = False):
         if advance:
             self.current_head_index += 1

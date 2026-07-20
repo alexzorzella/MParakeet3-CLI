@@ -133,7 +133,7 @@ class MixView:
             song_entry = (
                 SongEntry(
                     filepath=Path(path),
-                    mix_view=self,
+                    mix_util=self.mix_util,
                     generic_func=self.call_generic_player_command,
                     preview_transition_func=self.preview_transition_from,
                     delete_item=self.delete_list_widget_item)
@@ -259,17 +259,3 @@ class MixView:
                 return True
 
         return False
-
-    def queue_song_force_play(self, path):
-        self.queue_song_next(path=path)
-        self.mix_util.player.play_head(advance=True)
-
-    def queue_song_next(self, path):
-        self.add_song_to_mix(passed_path=path, index=self.mix_util.player.current_head_index + 1)
-
-    def debug_print_queue(self):
-        return f"{[song_entry.name() for _, song_entry in self.current_tracklist.items()]}"
-
-    def queue_song(self, path):
-        self.add_song_to_mix(passed_path=path)
-        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue()}")

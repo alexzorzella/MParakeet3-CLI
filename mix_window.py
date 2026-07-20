@@ -44,7 +44,8 @@ class MixWindow(QMainWindow):
         create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
         queue_mix_view_parent = QWidget()
         queue_parent_layout.addWidget(queue_mix_view_parent)
-        self.create_new_mix(parent=queue_mix_view_parent)
+
+        self.mix_util.queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -110,6 +111,8 @@ class MixWindow(QMainWindow):
         if parent is None:
             self.mix_util.mix_tab_views.append(mix_view)
             self.mix_util.parent_tab_widget.setCurrentIndex(self.mix_util.parent_tab_widget.count() - 1)
+
+        return mix_view
 
     def load_mix(self):
         path = self.mix_util.add_song_file_load_action.load_file(parent=self, caption="Select mix", directory=self.mix_util.mix_path.as_posix(), file_filter="File (*.txt);;")

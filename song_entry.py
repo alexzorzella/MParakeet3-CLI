@@ -6,7 +6,6 @@ from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
 from globals import AQtAlignCenterLeft, AQtAlignCenterRight
-from threaded_vlc_player import ThreadedVlcPlayer
 
 class SongEntry:
     filepath: Path
@@ -17,12 +16,16 @@ class SongEntry:
 
     time_label: QLabel
 
+    mix_util = None
+
     is_break: bool = False
     break_duration: int = 75 * 60
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
-    def __init__(self, filepath: Path | None, mix_view = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, delete_item: Callable | None = None, break_duration: int | None = None):
+    def __init__(self, filepath: Path | None, mix_util = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, delete_item: Callable | None = None, break_duration: int | None = None):
+        self.mix_util = mix_util
+
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
@@ -69,11 +72,11 @@ class SongEntry:
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
-                          connect_to_method=lambda: generic_func(mix_view.queue_song_force_play, list_widget_item))
+                          connect_to_method=lambda: generic_func(self.mix_util.queue_song_force_play, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                          connect_to_method=lambda: generic_func(mix_view.queue_song, list_widget_item))
+                          connect_to_method=lambda: generic_func(self.mix_util.queue_song, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                          connect_to_method=lambda: generic_func(mix_view.queue_song_next, list_widget_item))
+                          connect_to_method=lambda: generic_func(self.mix_util.queue_song_next, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 

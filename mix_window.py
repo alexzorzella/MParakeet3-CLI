@@ -2,9 +2,10 @@ from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout
 
-from baklava import set_tooltip
+from baklava import set_tooltip, create_label
+from globals import AQtAlignCenterTop
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
@@ -35,7 +36,15 @@ class MixWindow(QMainWindow):
         horizontal_layout.addWidget(self.mix_util.parent_tab_widget)
         self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
-        self.mix_util.player.populate_gui(parent=horizontal_layout)
+        self.populate_queue_gui(parent=horizontal_layout)
+
+    def populate_queue_gui(self, parent):
+        queue_parent_layout = QVBoxLayout()
+        parent.addLayout(queue_parent_layout)
+        create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
+        queue_mix_view_parent = QWidget()
+        queue_parent_layout.addWidget(queue_mix_view_parent)
+        self.create_new_mix(parent=queue_mix_view_parent)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -99,8 +108,8 @@ class MixWindow(QMainWindow):
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()
 
-    def create_new_mix(self, path: Path | None = None):
-        mix_view = MixView(mix_util=self.mix_util, mix_path=path)
+    def create_new_mix(self, path: Path | None = None, parent = None):
+        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent)
         self.mix_util.mix_tab_views.append(mix_view)
         self.mix_util.parent_tab_widget.setCurrentIndex(self.mix_util.parent_tab_widget.count() - 1)
 

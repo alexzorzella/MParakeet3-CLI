@@ -22,20 +22,18 @@ class MixView:
 
     tab_index = -1
 
-    def __init__(self, mix_util, mix_path: Path | None = None):
+    def __init__(self, mix_util, mix_path: Path | None = None, parent=None):
         self.current_tracklist = defaultdict()
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
-        self.initialize_gui()
+        self.initialize_gui(parent=parent)
 
         if mix_path is not None and mix_path.is_file():
-                mix_path = Path(mix_path)
-                self.load_mix(loaded_mix_path=mix_path)
+            mix_path = Path(mix_path)
+            self.load_mix(loaded_mix_path=mix_path)
 
     def load_mix(self, loaded_mix_path: Path):
         if loaded_mix_path.is_file():
-            mix_title = loaded_mix_path.stem
-
             with open(loaded_mix_path, 'r', encoding="utf-8") as file:
                 for line in file:
                     # if line.split(" ")[0] == ".break":
@@ -55,29 +53,30 @@ class MixView:
 
                     if closest_track_filepath is not None:
                         self.add_song_to_mix(closest_track_filepath)
-        # elif loaded_mix_path.is_dir():
-        #     mix_title = loaded_mix_path.stem
-        #
-        #     mix_tracks = list(loaded_mix_path.rglob("*.mp3"))
-        #     mix_audio_files = [MP3(file, ID3=EasyID3) for file in mix_tracks]
-        #
-        #     for audio_file in mix_audio_files:
-        #         audio_file_as_track = self.file_name_to_audio_file[audio_file.get('Title', Path(audio_file.filename).stem)[0]]
-        #         mix.add_track_or_break(audio_file_as_track)
+        elif loaded_mix_path.is_dir():
+            mix_tracks = list(loaded_mix_path.rglob("*.mp3"))
 
-    def initialize_gui(self):
-        parent_widget = QWidget()
-        vertical_layout = QVBoxLayout(parent_widget)
-        self.mix_util.parent_tab_widget.addTab(parent_widget, self.name)
-        self.tab_index = self.mix_util.parent_tab_widget.count() - 1
+            for filepath in mix_tracks:
+                self.add_song_to_mix(filepath)
 
-        self.mix_name_line_edit = create_line_edit(
-                                    container=vertical_layout,
-                                    placeholder_text="Title",
-                                    default_value=self.name,
-                                    height=40,
-                                    font_size=HEADER_FONT_SIZE,
-                                    connect_to_method=self.update_name)
+    def initialize_gui(self, parent=None):
+        if parent is None:
+            parent_widget = QWidget()
+            vertical_layout = QVBoxLayout(parent_widget)
+
+            self.mix_util.parent_tab_widget.addTab(parent_widget, self.name)
+            self.tab_index = self.mix_util.parent_tab_widget.count() - 1
+        else:
+            vertical_layout = QVBoxLayout(parent)
+
+        self.mix_name_line_edit = (
+            create_line_edit(
+                container=vertical_layout,
+                placeholder_text="Title",
+                default_value=self.name,
+                height=40,
+                font_size=HEADER_FONT_SIZE,
+                connect_to_method=self.update_name))
 
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
@@ -100,16 +99,8 @@ class MixView:
         hotbar = QHBoxLayout()
         height = 30
 
-        create_button(container=hotbar,
-                      text="Add Song(s)",
-                      height=height,
-                      tooltip="Add one or more audio files",
-                      connect_to_method=lambda: self.add_song_to_mix())
-        create_button(container=hotbar,
-                      text="Add Break",
-                      height=height,
-                      tooltip="Add a break (good for cassettes, CDs)",
-                      connect_to_method=self.add_break)
+        create_button(container=hotbar, text="Add Song(s)", height=height, tooltip="Add one or more audio files", connect_to_method=lambda: self.add_song_to_mix())
+        create_button(container=hotbar, text="Add Break", height=height, tooltip="Add a break (good for cassettes, CDs)", connect_to_method=self.add_break)
 
         vertical_layout.addLayout(hotbar)
 
@@ -128,7 +119,7 @@ class MixView:
     def get_output_path(self):
         return self.mix_util.mix_path / self.get_filename()
 
-    def add_song_to_mix(self, passed_path=None):
+    def add_song_to_mix(self, passed_path=None, index: int=-1):
         if passed_path is None:
             paths = self.mix_util.add_song_file_load_action.load_files(parent=self.mix_util.parent_window, caption="Select track(s)", directory=self.mix_util.search_path.as_posix(), file_filter="File (*.mp3);;")
         else:
@@ -138,9 +129,27 @@ class MixView:
             return
 
         for path in paths:
-            song_entry = SongEntry(filepath=Path(path), player=self.mix_util.player, generic_func=self.call_generic_player_command, preview_transition_func=self.preview_transition_from, delete_item=self.delete_list_widget_item)
+            song_entry = (
+                SongEntry(
+                    filepath=Path(path),
+                    mix_view=self,
+                    generic_func=self.call_generic_player_command,
+                    preview_transition_func=self.preview_transition_from,
+                    delete_item=self.delete_list_widget_item)
+            )
+
+            # if index < 0:
             self.current_tracklist[song_entry.widget] = song_entry
-            self.list_widget.addItem(song_entry.list_widget_item)
+            # else:
+            #     tracklist_copy = (list(self.current_tracklist.items()))
+            #     tracklist_copy.insert(index, path)
+            #     self.current_tracklist.update(tracklist_copy)
+
+            if index < 0 or index > len(self.current_tracklist.items()) - 1:
+                self.list_widget.addItem(song_entry.list_widget_item)
+            else:
+                self.list_widget.insertItem(index, song_entry.list_widget_item)
+
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
         self.update_cumulative_times()
@@ -152,6 +161,21 @@ class MixView:
         self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
         self.update_cumulative_times()
+
+    def queue_song_force_play(self, path):
+        self.queue_song_next(path=path)
+        self.mix_util.player.play(advance=True)
+        # self.play_head(advance=True)
+
+    def debug_print_queue(self):
+        return f"{[song_entry.name() for _, song_entry in self.current_tracklist.items()]}"
+
+    def queue_song_next(self, path):
+        self.add_song_to_mix(passed_path=path, index=self.mix_util.player.current_head_index + 1)
+
+    def queue_song(self, path):
+        self.add_song_to_mix(passed_path=path)
+        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue()}")
 
     def get_track_by_list_widget_item(self, list_widget_item: QListWidgetItem):
         widget = self.list_widget.itemWidget(list_widget_item)

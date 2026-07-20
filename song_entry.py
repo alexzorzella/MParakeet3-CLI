@@ -22,7 +22,7 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
-    def __init__(self, filepath: Path | None, player: ThreadedVlcPlayer | None = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, delete_item: Callable | None = None, break_duration: int | None = None):
+    def __init__(self, filepath: Path | None, mix_view = None, generic_func: Callable | None = None, preview_transition_func: Callable | None = None, delete_item: Callable | None = None, break_duration: int | None = None):
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
@@ -69,11 +69,11 @@ class SongEntry:
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
-                          connect_to_method=lambda: generic_func(player.queue_song_force_play, list_widget_item))
+                          connect_to_method=lambda: generic_func(mix_view.queue_song_force_play, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                          connect_to_method=lambda: generic_func(player.queue_song, list_widget_item))
+                          connect_to_method=lambda: generic_func(mix_view.queue_song, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                          connect_to_method=lambda: generic_func(player.queue_song_next, list_widget_item))
+                          connect_to_method=lambda: generic_func(mix_view.queue_song_next, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 

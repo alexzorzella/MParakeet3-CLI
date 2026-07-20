@@ -158,21 +158,6 @@ class MixView:
 
         self.update_cumulative_times()
 
-    def queue_song_force_play(self, path):
-        self.queue_song_next(path=path)
-        self.mix_util.player.play_head(advance=True)
-        # self.play_head(advance=True)
-
-    def debug_print_queue(self):
-        return f"{[song_entry.name() for _, song_entry in self.current_tracklist.items()]}"
-
-    def queue_song_next(self, path):
-        self.add_song_to_mix(passed_path=path, index=self.mix_util.player.current_head_index + 1)
-
-    def queue_song(self, path):
-        self.add_song_to_mix(passed_path=path)
-        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue()}")
-
     def get_track_by_list_widget_item(self, list_widget_item: QListWidgetItem):
         widget = self.list_widget.itemWidget(list_widget_item)
 
@@ -274,3 +259,17 @@ class MixView:
                 return True
 
         return False
+
+    def queue_song_force_play(self, path):
+        self.queue_song_next(path=path)
+        self.mix_util.player.play_head(advance=True)
+
+    def queue_song_next(self, path):
+        self.add_song_to_mix(passed_path=path, index=self.mix_util.player.current_head_index + 1)
+
+    def debug_print_queue(self):
+        return f"{[song_entry.name() for _, song_entry in self.current_tracklist.items()]}"
+
+    def queue_song(self, path):
+        self.add_song_to_mix(passed_path=path)
+        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue()}")

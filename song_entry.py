@@ -135,3 +135,6 @@ class SongEntry:
     def length(self) -> int:
         result = self.mp3.info.length if not self.is_break else 0
         return int(result)
+
+    def __str__(self):
+        return f"{self.name()}, abs. len: {self.absolute_length()}, len: {self.length()}, filepath: {self.filepath}"

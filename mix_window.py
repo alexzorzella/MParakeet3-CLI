@@ -46,6 +46,7 @@ class MixWindow(QMainWindow):
         queue_parent_layout.addWidget(queue_mix_view_parent)
 
         queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
+        queue_mix_view.name = "Queue"
         self.mix_util.queue_mix_view = queue_mix_view
         self.mix_util.player.queue_mix_view = queue_mix_view
 

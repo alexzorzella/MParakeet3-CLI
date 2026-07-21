@@ -28,12 +28,11 @@ class MixView:
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui(parent=parent)
+        self.current_tracklist = Tracklist(list_widget=self.list_widget)
 
         if mix_path is not None and mix_path.is_file():
             mix_path = Path(mix_path)
             self.load_mix(loaded_mix_path=mix_path)
-
-        self.current_tracklist = Tracklist(list_widget=self.list_widget)
 
     def load_mix(self, loaded_mix_path: Path):
         if loaded_mix_path.is_file():

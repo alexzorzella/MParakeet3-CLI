@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QKeySequence, QShortcut, Qt
 from PySide6.QtWidgets import QWidget, QApplication
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout
 
@@ -53,6 +53,8 @@ class MixWindow(QMainWindow):
         queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
         queue_mix_view.name = "Queue"
         self.mix_util.queue_mix_view = queue_mix_view
+
+        create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
 
         self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view)
 

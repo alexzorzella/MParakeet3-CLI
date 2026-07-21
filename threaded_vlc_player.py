@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QListWidgetItem
 from tracklist import Tracklist
 
 PREVIEW_LENGTH = 5
+SKIP_BACK_TIME = 3
 
 class ThreadedVlcPlayer(QThread):
     vlc_instance = None
@@ -66,7 +67,11 @@ class ThreadedVlcPlayer(QThread):
         if default_to_first:
             self.default_to_first_if_current_track_none()
         if self.current_head_widget is not None:
-            self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
+            if offset > 0:
+                self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
+            elif offset < 0 and self.tracklist.get_index_of_widget(self.current_head_widget) > 0:
+                if self.player.get_time() / 1000 < SKIP_BACK_TIME:
+                    self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
 
     def play_song_at_head(self):
         if self.current_head_widget is None:

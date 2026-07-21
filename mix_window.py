@@ -4,8 +4,8 @@ from PySide6.QtGui import QKeySequence, QShortcut, Qt
 from PySide6.QtWidgets import QWidget, QApplication
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout
 
-from baklava import set_tooltip, create_label
-from globals import AQtAlignCenterTop
+from baklava import set_tooltip, create_label, create_button, resource_path
+from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
@@ -55,6 +55,18 @@ class MixWindow(QMainWindow):
         self.mix_util.queue_mix_view = queue_mix_view
 
         currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
+
+        controls_layout = QHBoxLayout()
+        queue_parent_layout.addLayout(controls_layout)
+
+        length = ICON_SIDE_LENGTH
+        size = ICON_SIZE
+        color = "white"
+
+        create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length, width=length, icon_size=size, icon_color=color)
+        create_button(container=controls_layout, icon=resource_path("img/play.svg"), height=length, width=length, icon_size=size, icon_color=color)
+        create_button(container=controls_layout, icon=resource_path("img/skip_right.svg"), height=length, width=length, icon_size=size, icon_color=color,
+                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_forward, ()))
 
         self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, player=self.mix_util.player, currently_playing_label=currently_playing_label)
 

@@ -55,13 +55,13 @@ class ThreadedVlcPlayer(QThread):
         if self.player is not None:
             self.player.stop()
 
-    def play_head(self, advance: bool = False):
-        if advance:
-            if self.current_head_widget is None:
-                self.current_head_widget = self.tracklist.get_widget_at_index(0)
-            else:
-                self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget)
+    def advance_head(self):
+        if self.current_head_widget is None:
+            self.current_head_widget = self.tracklist.get_widget_at_index(0)
+        else:
+            self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget)
 
+    def play_song_at_head(self):
         if self.current_head_widget is None:
             print(f"Queue exhausted")
             return
@@ -80,6 +80,17 @@ class ThreadedVlcPlayer(QThread):
             print(f"Played {Path(current_song).stem} (Queue track {self.tracklist.get_index_of_widget(self.current_head_widget)})")
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
+
+    def play_head(self, advance: bool = False):
+        if advance:
+            self.advance_head()
+
+        self.play_song_at_head()
+
+    def skip_forward(self):
+        self.advance_head()
+        self.stop()
+        self.play_song_at_head()
 
     def queue_command(self, function, args):
         self.commands.put((function, args))

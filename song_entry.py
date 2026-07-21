@@ -5,7 +5,8 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
-from globals import AQtAlignCenterLeft, AQtAlignCenterRight
+from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE
+
 
 class SongEntry:
     filepath: Path
@@ -69,13 +70,10 @@ class SongEntry:
                                                    connect_to_method=self.update_break_duration,
                                                    on_deselected=self.format_duration_input)
 
-        icon_side_length = 35
-        icon_size = QSize(28, 28)
-
         container = song_utility_layout
-        length = icon_side_length
+        length = ICON_SIDE_LENGTH
         color = "white"
-        size = icon_size
+        size = ICON_SIZE
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",

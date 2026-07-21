@@ -39,7 +39,7 @@ class ThreadedVlcPlayer(QThread):
     def on_end(self):
         self.commands.put((self.play_head, (True,)))
 
-    def update_tracklist(self, new_tracklist): # tracklist is a list of Path
+    def update_tracklist(self, new_tracklist): # tracklist is a list of SongEntry
         self.tracklist = new_tracklist
         print(f"Updated tracklist to {self.tracklist}")
 

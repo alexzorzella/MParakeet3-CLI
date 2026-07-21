@@ -184,19 +184,6 @@ class MixView:
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
 
-    # def call_generic_player_command(self, function, list_widget_item: QListWidgetItem):
-    #     song_entry = self.get_track_by_list_widget_item(list_widget_item)
-    #
-    #     if song_entry is None:
-    #         return
-    #
-    #     path = song_entry.filepath
-    #
-    #     if not Path(path).exists():
-    #         self.mix_util.show_status_bar_message(f"{path} doesn't exist")
-    #
-    #     self.mix_util.queue_player_command(function=function, args=(path,))
-
     def preview_transition_from(self, list_widget_item: QListWidgetItem):
         index = self.list_widget.row(list_widget_item)
 
@@ -259,6 +246,9 @@ class MixView:
 
     def tracks(self) -> int:
         return len(self.current_tracklist.items())
+
+    def get_tracklist_as_list_of_song_entry(self):
+        return [ song_entry for _, song_entry in self.current_tracklist.items() ]
 
     def get_tracklist_as_list_of_path(self):
         return [ song_entry.filepath for _, song_entry in self.current_tracklist.items() ]

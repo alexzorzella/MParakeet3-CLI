@@ -1,4 +1,3 @@
-from collections import defaultdict
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -10,6 +9,7 @@ from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
 from mix_utility import MixUtility
 from song_entry import SongEntry
+from tracklist import Tracklist
 
 HEADER_FONT_SIZE: int = 20
 
@@ -17,13 +17,14 @@ class MixView:
     name: str
     mix_util: MixUtility
 
-    current_tracklist: defaultdict[QWidget, SongEntry]
+    current_tracklist: Tracklist
     mix_name_line_edit: BaklavaLineEdit
+
+    list_widget: QListWidget
 
     tab_index = -1
 
     def __init__(self, mix_util, mix_path: Path | None = None, parent=None):
-        self.current_tracklist = defaultdict()
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui(parent=parent)
@@ -31,6 +32,8 @@ class MixView:
         if mix_path is not None and mix_path.is_file():
             mix_path = Path(mix_path)
             self.load_mix(loaded_mix_path=mix_path)
+
+        self.current_tracklist = Tracklist(list_widget=self.list_widget)
 
     def load_mix(self, loaded_mix_path: Path):
         if loaded_mix_path.is_file():
@@ -136,15 +139,15 @@ class MixView:
                     mix_util=self.mix_util,
                     # generic_func=self.call_generic_player_command,
                     preview_transition_func=self.preview_transition_from,
-                    delete_item=self.delete_list_widget_item)
+                    delete_item=self.current_tracklist.delete_list_widget_item_entry)
             )
 
-            if index < 0 or index >= len(self.current_tracklist.items()):
+            if index < 0 or index >= self.current_tracklist.length():
                 self.list_widget.addItem(song_entry.list_widget_item)
             else:
                 self.list_widget.insertItem(index, song_entry.list_widget_item)
 
-            self.current_tracklist[song_entry.widget] = song_entry
+            self.current_tracklist.widgets_to_song_entries[song_entry.widget] = song_entry
 
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
@@ -152,31 +155,17 @@ class MixView:
 
     def add_break(self):
         song_entry = SongEntry(filepath=None, break_duration=45 * 60)
-        self.current_tracklist[song_entry.widget] = song_entry
+        self.current_tracklist.widgets_to_song_entries[song_entry.widget] = song_entry
         self.list_widget.addItem(song_entry.list_widget_item)
         self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
         self.update_cumulative_times()
 
-    def get_track_by_list_widget_item(self, list_widget_item: QListWidgetItem) -> SongEntry | None:
-        widget = self.list_widget.itemWidget(list_widget_item)
-
-        if self.current_tracklist.__contains__(widget):
-            song_entry = self.current_tracklist[widget]
-        else:
-            return None
-
-        return song_entry
-
-    def get_track_by_index(self, index) -> SongEntry | None:
-        list_widget_item = self.list_widget.item(index)
-        return self.get_track_by_list_widget_item(list_widget_item)
-
     def update_cumulative_times(self):
         current_runtime: int = 0
 
         for i in range(self.list_widget.count()):
-            song_entry = self.get_track_by_index(i)
+            song_entry = self.current_tracklist.get_song_entry_at_index(i)
 
             if song_entry is None:
                 continue
@@ -187,8 +176,8 @@ class MixView:
     def preview_transition_from(self, list_widget_item: QListWidgetItem):
         index = self.list_widget.row(list_widget_item)
 
-        from_track = self.get_track_by_index(index - 1) if index > 0 else None
-        to_track = self.get_track_by_list_widget_item(list_widget_item)
+        from_track = self.current_tracklist.get_song_entry_at_index(index - 1) if index > 0 else None
+        to_track = self.current_tracklist.get_song_entry_by_list_widget_item(list_widget_item)
 
         if from_track is None:
             return
@@ -203,13 +192,6 @@ class MixView:
 
         self.mix_util.song_queue.preview(from_path, to_path)
 
-    def delete_list_widget_item(self, list_widget_item):
-        widget = self.list_widget.itemWidget(list_widget_item)
-        self.current_tracklist.__delitem__(widget)
-        row = self.list_widget.row(list_widget_item)
-        self.list_widget.takeItem(row)
-        # print(f"Deleted item at index {row} with widget {widget}, removed from tracklist, Current tracklist -> (length {len(self.current_tracklist)}), tracks: {", ".join([Path(song_entry.filepath).stem for widget, song_entry in self.current_tracklist.items()])}")
-
     def save(self):
         if self.do_cancel_operation_via_duplicate_dialog():
             return
@@ -217,7 +199,7 @@ class MixView:
         output_mix_filepath = self.get_output_path()
 
         with open(output_mix_filepath, "w", encoding="utf-8") as file:
-            for _, song_entry in self.current_tracklist.items():
+            for song_entry in self.current_tracklist.get_tracklist_as_list_of_song_entry():
                 track_title = song_entry.name()
                 file.write(f"{track_title}\n")
 
@@ -244,14 +226,5 @@ class MixView:
 
         return False
 
-    def tracks(self) -> int:
-        return len(self.current_tracklist.items())
-
-    def get_tracklist_as_list_of_song_entry(self):
-        return [ song_entry for _, song_entry in self.current_tracklist.items() ]
-
-    def get_tracklist_as_list_of_path(self):
-        return [ song_entry.filepath for _, song_entry in self.current_tracklist.items() ]
-
     def __str__(self):
-        return f"MixView '{self.name}' tracklist: {", ".join([song_entry.name() for _, song_entry in self.current_tracklist.items()])}"
+        return f"MixView '{self.name}' tracklist: {self.current_tracklist}"

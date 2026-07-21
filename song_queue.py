@@ -55,5 +55,5 @@ class SongQueue():
         # self.mix_util.queue_player_command(self.mix_util.player.set_time, (time,))
 
     def update_player_tracklist(self):
-        tracklist = self.mix_view.get_tracklist_as_list_of_song_entry()
+        tracklist = self.mix_view.current_tracklist
         self.player.queue_command(self.player.update_tracklist, (tracklist,))

@@ -3,6 +3,9 @@ from pathlib import Path
 
 import vlc
 from PySide6.QtCore import QThread
+from PySide6.QtWidgets import QListWidgetItem
+
+from tracklist import Tracklist
 
 PREVIEW_LENGTH = 5
 
@@ -10,8 +13,8 @@ class ThreadedVlcPlayer(QThread):
     vlc_instance = None
     player = None
 
-    tracklist = []
-    current_head_index = -1
+    tracklist: Tracklist | None = None
+    current_head_widget: QListWidgetItem | None = None
 
     thread = None
 
@@ -39,7 +42,7 @@ class ThreadedVlcPlayer(QThread):
     def on_end(self):
         self.commands.put((self.play_head, (True,)))
 
-    def update_tracklist(self, new_tracklist): # tracklist is a list of SongEntry
+    def update_tracklist(self, new_tracklist: Tracklist):
         self.tracklist = new_tracklist
         print(f"Updated tracklist to {self.tracklist}")
 
@@ -54,17 +57,19 @@ class ThreadedVlcPlayer(QThread):
 
     def play_head(self, advance: bool = False):
         if advance:
-            self.current_head_index += 1
+            if self.current_head_widget is None:
+                self.current_head_widget = self.tracklist.get_widget_at_index(0)
+            else:
+                self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget)
 
-        print(f"play_head called while pointing to track {self.current_head_index}")
-
-        if self.current_head_index >= len(self.tracklist):
+        if self.current_head_widget is None:
             print(f"Queue exhausted")
-            self.current_head_index -= 1
             return
 
+        print(f"play_head called while pointing to track {self.tracklist.get_index_of_widget(self.current_head_widget)}")
+
         try:
-            current_song_entry = self.tracklist[self.current_head_index]
+            current_song_entry = self.tracklist.get_song_entry_by_list_widget_item(self.current_head_widget)
             current_song = current_song_entry.filepath
 
             print(f"Current song now: {Path(current_song).stem}, attempting to play it")
@@ -72,7 +77,7 @@ class ThreadedVlcPlayer(QThread):
             media = self.vlc_instance.media_new(current_song)
             self.play(media)
 
-            print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
+            print(f"Played {Path(current_song).stem} (Queue track {self.tracklist.get_index_of_widget(self.current_head_widget)})")
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
 

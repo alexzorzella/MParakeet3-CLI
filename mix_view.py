@@ -260,5 +260,8 @@ class MixView:
     def tracks(self) -> int:
         return len(self.current_tracklist.items())
 
+    def get_tracklist_as_list_of_path(self):
+        return [ song_entry.filepath for _, song_entry in self.current_tracklist.items() ]
+
     def __str__(self):
         return f"MixView '{self.name}' tracklist: {", ".join([song_entry.name() for _, song_entry in self.current_tracklist.items()])}"

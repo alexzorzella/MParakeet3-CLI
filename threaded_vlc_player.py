@@ -55,10 +55,17 @@ class ThreadedVlcPlayer(QThread):
         if self.player is not None:
             self.player.stop()
 
-    def move_head(self, offset: int = 1):
+    def default_to_first_if_current_track_none(self):
         if self.current_head_widget is None:
             self.current_head_widget = self.tracklist.get_widget_at_index(0)
-        else:
+            return True
+
+        return False
+
+    def move_head(self, offset: int = 1, default_to_first: bool = True):
+        if default_to_first:
+            self.default_to_first_if_current_track_none()
+        if self.current_head_widget is not None:
             self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
 
     def play_song_at_head(self):
@@ -88,17 +95,26 @@ class ThreadedVlcPlayer(QThread):
         self.play_song_at_head()
 
     def skip_backward(self):
-        self.move_head(offset=-1)
-        self.play_song_at_head()
+        self.skip(offset=-1)
 
     def toggle_play(self):
+        if self.default_to_first_if_current_track_none():
+            self.play_song_at_head()
+
         if self.player.is_playing():
             self.player.pause()
         else:
             self.player.play()
 
     def skip_forward(self):
-        self.play_head(advance=True)
+        self.skip(offset=1)
+
+    def skip(self, offset: int):
+        self.move_head(offset=offset, default_to_first=False)
+        self.play_song_at_head()
+
+        if self.current_head_widget is None:
+            self.stop()
 
     def queue_command(self, function, args):
         self.commands.put((function, args))

@@ -39,9 +39,7 @@ class MixWindow(QMainWindow):
         horizontal_layout.addWidget(self.mix_util.parent_tab_widget)
         self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
-        queue_mix_view = self.populate_queue_gui(parent=horizontal_layout)
-
-        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view)
+        self.populate_queue_gui(parent=horizontal_layout)
 
         self.mix_util.player = ThreadedVlcPlayer()
 
@@ -56,7 +54,7 @@ class MixWindow(QMainWindow):
         queue_mix_view.name = "Queue"
         self.mix_util.queue_mix_view = queue_mix_view
 
-        return queue_mix_view
+        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

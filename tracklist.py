@@ -35,13 +35,17 @@ class Tracklist:
     def get_index_of_widget(self, widget: QListWidgetItem) -> int:
         return self.list_widget.row(widget)
 
-    def get_widget_after(self, widget: QListWidgetItem) -> QListWidgetItem | None:
+    def get_widget_after(self, widget: QListWidgetItem, offset: int = 1, loop: bool = False) -> QListWidgetItem | None:
         index = self.get_index_of_widget(widget)
+        index += offset
 
-        if index >= self.length():
+        if (index >= self.length() or index < 0) and not loop:
             return None
 
-        return self.get_widget_at_index(index + 1)
+        if loop:
+            index = index % self.length()
+
+        return self.get_widget_at_index(index)
 
     def delete_list_widget_item_entry(self, widget: QListWidgetItem):
         widget = self.list_widget.itemWidget(widget)

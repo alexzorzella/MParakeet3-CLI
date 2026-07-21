@@ -63,8 +63,10 @@ class MixWindow(QMainWindow):
         size = ICON_SIZE
         color = "white"
 
-        create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length, width=length, icon_size=size, icon_color=color)
-        create_button(container=controls_layout, icon=resource_path("img/play.svg"), height=length, width=length, icon_size=size, icon_color=color)
+        create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length, width=length, icon_size=size, icon_color=color,
+                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_backward, ()))
+        create_button(container=controls_layout, icon=resource_path("img/play.svg"), height=length, width=length, icon_size=size, icon_color=color,
+                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.toggle_play, ()))
         create_button(container=controls_layout, icon=resource_path("img/skip_right.svg"), height=length, width=length, icon_size=size, icon_color=color,
                       connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_forward, ()))
 

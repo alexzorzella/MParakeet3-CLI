@@ -74,3 +74,6 @@ class ThreadedVlcPlayer(QThread):
             print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
+
+    def queue_command(self, function, args):
+        self.player.commands.put((function, args))

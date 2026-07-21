@@ -29,6 +29,8 @@ class MixUtility:
 
     show_status_bar_message: Callable
 
+    song_queue = None
+
     def __init__(self, parent_window, show_status_bar_message: Callable):
         self.mix_tab_views = []
         self.parent_window = parent_window
@@ -99,6 +101,3 @@ class MixUtility:
                 names.append(mix_view_name)
 
         return duplicate_names
-
-    def queue_player_command(self, function, args):
-        self.player.commands.put((function, args))

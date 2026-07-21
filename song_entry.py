@@ -72,11 +72,11 @@ class SongEntry:
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
-                          connect_to_method=lambda: generic_func(self.mix_util.player.queue_song_force_play, list_widget_item))
+                          connect_to_method=lambda: generic_func(self.mix_util.song_queue.queue_song_force_play, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                          connect_to_method=lambda: generic_func(self.mix_util.player.queue_song, list_widget_item))
+                          connect_to_method=lambda: generic_func(self.mix_util.song_queue.queue_song, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                          connect_to_method=lambda: generic_func(self.mix_util.player.queue_song_next, list_widget_item))
+                          connect_to_method=lambda: generic_func(self.mix_util.song_queue.queue_song_next, list_widget_item))
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 

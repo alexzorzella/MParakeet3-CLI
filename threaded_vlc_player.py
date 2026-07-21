@@ -76,4 +76,4 @@ class ThreadedVlcPlayer(QThread):
             print(f"Error while attempting to play next song: {e}")
 
     def queue_command(self, function, args):
-        self.player.commands.put((function, args))
+        self.commands.put((function, args))

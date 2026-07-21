@@ -79,11 +79,11 @@ class SongEntry:
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
-                          connect_to_method=lambda: self.mix_util.song_queue.queue_song_force_play(list_widget_item))
+                          connect_to_method=lambda: self.mix_util.song_queue.queue_song_force_play(filepath))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                          connect_to_method=lambda: self.mix_util.song_queue.queue_song(list_widget_item))
+                          connect_to_method=lambda: self.mix_util.song_queue.queue_song(filepath))
             create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                          connect_to_method=lambda: self.mix_util.song_queue.queue_song_next(path=list_widget_item))
+                          connect_to_method=lambda: self.mix_util.song_queue.queue_song_next(path=filepath))
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 

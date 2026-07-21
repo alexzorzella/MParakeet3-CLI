@@ -184,9 +184,6 @@ class MixView:
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
 
-    def queue_player_command(self, function, args):
-        self.mix_util.player.commands.put((function, args))
-
     def call_generic_player_command(self, function, list_widget_item: QListWidgetItem):
         song_entry = self.get_track_by_list_widget_item(list_widget_item)
 
@@ -198,7 +195,7 @@ class MixView:
         if not Path(path).exists():
             self.mix_util.show_status_bar_message(f"{path} doesn't exist")
 
-        self.queue_player_command(function=function, args=(path,))
+        self.mix_util.queue_player_command(function=function, args=(path,))
 
     def preview_transition_from(self, list_widget_item: QListWidgetItem):
         index = self.list_widget.row(list_widget_item)
@@ -217,7 +214,7 @@ class MixView:
         elif not Path(to_path).exists():
             self.mix_util.show_status_bar_message(f"{to_path} doesn't exist")
 
-        self.queue_player_command(self.mix_util.player.preview, (from_path, to_path,))
+        self.mix_util.queue_player_command(self.mix_util.player.preview, (from_path, to_path,))
 
     def delete_list_widget_item(self, list_widget_item):
         widget = self.list_widget.itemWidget(list_widget_item)

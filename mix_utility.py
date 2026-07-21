@@ -8,7 +8,6 @@ from mutagen.mp3 import MP3
 from baklava import is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
-from threaded_vlc_player import ThreadedVlcPlayer
 
 from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR, DEFAULT_MIX_NAME
 
@@ -100,3 +99,6 @@ class MixUtility:
                 names.append(mix_view_name)
 
         return duplicate_names
+
+    def queue_player_command(self, function, args):
+        self.player.commands.put((function, args))

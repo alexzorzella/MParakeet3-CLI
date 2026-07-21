@@ -54,9 +54,9 @@ class MixWindow(QMainWindow):
         queue_mix_view.name = "Queue"
         self.mix_util.queue_mix_view = queue_mix_view
 
-        create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
+        currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
 
-        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view)
+        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, currently_playing_label=currently_playing_label)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

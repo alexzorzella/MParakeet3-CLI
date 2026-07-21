@@ -134,7 +134,7 @@ class MixView:
                 SongEntry(
                     filepath=Path(path),
                     mix_util=self.mix_util,
-                    generic_func=self.call_generic_player_command,
+                    # generic_func=self.call_generic_player_command,
                     preview_transition_func=self.preview_transition_from,
                     delete_item=self.delete_list_widget_item)
             )
@@ -184,18 +184,18 @@ class MixView:
             current_runtime += song_entry.length()
             song_entry.update_time_label(time=current_runtime)
 
-    def call_generic_player_command(self, function, list_widget_item: QListWidgetItem):
-        song_entry = self.get_track_by_list_widget_item(list_widget_item)
-
-        if song_entry is None:
-            return
-
-        path = song_entry.filepath
-
-        if not Path(path).exists():
-            self.mix_util.show_status_bar_message(f"{path} doesn't exist")
-
-        self.mix_util.queue_player_command(function=function, args=(path,))
+    # def call_generic_player_command(self, function, list_widget_item: QListWidgetItem):
+    #     song_entry = self.get_track_by_list_widget_item(list_widget_item)
+    #
+    #     if song_entry is None:
+    #         return
+    #
+    #     path = song_entry.filepath
+    #
+    #     if not Path(path).exists():
+    #         self.mix_util.show_status_bar_message(f"{path} doesn't exist")
+    #
+    #     self.mix_util.queue_player_command(function=function, args=(path,))
 
     def preview_transition_from(self, list_widget_item: QListWidgetItem):
         index = self.list_widget.row(list_widget_item)
@@ -214,7 +214,7 @@ class MixView:
         elif not Path(to_path).exists():
             self.mix_util.show_status_bar_message(f"{to_path} doesn't exist")
 
-        self.mix_util.queue_player_command(self.mix_util.player.preview, (from_path, to_path,))
+        self.mix_util.song_queue.preview(from_path, to_path)
 
     def delete_list_widget_item(self, list_widget_item):
         widget = self.list_widget.itemWidget(list_widget_item)

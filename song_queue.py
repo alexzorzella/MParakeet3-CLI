@@ -4,6 +4,7 @@ from mix_utility import MixUtility
 from mix_view import MixView
 from threaded_vlc_player import PREVIEW_LENGTH, ThreadedVlcPlayer
 
+
 class SongQueue():
     mix_util: MixUtility
     mix_view: MixView

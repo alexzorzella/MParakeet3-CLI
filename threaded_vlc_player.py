@@ -57,7 +57,7 @@ class ThreadedVlcPlayer(QThread):
 
         print(f"play_head called while pointing to track {self.current_head_index}")
 
-        if self.current_head_index >= self.tracklist:
+        if self.current_head_index >= len(self.tracklist):
             print(f"Queue exhausted")
             self.current_head_index -= 1
             return

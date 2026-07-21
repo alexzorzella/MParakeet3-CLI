@@ -39,9 +39,9 @@ class MixWindow(QMainWindow):
         horizontal_layout.addWidget(self.mix_util.parent_tab_widget)
         self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
-        self.populate_queue_gui(parent=horizontal_layout)
-
         self.mix_util.player = ThreadedVlcPlayer()
+
+        self.populate_queue_gui(parent=horizontal_layout)
 
     def populate_queue_gui(self, parent):
         queue_parent_layout = QVBoxLayout()
@@ -56,7 +56,7 @@ class MixWindow(QMainWindow):
 
         currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
 
-        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, currently_playing_label=currently_playing_label)
+        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, player=self.mix_util.player, currently_playing_label=currently_playing_label)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

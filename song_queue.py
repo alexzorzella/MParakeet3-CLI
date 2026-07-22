@@ -28,7 +28,7 @@ class SongQueue():
     def queue_song_force_play(self, path):
         print(f"Queueing {path.stem} and playing")
         self.queue_song_next(path=path)
-        self.player.queue_command(self.player.play_song_at_head, ())
+        self.player.queue_command(self.player.default_to_first_then_play_song_at_head, ())
 
     def queue_song(self, path):
         print(f"Queuing {path.stem}")

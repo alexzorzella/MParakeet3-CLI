@@ -135,14 +135,7 @@ class MixView:
             return
 
         for path in paths:
-            song_entry = (
-                SongEntry(
-                    filepath=Path(path),
-                    mix_util=self.mix_util,
-                    preview_transition_func=self.preview_transition_from,
-                    delete_item=self.current_tracklist.delete_list_widget_item_entry,
-                    in_queue=self.is_queue)
-            )
+            song_entry = SongEntry(filepath=Path(path), mix_util=self.mix_util, preview_transition_func=self.preview_transition_from, delete_item=self.current_tracklist.delete_list_widget_item_entry, in_queue=self.is_queue)
 
             if index < 0 or index >= self.current_tracklist.length():
                 self.list_widget.addItem(song_entry.list_widget_item)

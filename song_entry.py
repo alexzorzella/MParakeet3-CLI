@@ -77,8 +77,7 @@ class SongEntry:
         song_queue = self.mix_util.song_queue
 
         if not self.is_break:
-            play_method = \
-                lambda: song_queue.queue_song_force_play(filepath) if not in_queue else lambda: song_queue.set_head_to_list_widget_item(list_widget_item)
+            play_method = lambda: song_queue.queue_song_force_play(filepath) if not in_queue else lambda: song_queue.set_head_to_list_widget_item(list_widget_item)
 
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
                           connect_to_method=play_method)

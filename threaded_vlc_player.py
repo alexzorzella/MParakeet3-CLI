@@ -72,6 +72,7 @@ class ThreadedVlcPlayer(QThread):
     def move_head(self, offset: int = 1, default_to_first: bool = True):
         if default_to_first:
             self.default_to_first_if_current_track_none()
+
         if self.current_head_widget is not None:
             if offset > 0:
                 self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)

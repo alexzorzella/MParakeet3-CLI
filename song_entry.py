@@ -1,12 +1,11 @@
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
 from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE
-
 
 class SongEntry:
     filepath: Path
@@ -28,12 +27,10 @@ class SongEntry:
             self,
             filepath: Path | None,
             mix_util = None,
-            # generic_func: Callable | None = None,
             preview_transition_func: Callable | None = None,
             delete_item: Callable | None = None,
             break_duration: int | None = None,
             in_queue: bool = False):
-        self.in_queue = in_queue
         self.mix_util = mix_util
 
         if filepath is not None:

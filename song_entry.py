@@ -76,12 +76,14 @@ class SongEntry:
 
         song_queue = self.mix_util.song_queue
 
+        if not in_queue:
+            play_method = lambda: song_queue.queue_song_force_play(filepath)
+            delete_method = lambda: delete_item(list_widget_item)
+        else:
+            play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
+            delete_method = lambda: song_queue.delete_entry_by_list_widget_item(list_widget_item)
+
         if not self.is_break:
-            if in_queue:
-                print("In queue, the functions should be different here")
-
-            play_method = lambda: song_queue.queue_song_force_play(filepath) if not in_queue else lambda: song_queue.set_head_to_list_widget_item(list_widget_item)
-
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
                           connect_to_method=play_method)
 
@@ -93,8 +95,6 @@ class SongEntry:
 
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
-
-        delete_method = lambda: delete_item(list_widget_item) if not in_queue else lambda: song_queue.delete_entry_by_list_widget_item(list_widget_item)
 
         create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
                           connect_to_method=delete_method)

@@ -28,7 +28,7 @@ class SongQueue():
     def queue_song_force_play(self, path):
         print(f"Queueing {path.stem} and playing")
         self.queue_song_next(path=path)
-        self.player.queue_command(self.player.play_head, (True,))
+        self.player.queue_command(self.player.play_song_at_head, ())
 
     def queue_song(self, path):
         print(f"Queuing {path.stem}")
@@ -49,7 +49,7 @@ class SongQueue():
         self.queue_song_next(path=to_path)
         self.queue_song_next(path=from_path)
 
-        self.player.queue_command(self.player.play_head, (True,))
+        self.player.queue_command(self.player.play_song_at_head, ())
 
         song_ending = MP3(from_path)
         song_ending_length = song_ending.info.length

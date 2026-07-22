@@ -44,7 +44,7 @@ class ThreadedVlcPlayer(QThread):
             func(*args)
 
     def on_end(self):
-        self.commands.put((self.play_head, (True,)))
+        self.commands.put((self.skip_forward, ()))
 
     def update_tracklist(self, new_tracklist: Tracklist):
         self.tracklist = new_tracklist
@@ -105,12 +105,6 @@ class ThreadedVlcPlayer(QThread):
             print(f"Played {Path(current_song).stem} (Queue track {self.tracklist.get_index_of_widget(self.current_head_widget)})")
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
-
-    def play_head(self, advance: bool = False):
-        if advance:
-            self.move_head()
-
-        self.play_song_at_head()
 
     def skip_backward(self):
         self.skip(offset=-1)

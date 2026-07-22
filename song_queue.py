@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QLabel
 from mutagen.mp3 import MP3
 
 from mix_view import MixView
-from song_entry import SongEntry
 from threaded_vlc_player import PREVIEW_LENGTH, ThreadedVlcPlayer
 
 class SongQueue():

@@ -1,8 +1,9 @@
 from pathlib import Path
 
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QKeySequence, QShortcut, Qt
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout, QSlider
 
 from baklava import set_tooltip, create_label, create_button, resource_path
 from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE
@@ -56,12 +57,27 @@ class MixWindow(QMainWindow):
 
         currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
 
-        controls_layout = QHBoxLayout()
-        queue_parent_layout.addLayout(controls_layout)
-
         length = ICON_SIDE_LENGTH
         size = ICON_SIZE
         color = "white"
+
+        song_progress_slider = QSlider(Qt.Orientation.Horizontal)
+
+        queue_parent_layout.addWidget(song_progress_slider)
+
+        song_progress_slider.setRange(0, 1000)
+        self.song_progress_slider = song_progress_slider
+
+        self.song_progress_slider.sliderPressed.connect(lambda: self.on_progress_slider_pressed())
+        self.song_progress_slider.sliderReleased.connect(lambda: self.on_progress_slider_released())
+
+        timer = QTimer(self)
+        timer.setInterval(50)
+        timer.timeout.connect(self.update_slider)
+        timer.start()
+
+        controls_layout = QHBoxLayout()
+        queue_parent_layout.addLayout(controls_layout)
 
         create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length, width=length, icon_size=size, icon_color=color,
                       connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_backward, ()))
@@ -71,6 +87,35 @@ class MixWindow(QMainWindow):
                       connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_forward, ()))
 
         self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, player=self.mix_util.player, currently_playing_label=currently_playing_label)
+
+    song_progress_slider: QSlider
+    user_dragging: bool = False
+
+    def update_slider(self):
+        if self.user_dragging:
+            return
+
+        player = self.mix_util.player.player
+
+        if player.is_playing():
+            length = player.get_length()
+            time = player.get_time()
+
+            if length > 0:
+                self.song_progress_slider.setValue(int(time / length * 1000))
+
+    def on_progress_slider_pressed(self):
+        self.user_dragging = True
+
+    def on_progress_slider_released(self):
+        player = self.mix_util.player.player
+
+        length = player.get_length()
+        if length > 0:
+            new_time = int(self.song_progress_slider.value() / 1000 * length)
+            player.set_time(new_time)
+
+        self.user_dragging = False
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

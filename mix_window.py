@@ -1,18 +1,15 @@
 from pathlib import Path
 
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QKeySequence, QShortcut, Qt
+from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout, QSlider, QLabel
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget
 
-from baklava import set_tooltip, create_label, create_button, resource_path, time_int_to_str
-from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE
+from baklava import set_tooltip
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
 from song_queue import SongQueue
 from threaded_vlc_player import ThreadedVlcPlayer
-
 
 class MixWindow(QMainWindow):
     mix_util: MixUtility
@@ -42,92 +39,7 @@ class MixWindow(QMainWindow):
 
         self.mix_util.player = ThreadedVlcPlayer()
 
-        self.populate_queue_gui(parent=horizontal_layout)
-
-    ########################### Migrate this to SongQueue #################################
-
-    song_progress_slider: QSlider
-    song_progress_label: QLabel
-    user_dragging: bool = False
-
-    def populate_queue_gui(self, parent):
-        queue_parent_layout = QVBoxLayout()
-        parent.addLayout(queue_parent_layout)
-        create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
-        queue_mix_view_parent = QWidget()
-        queue_parent_layout.addWidget(queue_mix_view_parent)
-
-        queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
-        queue_mix_view.name = "Queue"
-        self.mix_util.queue_mix_view = queue_mix_view
-
-        currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
-
-        song_progress_layout = QHBoxLayout()
-        queue_parent_layout.addLayout(song_progress_layout)
-
-        song_progress_slider = QSlider(Qt.Orientation.Horizontal)
-
-        song_progress_layout.addWidget(song_progress_slider)
-
-        song_progress_slider.setRange(0, 1000)
-        self.song_progress_slider = song_progress_slider
-
-        self.song_progress_slider.sliderPressed.connect(lambda: self.on_progress_slider_pressed())
-        self.song_progress_slider.sliderReleased.connect(lambda: self.on_progress_slider_released())
-
-        self.song_progress_label = create_label(container=song_progress_layout, text="00:00/00:00")
-
-        timer = QTimer(self)
-        timer.setInterval(50)
-        timer.timeout.connect(self.update_song_progress)
-        timer.start()
-
-        controls_layout = QHBoxLayout()
-        queue_parent_layout.addLayout(controls_layout)
-
-        length = ICON_SIDE_LENGTH
-        size = ICON_SIZE
-        color = "white"
-
-        create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length, width=length, icon_size=size, icon_color=color,
-                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_backward, ()))
-        create_button(container=controls_layout, icon=resource_path("img/play.svg"), height=length, width=length, icon_size=size, icon_color=color,
-                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.toggle_play, ()))
-        create_button(container=controls_layout, icon=resource_path("img/skip_right.svg"), height=length, width=length, icon_size=size, icon_color=color,
-                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_forward, ()))
-
-        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, player=self.mix_util.player, currently_playing_label=currently_playing_label)
-
-    def update_song_progress(self):
-        if self.user_dragging:
-            return
-
-        player = self.mix_util.player.player
-
-        if player.is_playing():
-            length = player.get_length()
-            time = player.get_time()
-
-            self.song_progress_label.setText(f"{time_int_to_str(total_seconds=time / 1000, do_truncate=True)}/{time_int_to_str(total_seconds=length / 1000, do_truncate=True)}")
-
-            if length > 0:
-                self.song_progress_slider.setValue(int(time / length * 1000))
-
-    def on_progress_slider_pressed(self):
-        self.user_dragging = True
-
-    def on_progress_slider_released(self):
-        player = self.mix_util.player.player
-
-        length = player.get_length()
-        if length > 0:
-            new_time = int(self.song_progress_slider.value() / 1000 * length)
-            player.set_time(new_time)
-
-        self.user_dragging = False
-
-    #########################################################################################################
+        self.mix_util.song_queue = SongQueue(mix_util=self.mix_util, parent=horizontal_layout, create_new_mix=self.create_new_mix)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

@@ -9,5 +9,10 @@ DEFAULT_MUSIC_DIR: Path = Path(__file__).resolve().parent / "Music"
 DEFAULT_MIX_DIR: Path = Path(__file__).resolve().parent / "Mixes"
 DEFAULT_MIX_NAME = "New Mix"
 
+NOTHING_PLAYING_MESSAGE = "Nothing is currently playing"
+
 ICON_SIDE_LENGTH = 35
 ICON_SIZE = QSize(28, 28)
+
+BREAK_SAVE_STR = ".break"
+DEFAULT_BREAK_DURATION = 45 * 60

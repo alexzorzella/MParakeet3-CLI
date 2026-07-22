@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QList
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
+from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR
 from mix_utility import MixUtility
 from song_entry import SongEntry
 from tracklist import Tracklist
@@ -24,7 +25,10 @@ class MixView:
 
     tab_index = -1
 
-    def __init__(self, mix_util, mix_path: Path | None = None, parent=None):
+    is_queue: bool = False
+
+    def __init__(self, mix_util, mix_path: Path | None = None, parent=None, is_queue: bool = False):
+        self.is_queue = is_queue
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui(parent=parent)
@@ -38,23 +42,24 @@ class MixView:
         if loaded_mix_path.is_file():
             with open(loaded_mix_path, 'r', encoding="utf-8") as file:
                 for line in file:
-                    # if line.split(" ")[0] == ".break":
-                        # mix.add_track_or_break(line)
-                    # else:
-                    processed_line = line.strip()
+                    if line.split(" ")[0] == BREAK_SAVE_STR:
+                        duration = int(line.split(" ")[1])
+                        self.add_break(duration=duration)
+                    else:
+                        processed_line = line.strip()
 
-                    closest_track_filepath = None
-                    best_match = 0
+                        closest_track_filepath = None
+                        best_match = 0
 
-                    for track_name, mp3 in self.mix_util.music_library.items():
-                        match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
+                        for track_name, mp3 in self.mix_util.music_library.items():
+                            match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
 
-                        if match_ratio > best_match:
-                            best_match = match_ratio
-                            closest_track_filepath = mp3.filename
+                            if match_ratio > best_match:
+                                best_match = match_ratio
+                                closest_track_filepath = mp3.filename
 
-                    if closest_track_filepath is not None:
-                        self.add_song_to_mix(closest_track_filepath)
+                        if closest_track_filepath is not None:
+                            self.add_song_to_mix(closest_track_filepath)
         elif loaded_mix_path.is_dir():
             mix_tracks = list(loaded_mix_path.rglob("*.mp3"))
 
@@ -132,14 +137,7 @@ class MixView:
             return
 
         for path in paths:
-            song_entry = (
-                SongEntry(
-                    filepath=Path(path),
-                    mix_util=self.mix_util,
-                    # generic_func=self.call_generic_player_command,
-                    preview_transition_func=self.preview_transition_from,
-                    delete_item=self.current_tracklist.delete_list_widget_item_entry)
-            )
+            song_entry = SongEntry(filepath=Path(path), mix_util=self.mix_util, preview_transition_func=self.preview_transition_from, delete_item=self.current_tracklist.delete_list_widget_item_entry, in_queue=self.is_queue)
 
             if index < 0 or index >= self.current_tracklist.length():
                 self.list_widget.addItem(song_entry.list_widget_item)
@@ -152,8 +150,8 @@ class MixView:
 
         self.update_cumulative_times()
 
-    def add_break(self):
-        song_entry = SongEntry(filepath=None, break_duration=45 * 60)
+    def add_break(self, duration: int=DEFAULT_BREAK_DURATION):
+        song_entry = SongEntry(filepath=None, mix_util=self.mix_util, break_duration=duration)
         self.current_tracklist.widgets_to_song_entries[song_entry.widget] = song_entry
         self.list_widget.addItem(song_entry.list_widget_item)
         self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
@@ -199,8 +197,9 @@ class MixView:
 
         with open(output_mix_filepath, "w", encoding="utf-8") as file:
             for song_entry in self.current_tracklist.get_tracklist_as_list_of_song_entry():
-                track_title = song_entry.name()
-                file.write(f"{track_title}\n")
+                # track_title = song_entry.name()
+                # file.write(f"{track_title}\n")
+                file.write(f"{song_entry.save_format()}\n")
 
         self.mix_util.show_status_bar_message(f"Saved {self.name} to {output_mix_filepath}")
 

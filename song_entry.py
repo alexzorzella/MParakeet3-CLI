@@ -1,12 +1,12 @@
 from pathlib import Path
 from typing import Callable
 
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
-from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE
-
+from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE, BREAK_SAVE_STR
+from mix_utility import MixUtility
 
 class SongEntry:
     filepath: Path
@@ -27,11 +27,11 @@ class SongEntry:
     def __init__(
             self,
             filepath: Path | None,
-            mix_util = None,
-            # generic_func: Callable | None = None,
+            mix_util: MixUtility,
             preview_transition_func: Callable | None = None,
             delete_item: Callable | None = None,
-            break_duration: int | None = None):
+            break_duration: int | None = None,
+            in_queue: bool = False):
         self.mix_util = mix_util
 
         if filepath is not None:
@@ -75,20 +75,30 @@ class SongEntry:
         color = "white"
         size = ICON_SIZE
 
+        song_queue = self.mix_util.song_queue
+
+        if not in_queue:
+            play_method = lambda: song_queue.queue_song_force_play(filepath)
+            delete_method = lambda: delete_item(list_widget_item)
+        else:
+            play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
+            delete_method = lambda: song_queue.delete_entry_by_list_widget_item(list_widget_item)
+
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
-                          connect_to_method=lambda: self.mix_util.song_queue.queue_song_force_play(filepath))
-            create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                          connect_to_method=lambda: self.mix_util.song_queue.queue_song(filepath))
-            create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                          connect_to_method=lambda: self.mix_util.song_queue.queue_song_next(path=filepath))
+                          connect_to_method=play_method)
+
+            if not in_queue:
+                create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
+                              connect_to_method=lambda: song_queue.queue_song(filepath))
+                create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
+                              connect_to_method=lambda: song_queue.queue_song_next(path=filepath))
+
             create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 
         create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
-                          connect_to_method=lambda: delete_item(list_widget_item))
-        # create_button(container=container, height=length, width=length, icon=resource_path("img/up_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Up")
-        # create_button(container=container, height=length, width=length, icon=resource_path("img/down_arrow.svg"), icon_color=color, icon_size=size, tooltip="Move Down")
+                          connect_to_method=delete_method)
 
         self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -140,6 +150,9 @@ class SongEntry:
     def length(self) -> int:
         result = self.mp3.info.length if not self.is_break else 0
         return int(result)
+
+    def save_format(self) -> str:
+        return self.name() if not self.is_break else f"{BREAK_SAVE_STR} {self.break_duration}"
 
     def __str__(self):
         return f"{self.name()}, abs. len: {self.absolute_length()}, len: {self.length()}, filepath: {self.filepath}"

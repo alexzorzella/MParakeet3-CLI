@@ -112,6 +112,11 @@ class ThreadedVlcPlayer(QThread):
         else:
             self.play_song_at_head()
 
+    def set_head_to_widget_and_play(self, widget: QListWidgetItem):
+        self.current_head_widget = widget
+        self.signal_song_changed()
+        self.play_song_at_head()
+
     def skip_backward(self):
         self.skip(offset=-1)
 

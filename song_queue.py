@@ -39,13 +39,12 @@ class SongQueue():
         queue_mix_view_parent = QWidget()
         queue_parent_layout.addWidget(queue_mix_view_parent)
 
-        queue_mix_view = create_new_mix(parent=queue_mix_view_parent)
+        queue_mix_view = create_new_mix(parent=queue_mix_view_parent, is_queue=True)
         queue_mix_view.name = "Queue"
         self.mix_view = queue_mix_view
         self.mix_util.queue_mix_view = queue_mix_view
 
-        currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing",
-                                               alignment=Qt.AlignCenter)
+        currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
 
         self.currently_playing_label = currently_playing_label
 
@@ -159,6 +158,14 @@ class SongQueue():
         time = int(start_song_ending_at * 1000)
 
         self.player.queue_command(self.player.set_time, (time,))
+
+    def set_head_to_list_widget_item_entry(self, list_widget_item):
+        self.player.queue_command(self.player.set_head_to_widget_and_play, (list_widget_item,))
+        print(f"Setting head to {list_widget_item}")
+
+    def delete_entry_by_list_widget_item(self, list_widget_item):
+        self.mix_view.current_tracklist.delete_list_widget_item_entry(list_widget_item)
+        print(f"Deleting {list_widget_item}")
 
     def update_player_tracklist(self):
         tracklist = self.mix_view.current_tracklist

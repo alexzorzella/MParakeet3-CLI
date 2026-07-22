@@ -47,10 +47,10 @@ class Tracklist:
 
         return self.get_widget_at_index(index)
 
-    def delete_list_widget_item_entry(self, widget: QListWidgetItem):
-        widget = self.list_widget.itemWidget(widget)
+    def delete_list_widget_item_entry(self, list_widget_item: QListWidgetItem):
+        widget = self.list_widget.itemWidget(list_widget_item)
         self.widgets_to_song_entries.__delitem__(widget)
-        row = self.get_index_of_widget(widget)
+        row = self.get_index_of_widget(list_widget_item)
         self.list_widget.takeItem(row)
 
     def length(self) -> int:

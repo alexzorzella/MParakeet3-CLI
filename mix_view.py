@@ -24,7 +24,10 @@ class MixView:
 
     tab_index = -1
 
-    def __init__(self, mix_util, mix_path: Path | None = None, parent=None):
+    is_queue: bool = False
+
+    def __init__(self, mix_util, mix_path: Path | None = None, parent=None, is_queue: bool = False):
+        self.is_queue = is_queue
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui(parent=parent)
@@ -136,9 +139,9 @@ class MixView:
                 SongEntry(
                     filepath=Path(path),
                     mix_util=self.mix_util,
-                    # generic_func=self.call_generic_player_command,
                     preview_transition_func=self.preview_transition_from,
-                    delete_item=self.current_tracklist.delete_list_widget_item_entry)
+                    delete_item=self.current_tracklist.delete_list_widget_item_entry,
+                    in_queue=self.is_queue)
             )
 
             if index < 0 or index >= self.current_tracklist.length():

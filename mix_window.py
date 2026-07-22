@@ -99,8 +99,8 @@ class MixWindow(QMainWindow):
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()
 
-    def create_new_mix(self, path: Path | None = None, parent = None):
-        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent)
+    def create_new_mix(self, path: Path | None = None, parent = None, is_queue: bool = False):
+        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent, is_queue=is_queue)
 
         if parent is None:
             self.mix_util.mix_tab_views.append(mix_view)

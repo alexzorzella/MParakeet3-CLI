@@ -6,6 +6,8 @@ from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
 from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE
+from mix_utility import MixUtility
+
 
 class SongEntry:
     filepath: Path
@@ -26,7 +28,7 @@ class SongEntry:
     def __init__(
             self,
             filepath: Path | None,
-            mix_util = None,
+            mix_util: MixUtility,
             preview_transition_func: Callable | None = None,
             delete_item: Callable | None = None,
             break_duration: int | None = None,

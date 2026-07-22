@@ -149,7 +149,7 @@ class MixView:
         self.update_cumulative_times()
 
     def add_break(self):
-        song_entry = SongEntry(filepath=None, break_duration=45 * 60)
+        song_entry = SongEntry(filepath=None, mix_util=self.mix_util, break_duration=45 * 60)
         self.current_tracklist.widgets_to_song_entries[song_entry.widget] = song_entry
         self.list_widget.addItem(song_entry.list_widget_item)
         self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)

@@ -22,6 +22,7 @@ class ThreadedVlcPlayer(QThread):
     commands = None
 
     song_changed = Signal(QListWidgetItem)
+    playing_signal = Signal(bool)
 
     def __init__(self):
         super().__init__()
@@ -53,16 +54,18 @@ class ThreadedVlcPlayer(QThread):
         if self.player is not None:
             self.player.set_media(media)
             self.player.play()
+            self.playing_signal.emit(False)
 
     def stop(self):
         if self.player is not None:
             self.player.stop()
+            self.playing_signal.emit(False)
 
     def set_time(self, time):
         self.player.set_time(time)
 
     def default_to_first_if_current_track_none(self):
-        if self.current_head_widget is None:
+        if self.current_head_widget is None and self.tracklist.length() > 0:
             self.current_head_widget = self.tracklist.get_widget_at_index(0)
             self.signal_song_changed()
             return True
@@ -126,8 +129,10 @@ class ThreadedVlcPlayer(QThread):
 
         if self.player.is_playing():
             self.player.pause()
+            self.playing_signal.emit(False)
         else:
             self.player.play()
+            self.playing_signal.emit(True)
 
     def skip_forward(self):
         self.skip(offset=1)

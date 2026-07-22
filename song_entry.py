@@ -85,20 +85,20 @@ class SongEntry:
             delete_method = lambda: song_queue.delete_entry_by_list_widget_item(list_widget_item)
 
         if not self.is_break:
-            create_button(container=container, height=length, width=length, icon=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
+            create_button(container=container, height=length, width=length, icon_path=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
                           connect_to_method=play_method)
 
             if not in_queue:
-                create_button(container=container, height=length, width=length, icon=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
+                create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
                               connect_to_method=lambda: song_queue.queue_song(filepath))
-                create_button(container=container, height=length, width=length, icon=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
+                create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
                               connect_to_method=lambda: song_queue.queue_song_next(path=filepath))
 
-            create_button(container=container, height=length, width=length, icon=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
+            create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=lambda: preview_transition_func(list_widget_item))
 
-        create_button(container=container, height=length, width=length, icon=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
-                          connect_to_method=delete_method)
+        create_button(container=container, height=length, width=length, icon_path=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
+                      connect_to_method=delete_method)
 
         self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

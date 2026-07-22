@@ -59,6 +59,9 @@ class ThreadedVlcPlayer(QThread):
         if self.player is not None:
             self.player.stop()
 
+    def set_time(self, time):
+        self.player.set_time(time)
+
     def default_to_first_if_current_track_none(self):
         if self.current_head_widget is None:
             self.current_head_widget = self.tracklist.get_widget_at_index(0)

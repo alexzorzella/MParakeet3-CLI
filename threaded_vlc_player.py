@@ -107,8 +107,10 @@ class ThreadedVlcPlayer(QThread):
             print(f"Error while attempting to play next song: {e}")
 
     def default_to_first_then_play_song_at_head(self):
-        self.default_to_first_if_current_track_none()
-        self.play_song_at_head()
+        if not self.default_to_first_if_current_track_none():
+            self.skip_forward()
+        else:
+            self.play_song_at_head()
 
     def skip_backward(self):
         self.skip(offset=-1)

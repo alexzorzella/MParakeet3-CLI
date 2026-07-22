@@ -5,9 +5,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
-from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE
+from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE, BREAK_SAVE_STR
 from mix_utility import MixUtility
-
 
 class SongEntry:
     filepath: Path
@@ -151,6 +150,9 @@ class SongEntry:
     def length(self) -> int:
         result = self.mp3.info.length if not self.is_break else 0
         return int(result)
+
+    def save_format(self) -> str:
+        return self.name() if not self.is_break else f"{BREAK_SAVE_STR} {self.break_duration}"
 
     def __str__(self):
         return f"{self.name()}, abs. len: {self.absolute_length()}, len: {self.length()}, filepath: {self.filepath}"

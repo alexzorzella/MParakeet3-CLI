@@ -13,3 +13,5 @@ NOTHING_PLAYING_MESSAGE = "Nothing is currently playing"
 
 ICON_SIDE_LENGTH = 35
 ICON_SIZE = QSize(28, 28)
+
+BREAK_SAVE_STR = ".break"

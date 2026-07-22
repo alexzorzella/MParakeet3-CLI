@@ -56,11 +56,15 @@ class Tracklist:
     def length(self) -> int:
         return len(self.widgets_to_song_entries.items())
 
+    def get_list_of_list_widget_items(self):
+        return [ self.list_widget.item(i) for i in range(0, self.list_widget.count()) ]
+
     def get_tracklist_as_list_of_song_entry(self):
-        return [song_entry for _, song_entry in self.widgets_to_song_entries.items()]
+        list_of_list_widget_item = self.get_list_of_list_widget_items()
+        return [ self.widgets_to_song_entries[self.list_widget.itemWidget(list_widget_item)] for list_widget_item in list_of_list_widget_item]
 
     def get_tracklist_as_list_of_path(self):
-        return [song_entry.filepath for _, song_entry in self.widgets_to_song_entries.items()]
+        return [ song_entry.filepath for song_entry in self.get_tracklist_as_list_of_song_entry() ]
 
     def __str__(self):
         return ", ".join([song_entry.name() for song_entry in self.get_tracklist_as_list_of_song_entry()])

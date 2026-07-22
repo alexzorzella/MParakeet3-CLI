@@ -195,8 +195,9 @@ class MixView:
 
         with open(output_mix_filepath, "w", encoding="utf-8") as file:
             for song_entry in self.current_tracklist.get_tracklist_as_list_of_song_entry():
-                track_title = song_entry.name()
-                file.write(f"{track_title}\n")
+                # track_title = song_entry.name()
+                # file.write(f"{track_title}\n")
+                file.write(f"{song_entry.save_format()}\n")
 
         self.mix_util.show_status_bar_message(f"Saved {self.name} to {output_mix_filepath}")
 

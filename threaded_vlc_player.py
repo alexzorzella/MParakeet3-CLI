@@ -1,112 +1,125 @@
 import queue
-import threading
 from pathlib import Path
 
 import vlc
-from PySide6.QtWidgets import QVBoxLayout
-from mutagen.mp3 import MP3
+from PySide6.QtCore import QThread
+from PySide6.QtWidgets import QListWidgetItem
 
-from baklava import create_label
-from globals import AQtAlignCenterTop
+from tracklist import Tracklist
 
 PREVIEW_LENGTH = 5
+SKIP_BACK_TIME = 3
 
-class ThreadedVlcPlayer:
+class ThreadedVlcPlayer(QThread):
     vlc_instance = None
     player = None
 
-    song_queue = []
-    current_head_index = -1
+    tracklist: Tracklist | None = None
+    current_head_widget: QListWidgetItem | None = None
 
     thread = None
 
     commands = None
 
     def __init__(self):
+        super().__init__()
+
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
 
         events = self.player.event_manager()
-        events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self._on_end())
+        events.event_attach(vlc.EventType.MediaPlayerEndReached, lambda event: self.on_end())
 
         self.commands = queue.Queue()
 
-        self.thread = threading.Thread(target=self._run, daemon=True)
-        self.thread.start()
+        self.start()
 
-    def _run(self):
+    def run(self):
         while True:
             func, args = self.commands.get()
+            print(f"Received {func}({args})")
             func(*args)
 
-    def _on_end(self):
+    def on_end(self):
         self.commands.put((self.play_head, (True,)))
 
-    def populate_gui(self, parent):
-        queue_parent_layout = QVBoxLayout()
-        parent.addLayout(queue_parent_layout)
-        create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
+    def update_tracklist(self, new_tracklist: Tracklist):
+        self.tracklist = new_tracklist
+        print(f"Updated tracklist to {self.tracklist}")
 
-    def play(self):
+    def play(self, media):
         if self.player is not None:
+            self.player.set_media(media)
             self.player.play()
 
     def stop(self):
         if self.player is not None:
             self.player.stop()
 
-    def queue_song_force_play(self, path):
-        self.queue_song_next(path=path)
-        self.play_head(advance=True)
+    def default_to_first_if_current_track_none(self):
+        if self.current_head_widget is None:
+            self.current_head_widget = self.tracklist.get_widget_at_index(0)
+            return True
 
-    def debug_print_queue(self, paths):
-        return f"{[Path(path).stem for path in paths]}"
+        return False
 
-    def queue_song_next(self, path):
-        if len(self.song_queue) > 0:
-            self.song_queue.insert(self.current_head_index + 1, path)
-            print(f"Queued {Path(path).stem} next, current queue: {self.debug_print_queue(paths=self.song_queue)}")
-        else:
-            self.queue_song(path=path)
+    def move_head(self, offset: int = 1, default_to_first: bool = True):
+        if default_to_first:
+            self.default_to_first_if_current_track_none()
+        if self.current_head_widget is not None:
+            if offset > 0:
+                self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
+            elif offset < 0 and self.tracklist.get_index_of_widget(self.current_head_widget) > 0:
+                if self.player.get_time() / 1000 < SKIP_BACK_TIME:
+                    self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
 
-    def queue_song(self, path):
-        self.song_queue.append(path)
-
-        print(f"Queued {Path(path).stem} to end, current queue: {self.debug_print_queue(paths=self.song_queue)}")
-
-    def play_head(self, advance: bool = False):
-        if advance:
-            self.current_head_index += 1
-
-        print(f"play_head called while pointing to track {self.current_head_index}")
-
-        if self.current_head_index >= len(self.song_queue):
+    def play_song_at_head(self):
+        if self.current_head_widget is None:
             print(f"Queue exhausted")
-            self.current_head_index -= 1
             return
 
+        print(f"play_head called while pointing to track {self.tracklist.get_index_of_widget(self.current_head_widget)}")
+
         try:
-            current_song = self.song_queue[self.current_head_index]
+            current_song_entry = self.tracklist.get_song_entry_by_list_widget_item(self.current_head_widget)
+            current_song = current_song_entry.filepath
 
             print(f"Current song now: {Path(current_song).stem}, attempting to play it")
 
             media = self.vlc_instance.media_new(current_song)
-            self.player.set_media(media)
-            self.player.play()
+            self.play(media)
 
-            print(f"Played {Path(current_song).stem} (Queue track {self.current_head_index})")
+            print(f"Played {Path(current_song).stem} (Queue track {self.tracklist.get_index_of_widget(self.current_head_widget)})")
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
 
-    def preview(self, from_path, to_path):
-        self.stop()
+    def play_head(self, advance: bool = False):
+        if advance:
+            self.move_head()
 
-        self.queue_song_next(path=to_path)
-        self.queue_song_next(path=from_path)
+        self.play_song_at_head()
 
-        self.play_head(advance=True)
+    def skip_backward(self):
+        self.skip(offset=-1)
 
-        song_ending = MP3(from_path)
-        song_ending_length = song_ending.info.length
-        start_song_ending_at = max(0, song_ending_length - PREVIEW_LENGTH)
-        self.player.set_time(int(start_song_ending_at * 1000))
+    def toggle_play(self):
+        if self.default_to_first_if_current_track_none():
+            self.play_song_at_head()
+
+        if self.player.is_playing():
+            self.player.pause()
+        else:
+            self.player.play()
+
+    def skip_forward(self):
+        self.skip(offset=1)
+
+    def skip(self, offset: int):
+        self.move_head(offset=offset, default_to_first=False)
+        self.play_song_at_head()
+
+        if self.current_head_widget is None:
+            self.stop()
+
+    def queue_command(self, function, args):
+        self.commands.put((function, args))

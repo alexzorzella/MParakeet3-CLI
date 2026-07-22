@@ -1,13 +1,17 @@
 from pathlib import Path
 
-from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtGui import QKeySequence, QShortcut, Qt
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QVBoxLayout
 
-from baklava import set_tooltip
+from baklava import set_tooltip, create_label, create_button, resource_path
+from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
+from song_queue import SongQueue
+from threaded_vlc_player import ThreadedVlcPlayer
+
 
 class MixWindow(QMainWindow):
     mix_util: MixUtility
@@ -35,7 +39,38 @@ class MixWindow(QMainWindow):
         horizontal_layout.addWidget(self.mix_util.parent_tab_widget)
         self.mix_util.parent_tab_widget.currentChanged.connect(self.on_tab_changed)
 
-        self.mix_util.player.populate_gui(parent=horizontal_layout)
+        self.mix_util.player = ThreadedVlcPlayer()
+
+        self.populate_queue_gui(parent=horizontal_layout)
+
+    def populate_queue_gui(self, parent):
+        queue_parent_layout = QVBoxLayout()
+        parent.addLayout(queue_parent_layout)
+        create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
+        queue_mix_view_parent = QWidget()
+        queue_parent_layout.addWidget(queue_mix_view_parent)
+
+        queue_mix_view = self.create_new_mix(parent=queue_mix_view_parent)
+        queue_mix_view.name = "Queue"
+        self.mix_util.queue_mix_view = queue_mix_view
+
+        currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
+
+        controls_layout = QHBoxLayout()
+        queue_parent_layout.addLayout(controls_layout)
+
+        length = ICON_SIDE_LENGTH
+        size = ICON_SIZE
+        color = "white"
+
+        create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length, width=length, icon_size=size, icon_color=color,
+                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_backward, ()))
+        create_button(container=controls_layout, icon=resource_path("img/play.svg"), height=length, width=length, icon_size=size, icon_color=color,
+                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.toggle_play, ()))
+        create_button(container=controls_layout, icon=resource_path("img/skip_right.svg"), height=length, width=length, icon_size=size, icon_color=color,
+                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.skip_forward, ()))
+
+        self.mix_util.song_queue = SongQueue(mix_view=queue_mix_view, player=self.mix_util.player, currently_playing_label=currently_playing_label)
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -90,19 +125,19 @@ class MixWindow(QMainWindow):
         return self.mix_util.currently_selected_mix_view()
 
     def on_tab_changed(self, new_index):
-        # if self.currently_selected_mix() is not None:
-        #     self.export_tracklist_to_txt()
-
         self.mix_util.currently_selected_tab = new_index
-        # print(f"Switched view to {new_index}")
 
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()
 
-    def create_new_mix(self, path: Path | None = None):
-        mix_view = MixView(mix_util=self.mix_util, mix_path=path)
-        self.mix_util.mix_tab_views.append(mix_view)
-        self.mix_util.parent_tab_widget.setCurrentIndex(self.mix_util.parent_tab_widget.count() - 1)
+    def create_new_mix(self, path: Path | None = None, parent = None):
+        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent)
+
+        if parent is None:
+            self.mix_util.mix_tab_views.append(mix_view)
+            self.mix_util.parent_tab_widget.setCurrentIndex(self.mix_util.parent_tab_widget.count() - 1)
+
+        return mix_view
 
     def load_mix(self):
         path = self.mix_util.add_song_file_load_action.load_file(parent=self, caption="Select mix", directory=self.mix_util.mix_path.as_posix(), file_filter="File (*.txt);;")

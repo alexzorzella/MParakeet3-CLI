@@ -4,15 +4,12 @@ from typing import Callable
 
 from PySide6.QtWidgets import QListWidget, QTabWidget, QApplication
 from mutagen.mp3 import MP3
-from yt_dlp.extractor import mx3
 
 from baklava import is_null_or_whitespace
 from load_file_action import FileLoadAction
 from sconfig import parse_config_with_fallbacks
-from threaded_vlc_player import ThreadedVlcPlayer
 
 from globals import DEFAULT_MUSIC_DIR, DEFAULT_MIX_DIR, DEFAULT_MIX_NAME
-
 
 class MixUtility:
     parent_window = None
@@ -28,9 +25,11 @@ class MixUtility:
     mix_path: Path
 
     music_library: defaultdict[str, MP3]
-    player = ThreadedVlcPlayer()
+    player = None
 
     show_status_bar_message: Callable
+
+    song_queue = None
 
     def __init__(self, parent_window, show_status_bar_message: Callable):
         self.mix_tab_views = []

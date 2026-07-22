@@ -2,9 +2,10 @@ import queue
 from pathlib import Path
 
 import vlc
-from PySide6.QtCore import QThread
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QListWidgetItem
 
+from song_entry import SongEntry
 from tracklist import Tracklist
 
 PREVIEW_LENGTH = 5
@@ -20,6 +21,8 @@ class ThreadedVlcPlayer(QThread):
     thread = None
 
     commands = None
+
+    song_changed = Signal(SongEntry)
 
     def __init__(self):
         super().__init__()
@@ -63,15 +66,23 @@ class ThreadedVlcPlayer(QThread):
 
         return False
 
+    def signal_song_changed(self):
+        if self.current_head_widget is not None:
+            self.song_changed.emit(self.tracklist.get_song_entry_by_list_widget_item(self.current_head_widget))
+
     def move_head(self, offset: int = 1, default_to_first: bool = True):
         if default_to_first:
             self.default_to_first_if_current_track_none()
         if self.current_head_widget is not None:
             if offset > 0:
                 self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
+
+                self.signal_song_changed()
             elif offset < 0 and self.tracklist.get_index_of_widget(self.current_head_widget) > 0:
                 if self.player.get_time() / 1000 < SKIP_BACK_TIME:
                     self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
+
+                    self.signal_song_changed()
 
     def play_song_at_head(self):
         if self.current_head_widget is None:

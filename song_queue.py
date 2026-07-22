@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import QLabel
 from mutagen.mp3 import MP3
+from yt_dlp.update import current_git_head
 
 from mix_view import MixView
+from song_entry import SongEntry
 from threaded_vlc_player import PREVIEW_LENGTH, ThreadedVlcPlayer
 
 class SongQueue():
@@ -16,6 +18,11 @@ class SongQueue():
         self.mix_view = mix_view
         self.player = player
         self.currently_playing_label = currently_playing_label
+
+        self.player.song_changed.connect(self.on_song_changed)
+
+    def on_song_changed(self, new_song):
+        self.currently_playing_label.setText(new_song.name())
 
     def update_current_head_index(self, new_index):
         self.current_head_index = new_index

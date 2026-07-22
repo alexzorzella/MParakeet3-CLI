@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QList
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
+from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR
 from mix_utility import MixUtility
 from song_entry import SongEntry
 from tracklist import Tracklist
@@ -41,23 +42,24 @@ class MixView:
         if loaded_mix_path.is_file():
             with open(loaded_mix_path, 'r', encoding="utf-8") as file:
                 for line in file:
-                    # if line.split(" ")[0] == ".break":
-                        # mix.add_track_or_break(line)
-                    # else:
-                    processed_line = line.strip()
+                    if line.split(" ")[0] == BREAK_SAVE_STR:
+                        duration = int(line.split(" ")[1])
+                        self.add_break(duration=duration)
+                    else:
+                        processed_line = line.strip()
 
-                    closest_track_filepath = None
-                    best_match = 0
+                        closest_track_filepath = None
+                        best_match = 0
 
-                    for track_name, mp3 in self.mix_util.music_library.items():
-                        match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
+                        for track_name, mp3 in self.mix_util.music_library.items():
+                            match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
 
-                        if match_ratio > best_match:
-                            best_match = match_ratio
-                            closest_track_filepath = mp3.filename
+                            if match_ratio > best_match:
+                                best_match = match_ratio
+                                closest_track_filepath = mp3.filename
 
-                    if closest_track_filepath is not None:
-                        self.add_song_to_mix(closest_track_filepath)
+                        if closest_track_filepath is not None:
+                            self.add_song_to_mix(closest_track_filepath)
         elif loaded_mix_path.is_dir():
             mix_tracks = list(loaded_mix_path.rglob("*.mp3"))
 
@@ -148,8 +150,8 @@ class MixView:
 
         self.update_cumulative_times()
 
-    def add_break(self):
-        song_entry = SongEntry(filepath=None, mix_util=self.mix_util, break_duration=45 * 60)
+    def add_break(self, duration: int=DEFAULT_BREAK_DURATION):
+        song_entry = SongEntry(filepath=None, mix_util=self.mix_util, break_duration=duration)
         self.current_tracklist.widgets_to_song_entries[song_entry.widget] = song_entry
         self.list_widget.addItem(song_entry.list_widget_item)
         self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)

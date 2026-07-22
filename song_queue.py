@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QLabel, QSlider, QVBoxLayout, QWidget, QHBoxLayout
 from mutagen.mp3 import MP3
 
 from baklava import create_label, create_button, resource_path, time_int_to_str
-from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE
+from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE, NOTHING_PLAYING_MESSAGE
 from mix_utility import MixUtility
 from mix_view import MixView
 from threaded_vlc_player import PREVIEW_LENGTH, ThreadedVlcPlayer
@@ -44,7 +44,7 @@ class SongQueue():
         self.mix_view = queue_mix_view
         self.mix_util.queue_mix_view = queue_mix_view
 
-        currently_playing_label = create_label(container=queue_parent_layout, text="Nothing is currently playing", alignment=Qt.AlignCenter)
+        currently_playing_label = create_label(container=queue_parent_layout, text=NOTHING_PLAYING_MESSAGE, alignment=Qt.AlignCenter)
 
         self.currently_playing_label = currently_playing_label
 
@@ -118,9 +118,12 @@ class SongQueue():
         self.user_dragging = False
 
     def on_song_changed(self, new_list_widget_item):
-        new_song = self.mix_view.current_tracklist.get_song_entry_by_list_widget_item(new_list_widget_item)
-        self.current_head_index = self.mix_view.current_tracklist.get_index_of_widget(new_list_widget_item)
-        self.currently_playing_label.setText(new_song.name())
+        if new_list_widget_item is not None:
+            new_song = self.mix_view.current_tracklist.get_song_entry_by_list_widget_item(new_list_widget_item)
+            self.current_head_index = self.mix_view.current_tracklist.get_index_of_widget(new_list_widget_item)
+            self.currently_playing_label.setText(new_song.name())
+        else:
+            self.currently_playing_label.setText(NOTHING_PLAYING_MESSAGE)
 
     def update_current_head_index(self, new_index):
         self.current_head_index = new_index

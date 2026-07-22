@@ -83,12 +83,12 @@ class ThreadedVlcPlayer(QThread):
         self.signal_song_changed()
 
     def signal_song_changed(self):
-        if self.current_head_widget is not None:
-            self.song_changed.emit(self.current_head_widget)
+        self.song_changed.emit(self.current_head_widget)
 
     def play_song_at_head(self):
         if self.current_head_widget is None:
             print(f"Queue exhausted")
+            self.signal_song_changed()
             return
 
         print(f"play_head called while pointing to track {self.tracklist.get_index_of_widget(self.current_head_widget)}")

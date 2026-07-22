@@ -54,7 +54,7 @@ class ThreadedVlcPlayer(QThread):
         if self.player is not None:
             self.player.set_media(media)
             self.player.play()
-            self.playing_signal.emit(False)
+            self.playing_signal.emit(True)
 
     def stop(self):
         if self.player is not None:

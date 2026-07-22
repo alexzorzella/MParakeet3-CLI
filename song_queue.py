@@ -19,7 +19,9 @@ class SongQueue():
 
         self.player.song_changed.connect(self.on_song_changed)
 
-    def on_song_changed(self, new_song):
+    def on_song_changed(self, new_list_widget_item):
+        new_song = self.mix_view.current_tracklist.get_song_entry_by_list_widget_item(new_list_widget_item)
+        self.current_head_index = self.mix_view.current_tracklist.get_index_of_widget(new_list_widget_item)
         self.currently_playing_label.setText(new_song.name())
 
     def update_current_head_index(self, new_index):

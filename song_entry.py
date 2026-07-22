@@ -33,6 +33,7 @@ class SongEntry:
             delete_item: Callable | None = None,
             break_duration: int | None = None,
             in_queue: bool = False):
+        self.in_queue = in_queue
         self.mix_util = mix_util
 
         if filepath is not None:

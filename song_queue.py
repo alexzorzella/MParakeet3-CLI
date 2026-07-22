@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QLabel
 from mutagen.mp3 import MP3
-from yt_dlp.update import current_git_head
 
 from mix_view import MixView
 from song_entry import SongEntry

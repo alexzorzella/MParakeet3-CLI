@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QLabel, QSlider, QVBoxLayout, QWidget, QHBoxLayout
 from mutagen.mp3 import MP3
 
-from baklava import create_label, create_button, resource_path, time_int_to_str
+from baklava import create_label, create_button, resource_path, time_int_to_str, set_button_icon
 from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE, NOTHING_PLAYING_MESSAGE
 from mix_utility import MixUtility
 from mix_view import MixView
@@ -23,6 +23,8 @@ class SongQueue():
     song_progress_slider: QSlider
     song_progress_label: QLabel
     user_dragging: bool = False
+
+    play_button = None
 
     def __init__(self, mix_util: MixUtility, parent, create_new_mix: Callable):
         self.mix_util = mix_util
@@ -75,18 +77,22 @@ class SongQueue():
         size = ICON_SIZE
         color = "white"
 
-        create_button(container=controls_layout, icon=resource_path("img/skip_left.svg"), height=length,
+        create_button(container=controls_layout, icon_path=resource_path("img/skip_left.svg"), height=length,
                       width=length, icon_size=size, icon_color=color,
                       connect_to_method=lambda: self.mix_util.player.queue_command(
                           self.mix_util.player.skip_backward, ()))
-        create_button(container=controls_layout, icon=resource_path("img/play.svg"), height=length, width=length,
-                      icon_size=size, icon_color=color,
-                      connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.toggle_play,
-                                                                                   ()))
-        create_button(container=controls_layout, icon=resource_path("img/skip_right.svg"), height=length,
+        self.play_button = create_button(container=controls_layout, icon_path=resource_path("img/play.svg"), height=length, width=length,
+                                    icon_size=size, icon_color=color,
+                                    connect_to_method=lambda: self.mix_util.player.queue_command(self.mix_util.player.toggle_play, ()))
+        create_button(container=controls_layout, icon_path=resource_path("img/skip_right.svg"), height=length,
                       width=length, icon_size=size, icon_color=color,
                       connect_to_method=lambda: self.mix_util.player.queue_command(
                           self.mix_util.player.skip_forward, ()))
+
+        self.player.playing_signal.connect(self.on_play_state_changed)
+
+    def on_play_state_changed(self, playing):
+        set_button_icon(button=self.play_button, icon_path=resource_path(f"img/{"pause" if playing else "play"}.svg"), color="white")
 
     def update_song_progress(self):
         if self.user_dragging:

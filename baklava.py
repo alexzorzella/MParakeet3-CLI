@@ -77,7 +77,7 @@ def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, 
     return label
 
 def create_button(container=None, text="", font_size=10, text_align="center", width=-1, height=-1, horizontal_padding=0,
-                  vertical_padding=0, connect_to_method=None, is_checkbox=False, icon=None, icon_color=None, icon_size: QSize | None = None, tooltip=""):
+                  vertical_padding=0, connect_to_method=None, is_checkbox=False, icon_path=None, icon_color=None, icon_size: QSize | None = None, tooltip=""):
     """Creates a button under the passed container with the passed specifications"""
 
     if not is_checkbox:
@@ -108,14 +108,17 @@ def create_button(container=None, text="", font_size=10, text_align="center", wi
     if connect_to_method is not None:
         button.clicked.connect(connect_to_method)
 
-    if icon is not None:
-        button.setIcon(svg(str(icon), icon_color if icon_color is not None else "currentColor"))
+    if icon_path is not None:
+        button.setIcon(svg(str(icon_path), icon_color if icon_color is not None else "currentColor"))
         button.setIconSize(icon_size if icon_size is not None else button.sizeHint())
 
     if not is_null_or_whitespace(tooltip):
         set_tooltip(widget=button, text=tooltip)
 
     return button
+
+def set_button_icon(button: QPushButton, icon_path: Path, color=None):
+    button.setIcon(svg(str(icon_path), color if color is not None else "currentColor"))
 
 def svg(path, color):
     renderer = QSvgRenderer(path)

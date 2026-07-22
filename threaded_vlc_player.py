@@ -2,7 +2,7 @@ import queue
 from pathlib import Path
 
 import vlc
-from PySide6.QtCore import QThread
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QListWidgetItem
 
 from tracklist import Tracklist
@@ -20,6 +20,8 @@ class ThreadedVlcPlayer(QThread):
     thread = None
 
     commands = None
+
+    song_changed = Signal(QListWidgetItem)
 
     def __init__(self):
         super().__init__()
@@ -41,7 +43,7 @@ class ThreadedVlcPlayer(QThread):
             func(*args)
 
     def on_end(self):
-        self.commands.put((self.play_head, (True,)))
+        self.commands.put((self.skip_forward, ()))
 
     def update_tracklist(self, new_tracklist: Tracklist):
         self.tracklist = new_tracklist
@@ -56,9 +58,13 @@ class ThreadedVlcPlayer(QThread):
         if self.player is not None:
             self.player.stop()
 
+    def set_time(self, time):
+        self.player.set_time(time)
+
     def default_to_first_if_current_track_none(self):
         if self.current_head_widget is None:
             self.current_head_widget = self.tracklist.get_widget_at_index(0)
+            self.signal_song_changed()
             return True
 
         return False
@@ -66,12 +72,19 @@ class ThreadedVlcPlayer(QThread):
     def move_head(self, offset: int = 1, default_to_first: bool = True):
         if default_to_first:
             self.default_to_first_if_current_track_none()
+
         if self.current_head_widget is not None:
             if offset > 0:
                 self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
             elif offset < 0 and self.tracklist.get_index_of_widget(self.current_head_widget) > 0:
                 if self.player.get_time() / 1000 < SKIP_BACK_TIME:
                     self.current_head_widget = self.tracklist.get_widget_after(self.current_head_widget, offset=offset)
+
+        self.signal_song_changed()
+
+    def signal_song_changed(self):
+        if self.current_head_widget is not None:
+            self.song_changed.emit(self.current_head_widget)
 
     def play_song_at_head(self):
         if self.current_head_widget is None:
@@ -93,11 +106,11 @@ class ThreadedVlcPlayer(QThread):
         except Exception as e:
             print(f"Error while attempting to play next song: {e}")
 
-    def play_head(self, advance: bool = False):
-        if advance:
-            self.move_head()
-
-        self.play_song_at_head()
+    def default_to_first_then_play_song_at_head(self):
+        if not self.default_to_first_if_current_track_none():
+            self.skip_forward()
+        else:
+            self.play_song_at_head()
 
     def skip_backward(self):
         self.skip(offset=-1)

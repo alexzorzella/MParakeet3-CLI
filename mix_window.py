@@ -44,6 +44,8 @@ class MixWindow(QMainWindow):
 
         self.populate_queue_gui(parent=horizontal_layout)
 
+    ########################### Migrate this to SongQueue #################################
+
     def populate_queue_gui(self, parent):
         queue_parent_layout = QVBoxLayout()
         parent.addLayout(queue_parent_layout)
@@ -116,6 +118,8 @@ class MixWindow(QMainWindow):
             player.set_time(new_time)
 
         self.user_dragging = False
+
+    #########################################################################################################
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()

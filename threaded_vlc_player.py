@@ -65,7 +65,7 @@ class ThreadedVlcPlayer(QThread):
         self.player.set_time(time)
 
     def default_to_first_if_current_track_none(self):
-        if self.current_head_widget is None and self.tracklist.length() > 0:
+        if self.current_head_widget is None and self.tracklist is not None and self.tracklist.length() > 0:
             self.current_head_widget = self.tracklist.get_widget_at_index(0)
             self.signal_song_changed()
             return True

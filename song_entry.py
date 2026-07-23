@@ -84,7 +84,7 @@ class SongEntry:
         else:
             play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
             delete_method = lambda: song_queue.delete_entry_by_list_widget_item(list_widget_item)
-            preview_method = None
+            preview_method = lambda: song_queue.preview_list_widget_item(list_widget_item)
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon_path=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",

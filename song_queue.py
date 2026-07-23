@@ -150,6 +150,21 @@ class SongQueue():
         self.mix_view.add_song_to_mix(passed_path=path, index=index)
         self.update_player_tracklist()
 
+    def preview_list_widget_item(self, list_widget_item):
+        list_widget_item_index = self.mix_view.current_tracklist.get_index_of_widget(list_widget_item)
+
+        if list_widget_item_index > 0:
+            song_entries = self.mix_view.current_tracklist.get_tracklist_as_list_of_song_entry()
+            song_entry = song_entries[list_widget_item_index - 1]
+            self.player.queue_command(self.player.set_head_to_widget_and_play, (song_entry.list_widget_item,))
+
+            song_ending = MP3(song_entry.filepath)
+            song_ending_length = song_ending.info.length
+            start_song_ending_at = max(0, song_ending_length - PREVIEW_LENGTH)
+            time = int(start_song_ending_at * 1000)
+
+            self.player.queue_command(self.player.set_time, (time,))
+
     def preview(self, from_path, to_path):
         print(f"Previewing from {from_path.stem} to {to_path.stem}")
 

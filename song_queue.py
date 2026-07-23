@@ -153,12 +153,10 @@ class SongQueue():
     def preview(self, from_path, to_path):
         print(f"Previewing from {from_path.stem} to {to_path.stem}")
 
-        self.player.queue_command(self.player.stop, ())
-
         self.queue_song_next(path=to_path)
         self.queue_song_next(path=from_path)
 
-        self.player.queue_command(self.player.play_song_at_head, ())
+        self.player.queue_command(self.player.skip_forward, ())
 
         song_ending = MP3(from_path)
         song_ending_length = song_ending.info.length

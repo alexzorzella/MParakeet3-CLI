@@ -80,9 +80,11 @@ class SongEntry:
         if not in_queue:
             play_method = lambda: song_queue.queue_song_force_play(filepath)
             delete_method = lambda: delete_item(list_widget_item)
+            preview_method = lambda: preview_transition_func(list_widget_item)
         else:
             play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
             delete_method = lambda: song_queue.delete_entry_by_list_widget_item(list_widget_item)
+            preview_method = None
 
         if not self.is_break:
             create_button(container=container, height=length, width=length, icon_path=resource_path("img/play.svg"), icon_color=color, icon_size=size, tooltip="Play",
@@ -95,7 +97,7 @@ class SongEntry:
                               connect_to_method=lambda: song_queue.queue_song_next(path=filepath))
 
             create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
-                          connect_to_method=lambda: preview_transition_func(list_widget_item))
+                          connect_to_method=preview_method)
 
         create_button(container=container, height=length, width=length, icon_path=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
                       connect_to_method=delete_method)

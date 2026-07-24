@@ -67,11 +67,11 @@ class MixWindow(QMainWindow):
         export_menu.setToolTipsVisible(True)
         mix_menu.setToolTipsVisible(True)
 
+        export_mix_as_file = file_menu.addAction("&Save")
         new_mix_action = file_menu.addAction("&New Mix")
         new_mix_action.triggered.connect(lambda: self.create_new_mix())
         load_mix_action = file_menu.addAction("&Load Mix")
         load_mix_action.triggered.connect(self.load_mix)
-        export_mix_as_file = export_menu.addAction("&Save")
         export_mix_as_file.triggered.connect(self.export_tracklist_to_txt)
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
         export_mix_as_tracks.triggered.connect(self.copy_mix_to_dir_as_ordered_tracks)

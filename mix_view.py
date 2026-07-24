@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QList
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
-from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR
+from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR, AUTOSCROLL_MARGIN
 from mix_utility import MixUtility
 from song_entry import SongEntry
 from tracklist import Tracklist
@@ -91,7 +91,7 @@ class MixView:
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
         list_widget.setAutoScroll(True)
-        list_widget.autoScrollMargin = 50
+        list_widget.autoScrollMargin = AUTOSCROLL_MARGIN
         list_widget.setFlow(QListView.TopToBottom)
         list_widget.setWrapping(False)
         list_widget.setResizeMode(QListView.Adjust)

@@ -115,8 +115,11 @@ class MixView:
 
             vertical_layout.addLayout(hotbar)
 
-    def update_name(self, new_name):
+    def update_name(self, new_name, set_line_edit_text: bool = False):
         self.name = new_name
+
+        if set_line_edit_text:
+            self.mix_name_line_edit.setText(new_name)
 
         if self.tab_index >= 0:
             self.mix_util.parent_tab_widget.setTabText(self.tab_index, new_name)

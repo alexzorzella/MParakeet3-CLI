@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QApplication
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QInputDialog, QMessageBox
 
 from baklava import set_tooltip
-from import_playlist import get_song_names
+from import_playlist import get_playlist_title_and_song_names
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
@@ -101,8 +101,9 @@ class MixWindow(QMainWindow):
         inputted_link = QInputDialog.getText(self, "Parakeet", "Playlist link:")[0]
 
         try:
-            song_names = get_song_names(playlist_url=inputted_link)
+            title, song_names = get_playlist_title_and_song_names(playlist_url=inputted_link)
             new_mix = self.create_new_mix()
+            new_mix.update_name(new_name=title, set_line_edit_text=True)
             new_mix.load_songs(song_names=song_names)
         except Exception as e:
             print(e)

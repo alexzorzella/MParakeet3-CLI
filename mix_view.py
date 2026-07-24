@@ -38,28 +38,31 @@ class MixView:
             mix_path = Path(mix_path)
             self.load_mix(loaded_mix_path=mix_path)
 
+    def load_songs(self, song_names):
+        for line in song_names:
+            if line.split(" ")[0] == BREAK_SAVE_STR:
+                duration = int(line.split(" ")[1])
+                self.add_break(duration=duration)
+            else:
+                processed_line = line.strip()
+
+                closest_track_filepath = None
+                best_match = 0
+
+                for track_name, mp3 in self.mix_util.music_library.items():
+                    match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
+
+                    if match_ratio > best_match:
+                        best_match = match_ratio
+                        closest_track_filepath = mp3.filename
+
+                if closest_track_filepath is not None:
+                    self.add_song_to_mix(closest_track_filepath)
+
     def load_mix(self, loaded_mix_path: Path):
         if loaded_mix_path.is_file():
             with open(loaded_mix_path, 'r', encoding="utf-8") as file:
-                for line in file:
-                    if line.split(" ")[0] == BREAK_SAVE_STR:
-                        duration = int(line.split(" ")[1])
-                        self.add_break(duration=duration)
-                    else:
-                        processed_line = line.strip()
-
-                        closest_track_filepath = None
-                        best_match = 0
-
-                        for track_name, mp3 in self.mix_util.music_library.items():
-                            match_ratio = SequenceMatcher(None, track_name, processed_line).ratio()
-
-                            if match_ratio > best_match:
-                                best_match = match_ratio
-                                closest_track_filepath = mp3.filename
-
-                        if closest_track_filepath is not None:
-                            self.add_song_to_mix(closest_track_filepath)
+                self.load_songs(song_names=file)
         elif loaded_mix_path.is_dir():
             mix_tracks = list(loaded_mix_path.rglob("*.mp3"))
 

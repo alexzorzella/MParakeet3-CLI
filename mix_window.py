@@ -77,8 +77,8 @@ class MixWindow(QMainWindow):
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
         export_mix_as_tracks.triggered.connect(self.copy_mix_to_dir_as_ordered_tracks)
 
-        # import_mix_action = mix_menu.addAction("&Import")
-        # import_mix_action.triggered.connect(self.import_mix)
+        import_mix_action = mix_menu.addAction("&Import")
+        import_mix_action.triggered.connect(self.import_mix)
         add_song_action = mix_menu.addAction("&Add Song(s)")
         add_song_action.triggered.connect(self.add_song_to_currently_selected_mix)
 
@@ -101,9 +101,9 @@ class MixWindow(QMainWindow):
         inputted_link = QInputDialog.getText(self, "Parakeet", "Playlist link:")[0]
 
         try:
-            print(inputted_link)
             song_names = get_song_names(playlist_url=inputted_link)
-            print(song_names)
+            new_mix = self.create_new_mix()
+            new_mix.load_songs(song_names=song_names)
         except Exception as e:
             print(e)
 

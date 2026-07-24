@@ -1,13 +1,20 @@
-from yt_dlp import YoutubeDL
+import re
+from ytmusicapi import YTMusic
 
-YDL_OPTS = {
-    "extract-flat": True,
-    "quiet": True
-}
+def extract_playlist_id(url: str) -> str:
+    match = re.search(r"list=([a-zA-Z0-9_-]+)", url)
+    return match.group(1) if match else url
 
 def get_song_names(playlist_url):
-    with YoutubeDL(YDL_OPTS) as ydl:
-        playlist = ydl.extract_info(playlist_url, download=False)
+    playlist_id = extract_playlist_id(playlist_url)
 
-    result = [ song["title"] for song in playlist["entries"] ]
+    ytmusic = YTMusic()
+    playlist_data = ytmusic.get_playlist(playlist_id)
+
+    result = []
+
+    for song in playlist_data["tracks"]:
+        # artists = [ artist["name"] for artist in song["artists"] ]
+        result.append(song["title"])
+
     return result

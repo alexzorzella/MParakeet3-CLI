@@ -15,4 +15,5 @@ dependencies = [
     "python-vlc>=3.0.21203",
     "tqdm>=4.67.1",
     "yt-dlp>=2026.6.9",
+    "ytmusicapi>=1.12.1",
 ]

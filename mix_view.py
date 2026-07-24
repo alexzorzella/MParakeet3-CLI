@@ -272,7 +272,11 @@ class MixView:
 
         for list_widget_item in selected_items:
             song_entry = self.current_tracklist.get_song_entry_by_list_widget_item(list_widget_item)
-            selected_filepaths.append(song_entry.filepath)
+
+            try:
+                selected_filepaths.append(song_entry.filepath)
+            except:
+                pass
 
         if append_filepath not in selected_filepaths:
             selected_filepaths.append(append_filepath)

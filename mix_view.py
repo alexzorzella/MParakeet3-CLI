@@ -140,7 +140,14 @@ class MixView:
             if Path(path).suffix != ".mp3":
                 continue
 
-            song_entry = SongEntry(filepath=Path(path), mix_util=self.mix_util, preview_transition_func=self.preview_transition_from, delete_item=self.current_tracklist.delete_list_widget_item_entry, in_queue=self.is_queue)
+            song_entry = (
+                SongEntry(
+                    filepath=Path(path),
+                    mix_util=self.mix_util,
+                    preview_transition_func=self.preview_transition_from,
+                    delete_item=self.delete_list_widget_item_entry,
+                    in_queue=self.is_queue)
+            )
 
             if index < 0 or index >= self.current_tracklist.length():
                 self.list_widget.addItem(song_entry.list_widget_item)
@@ -151,6 +158,10 @@ class MixView:
 
             self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
 
+        self.update_cumulative_times()
+
+    def delete_list_widget_item_entry(self, list_widget_item):
+        self.current_tracklist.delete_list_widget_item_entry(list_widget_item)
         self.update_cumulative_times()
 
     def add_break(self, duration: int=DEFAULT_BREAK_DURATION):

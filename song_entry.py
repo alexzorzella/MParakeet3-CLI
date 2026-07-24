@@ -29,7 +29,9 @@ class SongEntry:
             filepath: Path | None,
             mix_util: MixUtility,
             preview_transition_func: Callable | None = None,
-            delete_item: Callable | None = None,
+            delete_selected_items_and: Callable | None = None,
+            queue_method: Callable | None = None,
+            queue_next_method: Callable | None = None,
             break_duration: int | None = None,
             in_queue: bool = False):
         self.mix_util = mix_util
@@ -78,11 +80,9 @@ class SongEntry:
 
         song_queue = self.mix_util.song_queue
 
-        selected_filepaths_and_this = lambda: self.mix_util.currently_selected_mix_view().get_selected_filepaths(append_filepath=filepath)
-
         if not in_queue:
             play_method = lambda: song_queue.queue_song_force_play(filepath)
-            delete_method = lambda: delete_item(self.list_widget_item)
+            delete_method = lambda: delete_selected_items_and(self.list_widget_item)
             preview_method = lambda: preview_transition_func(list_widget_item)
         else:
             play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
@@ -95,9 +95,9 @@ class SongEntry:
 
             if not in_queue:
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                              connect_to_method=lambda: song_queue.queue_song(selected_filepaths_and_this))
+                              connect_to_method=lambda: queue_method(filepath))
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                              connect_to_method=lambda: song_queue.queue_song_next(selected_filepaths_and_this))
+                              connect_to_method=lambda: queue_next_method(filepath))
 
             create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=preview_method)

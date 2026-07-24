@@ -2,9 +2,10 @@ from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QInputDialog, QMessageBox
 
 from baklava import set_tooltip
+from import_playlist import get_song_names
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
@@ -76,6 +77,8 @@ class MixWindow(QMainWindow):
         export_mix_as_tracks = export_menu.addAction("As Ordered &Tracks")
         export_mix_as_tracks.triggered.connect(self.copy_mix_to_dir_as_ordered_tracks)
 
+        # import_mix_action = mix_menu.addAction("&Import")
+        # import_mix_action.triggered.connect(self.import_mix)
         add_song_action = mix_menu.addAction("&Add Song(s)")
         add_song_action.triggered.connect(self.add_song_to_currently_selected_mix)
 
@@ -93,6 +96,16 @@ class MixWindow(QMainWindow):
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
         set_tooltip(widget=export_mix_as_tracks, text="Export a mix as ordered audio file (Ctrl+E)")
         set_tooltip(widget=add_song_action, text="Add one or more tracks to the mix (Ctrl+=)")
+
+    def import_mix(self):
+        inputted_link = QInputDialog.getText(self, "Parakeet", "Playlist link:")[0]
+
+        try:
+            print(inputted_link)
+            song_names = get_song_names(playlist_url=inputted_link)
+            print(song_names)
+        except Exception as e:
+            print(e)
 
     def load_mixes(self):
         mixes = list(self.mix_util.mix_path.rglob("*.txt"))

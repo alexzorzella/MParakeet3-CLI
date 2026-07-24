@@ -137,6 +137,9 @@ class MixView:
             return
 
         for path in paths:
+            if Path(path).suffix != ".mp3":
+                continue
+
             song_entry = SongEntry(filepath=Path(path), mix_util=self.mix_util, preview_transition_func=self.preview_transition_from, delete_item=self.current_tracklist.delete_list_widget_item_entry, in_queue=self.is_queue)
 
             if index < 0 or index >= self.current_tracklist.length():
@@ -197,8 +200,6 @@ class MixView:
 
         with open(output_mix_filepath, "w", encoding="utf-8") as file:
             for song_entry in self.current_tracklist.get_tracklist_as_list_of_song_entry():
-                # track_title = song_entry.name()
-                # file.write(f"{track_title}\n")
                 file.write(f"{song_entry.save_format()}\n")
 
         self.mix_util.show_status_bar_message(f"Saved {self.name} to {output_mix_filepath}")

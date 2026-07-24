@@ -17,10 +17,25 @@ class MixWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setAcceptDrops(True)
+
         self.mix_util = MixUtility(parent_window=self, show_status_bar_message=self.show_status_bar_message)
 
         self.create_window()
         self.load_mixes()
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        for url in event.mimeData().urls():
+            path = Path(url.toLocalFile())
+
+            if path.is_file():
+                self.mix_util.currently_selected_mix_view().add_song_to_mix(passed_path=path)
 
     def create_window(self):
         self.setWindowTitle("Parakeet")

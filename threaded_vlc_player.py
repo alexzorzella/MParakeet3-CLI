@@ -5,10 +5,8 @@ import vlc
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QListWidgetItem
 
+from globals import SKIP_BACK_TIME
 from tracklist import Tracklist
-
-PREVIEW_LENGTH = 5
-SKIP_BACK_TIME = 3
 
 class ThreadedVlcPlayer(QThread):
     vlc_instance = None

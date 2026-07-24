@@ -5,10 +5,10 @@ from PySide6.QtWidgets import QLabel, QSlider, QVBoxLayout, QWidget, QHBoxLayout
 from mutagen.mp3 import MP3
 
 from baklava import create_label, create_button, resource_path, time_int_to_str, set_button_icon
-from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE, NOTHING_PLAYING_MESSAGE
+from globals import AQtAlignCenterTop, ICON_SIDE_LENGTH, ICON_SIZE, NOTHING_PLAYING_MESSAGE, PREVIEW_LENGTH
 from mix_utility import MixUtility
 from mix_view import MixView
-from threaded_vlc_player import PREVIEW_LENGTH, ThreadedVlcPlayer
+from threaded_vlc_player import ThreadedVlcPlayer
 
 class SongQueue():
     player: ThreadedVlcPlayer

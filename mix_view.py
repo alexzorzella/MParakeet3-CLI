@@ -166,8 +166,12 @@ class MixView:
 
         self.update_cumulative_times()
 
-    def delete_list_widget_item_entry(self, list_widget_item):
-        self.current_tracklist.delete_list_widget_item_entry(list_widget_item)
+    def delete_list_widget_item_entry(self, append_item: QListWidgetItem | None=None):
+        items_to_delete = self.get_selected_list_widget_items(append_item=append_item)
+
+        for list_widget_item in items_to_delete:
+            self.current_tracklist.delete_list_widget_item_entry(list_widget_item)
+
         self.update_cumulative_times()
 
     def add_break(self, duration: int=DEFAULT_BREAK_DURATION):
@@ -241,6 +245,26 @@ class MixView:
                 return True
 
         return False
+
+    def get_selected_list_widget_items(self, append_item: QListWidgetItem | None = None):
+        selected_items = []
+        selected_items.extend(self.list_widget.selectedItems())
+
+        if append_item is not None and append_item not in selected_items:
+            selected_items.append(append_item)
+
+        return selected_items
+
+    def get_selected_filepaths(self, append_filepath):
+        selected_items = self.get_selected_list_widget_items()
+
+        result = [] if append_filepath is None else [append_filepath]
+
+        for list_widget_item in selected_items:
+            song_entry = self.current_tracklist.get_song_entry_by_list_widget_item(list_widget_item)
+            result.append(song_entry.filepath)
+
+        return result
 
     def __str__(self):
         return f"MixView '{self.name}' tracklist: {self.current_tracklist}"

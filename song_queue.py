@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import Qt, QTimer
@@ -136,19 +137,26 @@ class SongQueue():
 
     def queue_song_force_play(self, path):
         print(f"Queueing {path.stem} and playing")
-        self.queue_song_next(path=path)
+        self.queue_song_next(paths=path)
         self.player.queue_command(self.player.default_to_first_then_play_song_at_head, ())
 
-    def queue_song(self, path):
-        print(f"Queuing {path.stem}")
-        self.mix_view.add_song_to_mix(passed_path=path)
+    def queue_song(self, paths: Path | list[Path], index = -1):
+        # print(f"Queuing {path.stem}")
+
+        if not isinstance(paths, list):
+            paths = [ paths ]
+
+        for path in paths:
+            self.mix_view.add_song_to_mix(passed_path=path, index=index)
+
         self.update_player_tracklist()
 
-    def queue_song_next(self, path):
+    def queue_song_next(self, paths: Path | list[Path]):
         index = self.current_head_index + 1
-        print(f"Queuing {path.stem} to {index}")
-        self.mix_view.add_song_to_mix(passed_path=path, index=index)
-        self.update_player_tracklist()
+        self.queue_song(paths, index)
+        # print(f"Queuing {path.stem} to {index}")
+        # self.mix_view.add_song_to_mix(passed_path=path, index=index)
+        # self.update_player_tracklist()
 
     def preview_list_widget_item(self, list_widget_item):
         list_widget_item_index = self.mix_view.current_tracklist.get_index_of_widget(list_widget_item)
@@ -168,8 +176,8 @@ class SongQueue():
     def preview(self, from_path, to_path):
         print(f"Previewing from {from_path.stem} to {to_path.stem}")
 
-        self.queue_song_next(path=to_path)
-        self.queue_song_next(path=from_path)
+        self.queue_song_next(paths=to_path)
+        self.queue_song_next(paths=from_path)
 
         self.player.queue_command(self.player.skip_forward, ())
 

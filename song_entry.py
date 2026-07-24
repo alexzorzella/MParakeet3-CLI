@@ -39,6 +39,7 @@ class SongEntry:
             self.mp3 = MP3(filepath)
 
         list_widget_item = QListWidgetItem()
+        self.list_widget_item = list_widget_item
 
         parent_widget = QWidget()
         vertical_layout = QVBoxLayout(parent_widget)
@@ -77,9 +78,11 @@ class SongEntry:
 
         song_queue = self.mix_util.song_queue
 
+        selected_filepaths_and_this = lambda: self.mix_util.currently_selected_mix_view().get_selected_filepaths(append_filepath=filepath)
+
         if not in_queue:
             play_method = lambda: song_queue.queue_song_force_play(filepath)
-            delete_method = lambda: delete_item(list_widget_item)
+            delete_method = lambda: delete_item(self.list_widget_item)
             preview_method = lambda: preview_transition_func(list_widget_item)
         else:
             play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
@@ -92,9 +95,9 @@ class SongEntry:
 
             if not in_queue:
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                              connect_to_method=lambda: song_queue.queue_song(filepath))
+                              connect_to_method=lambda: song_queue.queue_song(selected_filepaths_and_this))
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                              connect_to_method=lambda: song_queue.queue_song_next(path=filepath))
+                              connect_to_method=lambda: song_queue.queue_song_next(selected_filepaths_and_this))
 
             create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=preview_method)
@@ -108,7 +111,6 @@ class SongEntry:
         list_widget_item.setSizeHint(parent_widget.sizeHint())
 
         self.widget = parent_widget
-        self.list_widget_item = list_widget_item
 
     def update_break_duration(self, new_duration):
         self.break_duration = time_int_str_to_int(new_duration)

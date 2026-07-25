@@ -31,7 +31,7 @@ def clear_contents_of(layout):
                 # to clear its contents
                 clear_contents_of(item.layout())
 
-def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, tooltip="", font="", img_path="",
+def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, tooltip="", font="", img_path: str | None=None,
                  img_width=-1, img_height=-1, img_color: str | None = None, font_weight: str | None = None, link: str | None = None, color: str | None = None) -> QLabel:
     """Creates a label under the passed container with the passed specifications"""
 

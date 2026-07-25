@@ -4,6 +4,7 @@ from pathlib import Path
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QMessageBox
+from fuzzywuzzy.utils import translation_table
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
@@ -285,3 +286,21 @@ class MixView:
 
     def __str__(self):
         return f"MixView '{self.name}' tracklist: {self.current_tracklist}"
+
+    def filter(self, search_terms, max_duration):
+        tracklist = self.current_tracklist
+
+        for list_widget_item in tracklist.get_list_of_list_widget_items():
+            song_entry = tracklist.get_song_entry_by_list_widget_item(list_widget_item)
+
+            hidden = False
+
+            if song_entry.length() > max_duration:
+                hidden = True
+
+            for term in search_terms:
+                if term.lower() not in song_entry.name().lower():
+                    hidden = True
+                    break
+
+            list_widget_item.setHidden(hidden)

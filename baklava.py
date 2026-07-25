@@ -31,8 +31,8 @@ def clear_contents_of(layout):
                 # to clear its contents
                 clear_contents_of(item.layout())
 
-def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, tooltip="", font="", image_path="",
-                 img_width=-1, img_height=-1, font_weight: str | None = None, link: str | None = None, color: str | None = None) -> QLabel:
+def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, tooltip="", font="", img_path="",
+                 img_width=-1, img_height=-1, img_color: str | None = None, font_weight: str | None = None, link: str | None = None, color: str | None = None) -> QLabel:
     """Creates a label under the passed container with the passed specifications"""
 
     label = QLabel(text)
@@ -48,17 +48,21 @@ def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, 
     label.setStyleSheet(style_sheet)
     label.setAlignment(alignment)
 
-    if not is_null_or_whitespace(image_path) and Path(image_path).is_file():
-        pixmap = QPixmap(image_path)
+    if img_path is not None:
+        icon = svg(str(img_path), img_color if img_color is not None else "currentColor")
+        label.setPixmap(icon.pixmap(QSize(img_width, img_height)))
 
-        if img_width >= 0 or img_height >= 0:
-            pixmap = pixmap.scaled(
-                img_width,
-                img_height,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation)
-
-        label.setPixmap(pixmap)
+    # if not is_null_or_whitespace(image_path) and Path(image_path).is_file():
+    #     pixmap = QPixmap(image_path)
+    #
+    #     if img_width >= 0 or img_height >= 0:
+    #         pixmap = pixmap.scaled(
+    #             img_width,
+    #             img_height,
+    #             Qt.AspectRatioMode.KeepAspectRatio,
+    #             Qt.TransformationMode.SmoothTransformation)
+    #
+    #     label.setPixmap(pixmap)
 
     if not is_null_or_whitespace(font):
         label.setFont(font)
@@ -120,7 +124,7 @@ def create_button(container=None, text="", font_size=10, text_align="center", wi
 def set_button_icon(button: QPushButton, icon_path: Path, color=None):
     button.setIcon(svg(str(icon_path), color if color is not None else "currentColor"))
 
-def svg(path, color):
+def svg(path, color) -> QIcon:
     renderer = QSvgRenderer(path)
     pixmap = QPixmap(24, 24)
 

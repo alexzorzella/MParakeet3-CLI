@@ -29,7 +29,9 @@ class SongEntry:
             filepath: Path | None,
             mix_util: MixUtility,
             preview_transition_func: Callable | None = None,
-            delete_item: Callable | None = None,
+            delete_selected_items_and: Callable | None = None,
+            queue_method: Callable | None = None,
+            queue_next_method: Callable | None = None,
             break_duration: int | None = None,
             in_queue: bool = False):
         self.mix_util = mix_util
@@ -39,6 +41,7 @@ class SongEntry:
             self.mp3 = MP3(filepath)
 
         list_widget_item = QListWidgetItem()
+        self.list_widget_item = list_widget_item
 
         parent_widget = QWidget()
         vertical_layout = QVBoxLayout(parent_widget)
@@ -50,7 +53,8 @@ class SongEntry:
             self.is_break = True
             self.break_duration = break_duration
 
-        create_label(container=horizontal_layout, text=self.name() if not self.is_break else "Break", alignment=AQtAlignCenterLeft)
+        name = self.name() if not self.is_break else "Break"
+        create_label(container=horizontal_layout, text=name, alignment=AQtAlignCenterLeft, tooltip=name)
 
         song_utility_layout = QHBoxLayout()
         horizontal_layout.addLayout(song_utility_layout)
@@ -79,7 +83,7 @@ class SongEntry:
 
         if not in_queue:
             play_method = lambda: song_queue.queue_song_force_play(filepath)
-            delete_method = lambda: delete_item(list_widget_item)
+            delete_method = lambda: delete_selected_items_and(self.list_widget_item)
             preview_method = lambda: preview_transition_func(list_widget_item)
         else:
             play_method = lambda: song_queue.set_head_to_list_widget_item_entry(list_widget_item)
@@ -92,9 +96,9 @@ class SongEntry:
 
             if not in_queue:
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_end.svg"), icon_color=color, icon_size=size, tooltip="Queue Track",
-                              connect_to_method=lambda: song_queue.queue_song(filepath))
+                              connect_to_method=lambda: queue_method(filepath))
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
-                              connect_to_method=lambda: song_queue.queue_song_next(path=filepath))
+                              connect_to_method=lambda: queue_next_method(filepath))
 
             create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
                           connect_to_method=preview_method)
@@ -108,7 +112,6 @@ class SongEntry:
         list_widget_item.setSizeHint(parent_widget.sizeHint())
 
         self.widget = parent_widget
-        self.list_widget_item = list_widget_item
 
     def update_break_duration(self, new_duration):
         self.break_duration = time_int_str_to_int(new_duration)

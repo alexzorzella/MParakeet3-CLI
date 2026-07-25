@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QList
 
 from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
-from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR
+from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR, AUTOSCROLL_MARGIN
 from mix_utility import MixUtility
 from song_entry import SongEntry
 from tracklist import Tracklist
@@ -91,7 +91,7 @@ class MixView:
         list_widget = QListWidget()
         list_widget.setDragDropMode(QAbstractItemView.InternalMove)
         list_widget.setAutoScroll(True)
-        list_widget.autoScrollMargin = 50
+        list_widget.autoScrollMargin = AUTOSCROLL_MARGIN
         list_widget.setFlow(QListView.TopToBottom)
         list_widget.setWrapping(False)
         list_widget.setResizeMode(QListView.Adjust)
@@ -151,7 +151,9 @@ class MixView:
                     filepath=Path(path),
                     mix_util=self.mix_util,
                     preview_transition_func=self.preview_transition_from,
-                    delete_item=self.delete_list_widget_item_entry,
+                    delete_selected_items_and=self.delete_selected_items_and,
+                    queue_method=self.queue_selected_songs_and,
+                    queue_next_method=self.queue_selected_songs_next_and,
                     in_queue=self.is_queue)
             )
 
@@ -166,12 +168,24 @@ class MixView:
 
         self.update_cumulative_times()
 
-    def delete_list_widget_item_entry(self, list_widget_item):
-        self.current_tracklist.delete_list_widget_item_entry(list_widget_item)
+    def queue_selected_songs_and(self, append_filepath):
+        selected_filepaths_and_this = self.get_selected_filepaths_and(append_filepath)
+        self.mix_util.song_queue.queue_song(selected_filepaths_and_this)
+
+    def queue_selected_songs_next_and(self, append_filepath):
+        selected_filepaths_and_this = self.get_selected_filepaths_and(append_filepath)
+        self.mix_util.song_queue.queue_song_next(selected_filepaths_and_this)
+
+    def delete_selected_items_and(self, append_item: QListWidgetItem | None=None):
+        items_to_delete = self.get_selected_list_widget_items(append_item=append_item)
+
+        for list_widget_item in items_to_delete:
+            self.current_tracklist.delete_list_widget_item_entry(list_widget_item)
+
         self.update_cumulative_times()
 
     def add_break(self, duration: int=DEFAULT_BREAK_DURATION):
-        song_entry = SongEntry(filepath=None, mix_util=self.mix_util, break_duration=duration, delete_item=self.delete_list_widget_item_entry)
+        song_entry = SongEntry(filepath=None, mix_util=self.mix_util, break_duration=duration, delete_selected_items_and=self.delete_selected_items_and)
         self.current_tracklist.widgets_to_song_entries[song_entry.widget] = song_entry
         self.list_widget.addItem(song_entry.list_widget_item)
         self.list_widget.setItemWidget(song_entry.list_widget_item, song_entry.widget)
@@ -241,6 +255,33 @@ class MixView:
                 return True
 
         return False
+
+    def get_selected_list_widget_items(self, append_item: QListWidgetItem | None = None):
+        selected_items = []
+        selected_items.extend(self.list_widget.selectedItems())
+
+        if append_item is not None and append_item not in selected_items:
+            selected_items.append(append_item)
+
+        return selected_items
+
+    def get_selected_filepaths_and(self, append_filepath: Path | None = None):
+        selected_items = self.get_selected_list_widget_items()
+
+        selected_filepaths = []
+
+        for list_widget_item in selected_items:
+            song_entry = self.current_tracklist.get_song_entry_by_list_widget_item(list_widget_item)
+
+            try:
+                selected_filepaths.append(song_entry.filepath)
+            except:
+                pass
+
+        if append_filepath not in selected_filepaths:
+            selected_filepaths.append(append_filepath)
+
+        return selected_filepaths
 
     def __str__(self):
         return f"MixView '{self.name}' tracklist: {self.current_tracklist}"

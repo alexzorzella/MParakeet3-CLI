@@ -27,18 +27,20 @@ class SongQueue():
 
     play_button = None
 
-    def __init__(self, mix_util: MixUtility, parent, create_new_mix: Callable):
+    def __init__(self, mix_util: MixUtility, create_new_mix: Callable):
         self.mix_util = mix_util
         self.player = mix_util.player
 
-        self.populate_queue_gui(parent=parent, create_new_mix=create_new_mix)
+        self.populate_queue_gui(create_new_mix=create_new_mix)
 
         self.player.song_changed.connect(self.on_song_changed)
 
-    def populate_queue_gui(self, parent, create_new_mix: Callable):
+    def populate_queue_gui(self, create_new_mix: Callable):
+        parent_widget = QWidget()
         queue_parent_layout = QVBoxLayout()
-        parent.addLayout(queue_parent_layout)
-        create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
+        parent_widget.setLayout(queue_parent_layout)
+        self.mix_util.queue_search_tabs.addTab(parent_widget, "Queue")
+        # create_label(container=queue_parent_layout, text="Queue", alignment=AQtAlignCenterTop, font_size=15)
         queue_mix_view_parent = QWidget()
         queue_parent_layout.addWidget(queue_mix_view_parent)
 
@@ -66,7 +68,7 @@ class SongQueue():
 
         self.song_progress_label = create_label(container=song_progress_layout, text="00:00/00:00")
 
-        timer = QTimer(parent)
+        timer = QTimer(self.mix_util.parent_window)
         timer.setInterval(50)
         timer.timeout.connect(self.update_song_progress)
         timer.start()

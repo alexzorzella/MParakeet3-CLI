@@ -28,8 +28,6 @@ class SearchView():
             self.mix_view.add_song_to_mix(mp3.filename)
 
     def on_search(self, new_search):
-        print("On search")
-
         search_tokens = new_search.split(" ")
         search_terms = []
 

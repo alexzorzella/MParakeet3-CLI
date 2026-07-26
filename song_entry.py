@@ -4,6 +4,7 @@ from typing import Callable
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from mutagen.mp3 import MP3
+
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
 from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE, BREAK_SAVE_STR
 from mix_utility import MixUtility
@@ -11,6 +12,9 @@ from mix_utility import MixUtility
 class SongEntry:
     filepath: Path
     mp3: MP3
+
+    artist: str = ""
+    album: str = ""
 
     list_widget_item: QListWidgetItem
     widget: QWidget
@@ -43,6 +47,15 @@ class SongEntry:
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
+
+            self.album = self.mp3.get("album", [""])[0]
+            self.artist = self.mp3.get("artist", [""])[0]
+
+            if self.album is None:
+                self.album = ""
+
+            if self.artist is None:
+                self.artist = ""
 
         list_widget_item = QListWidgetItem()
         self.list_widget_item = list_widget_item

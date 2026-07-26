@@ -286,7 +286,7 @@ class MixView:
 
         return selected_filepaths
 
-    def filter(self, search_terms, max_duration):
+    def filter(self, search_terms, min_duration, max_duration, album, artist):
         tracklist = self.current_tracklist
 
         for list_widget_item in tracklist.get_list_of_list_widget_items():
@@ -294,13 +294,20 @@ class MixView:
 
             hidden = False
 
-            if song_entry.length() > max_duration:
+            if song_entry.length() > max_duration or song_entry.length() < min_duration:
                 hidden = True
 
-            for term in search_terms:
-                if term.lower() not in song_entry.name().lower():
-                    hidden = True
-                    break
+            if not hidden:
+                for term in search_terms:
+                    if term.lower() not in song_entry.name().lower():
+                        hidden = True
+                        break
+
+            if not hidden and album is not None:
+                hidden = album.lower() in song_entry.album
+
+            if not hidden and artist is not None:
+                hidden = artist.lower() in song_entry.artist
 
             list_widget_item.setHidden(hidden)
 

@@ -134,8 +134,8 @@ class MixWindow(QMainWindow):
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()
 
-    def create_new_mix(self, path: Path | None = None, parent = None, is_queue: bool = False):
-        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent, is_queue=is_queue)
+    def create_new_mix(self, path: Path | None = None, parent = None, is_queue: bool = False, is_search: bool = False):
+        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent, is_queue=is_queue, is_search=is_search)
 
         if parent is None:
             self.mix_util.mix_tab_views.append(mix_view)
@@ -169,7 +169,7 @@ class MixWindow(QMainWindow):
 
         parent_layout.addWidget(mix_view_parent)
 
-        search_window_mix_view = MixView(mix_util=self.mix_util, parent=mix_view_parent)
+        search_window_mix_view = MixView(mix_util=self.mix_util, parent=mix_view_parent, is_search=True)
         self.mix_util.search_view = SearchView(mix_view=search_window_mix_view, mix_util=self.mix_util, parent_layout=parent_layout, search_field=search_field)
 
 def main():

@@ -26,9 +26,11 @@ class MixView:
     tab_index = -1
 
     is_queue: bool = False
+    is_search: bool = False
 
-    def __init__(self, mix_util, mix_path: Path | None = None, parent=None, is_queue: bool = False):
+    def __init__(self, mix_util, mix_path: Path | None = None, parent=None, is_queue: bool = False, is_search: bool=True):
         self.is_queue = is_queue
+        self.is_search = is_search
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui(parent=parent)
@@ -154,7 +156,8 @@ class MixView:
                     delete_selected_items_and=self.delete_selected_items_and,
                     queue_method=self.queue_selected_songs_and,
                     queue_next_method=self.queue_selected_songs_next_and,
-                    in_queue=self.is_queue)
+                    in_queue=self.is_queue,
+                    in_search=self.is_search)
             )
 
             if index < 0 or index >= self.current_tracklist.length():

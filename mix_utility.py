@@ -103,3 +103,9 @@ class MixUtility:
                 names.append(mix_view_name)
 
         return duplicate_names
+
+    def add_track_to_selected_mix(self, filepath):
+        current_mix = self.currently_selected_mix_view()
+
+        if current_mix is not None:
+            current_mix.add_song_to_mix(filepath)

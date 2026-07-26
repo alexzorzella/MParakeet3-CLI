@@ -24,6 +24,9 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
+    in_queue: bool = False
+    in_search: bool = False
+
     def __init__(
             self,
             filepath: Path | None,
@@ -33,7 +36,8 @@ class SongEntry:
             queue_method: Callable | None = None,
             queue_next_method: Callable | None = None,
             break_duration: int | None = None,
-            in_queue: bool = False):
+            in_queue: bool = False,
+            in_search: bool = False):
         self.mix_util = mix_util
 
         if filepath is not None:
@@ -100,11 +104,16 @@ class SongEntry:
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
                               connect_to_method=lambda: queue_next_method(filepath))
 
-            create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
-                          connect_to_method=preview_method)
+            if not in_search:
+                create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
+                              connect_to_method=preview_method)
+            else:
+                create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_plus.svg"), icon_color=color, icon_size=size, tooltip="Add To Mix",
+                              connect_to_method=lambda: self.mix_util.add_track_to_selected_mix(filepath))
 
-        create_button(container=container, height=length, width=length, icon_path=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
-                      connect_to_method=delete_method)
+        if not in_search:
+            create_button(container=container, height=length, width=length, icon_path=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
+                          connect_to_method=delete_method)
 
         self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)

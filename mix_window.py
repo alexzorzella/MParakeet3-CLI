@@ -170,7 +170,7 @@ class MixWindow(QMainWindow):
         parent_layout.addWidget(mix_view_parent)
 
         search_window_mix_view = MixView(mix_util=self.mix_util, parent=mix_view_parent)
-        SearchView(mix_view=search_window_mix_view, mix_util=self.mix_util, parent_layout=parent_layout, search_field=search_field)
+        self.mix_util.search_view = SearchView(mix_view=search_window_mix_view, mix_util=self.mix_util, parent_layout=parent_layout, search_field=search_field)
 
 def main():
     app = QApplication()

@@ -5,11 +5,10 @@ from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QMessageBox
 
-from baklava import create_button, create_line_edit, BaklavaLineEdit, resource_path, create_label
+from baklava import create_button, create_line_edit, BaklavaLineEdit
 from export_handler import ThreadedMixExporter
 from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR, AUTOSCROLL_MARGIN
 from mix_utility import MixUtility
-from search_view import SearchView
 from song_entry import SongEntry
 from tracklist import Tracklist
 
@@ -284,9 +283,6 @@ class MixView:
 
         return selected_filepaths
 
-    def __str__(self):
-        return f"MixView '{self.name}' tracklist: {self.current_tracklist}"
-
     def filter(self, search_terms, max_duration):
         tracklist = self.current_tracklist
 
@@ -304,3 +300,6 @@ class MixView:
                     break
 
             list_widget_item.setHidden(hidden)
+
+    def __str__(self):
+        return f"MixView '{self.name}' tracklist: {self.current_tracklist}"

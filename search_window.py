@@ -4,11 +4,10 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout
 
 from baklava import create_line_edit, BaklavaLineEdit, create_label, resource_path
 from mix_utility import MixUtility
-from mix_view import MixView
 
 class SearchWindow(QDialog):
     search_field: BaklavaLineEdit
-    mix_view: MixView
+    mix_view = None
     mix_util: MixUtility
 
     def __init__(self, mix_util: MixUtility):

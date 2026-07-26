@@ -4,12 +4,12 @@ from pathlib import Path
 from PySide6.QtCore import QSize
 from PySide6.QtWidgets import QListWidget, QWidget
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QAbstractItemView, QListView, QListWidgetItem, QMessageBox
-from fuzzywuzzy.utils import translation_table
 
-from baklava import create_button, create_line_edit, BaklavaLineEdit
+from baklava import create_button, create_line_edit, BaklavaLineEdit, resource_path
 from export_handler import ThreadedMixExporter
 from globals import DEFAULT_BREAK_DURATION, BREAK_SAVE_STR, AUTOSCROLL_MARGIN
 from mix_utility import MixUtility
+from search_window import SearchWindow
 from song_entry import SongEntry
 from tracklist import Tracklist
 
@@ -109,12 +109,16 @@ class MixView:
 
         if parent is None:
             hotbar = QHBoxLayout()
-            height = 30
+            height = 40
 
+            create_button(container=hotbar, height=height, width=height, tooltip="Search", icon_path=resource_path("img/search.svg"), icon_color="white", icon_size=QSize(height, height), connect_to_method=self.search)
             create_button(container=hotbar, text="Add Song(s)", height=height, tooltip="Add one or more audio files", connect_to_method=lambda: self.add_song_to_mix())
             create_button(container=hotbar, text="Add Break", height=height, tooltip="Add a break (good for cassettes, CDs)", connect_to_method=self.add_break)
 
             vertical_layout.addLayout(hotbar)
+
+    def search(self):
+        SearchWindow(mix_util=self.mix_util)
 
     def update_name(self, new_name, set_line_edit_text: bool = False):
         self.name = new_name

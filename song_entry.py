@@ -3,6 +3,7 @@ from typing import Callable
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
+from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
@@ -48,8 +49,10 @@ class SongEntry:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
 
-            self.album = self.mp3.get("album", [None])[0]
-            self.artist = self.mp3.get("artist", [None])[0]
+            mp3_data = EasyID3(filepath)
+
+            self.album = mp3_data.get("album", [None])[0]
+            self.artist = mp3_data.get("artist", [None])[0]
 
         list_widget_item = QListWidgetItem()
         self.list_widget_item = list_widget_item
@@ -65,6 +68,7 @@ class SongEntry:
             self.break_duration = break_duration
 
         name = self.name() if not self.is_break else "Break"
+
         create_label(container=horizontal_layout, text=name, alignment=AQtAlignCenterLeft, tooltip=name)
 
         song_utility_layout = QHBoxLayout()

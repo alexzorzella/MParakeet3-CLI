@@ -53,18 +53,6 @@ def create_label(container=None, text="", font_size=10, alignment=Qt.AlignLeft, 
         icon = svg(str(img_path), img_color if img_color is not None else "currentColor")
         label.setPixmap(icon.pixmap(QSize(img_width, img_height)))
 
-    # if not is_null_or_whitespace(image_path) and Path(image_path).is_file():
-    #     pixmap = QPixmap(image_path)
-    #
-    #     if img_width >= 0 or img_height >= 0:
-    #         pixmap = pixmap.scaled(
-    #             img_width,
-    #             img_height,
-    #             Qt.AspectRatioMode.KeepAspectRatio,
-    #             Qt.TransformationMode.SmoothTransformation)
-    #
-    #     label.setPixmap(pixmap)
-
     if not is_null_or_whitespace(font):
         label.setFont(font)
 

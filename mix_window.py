@@ -1,10 +1,12 @@
+import random
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QApplication
 from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QInputDialog, QVBoxLayout
 
-from baklava import set_tooltip, create_label, resource_path, create_line_edit
+from baklava import set_tooltip, create_label, resource_path, create_line_edit, time_int_to_str
+from example_values import get_random_album_and_artist
 from import_playlist import get_playlist_title_and_song_names
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
@@ -165,7 +167,18 @@ class MixWindow(QMainWindow):
 
         mix_view_parent = QWidget()
 
-        search_field = create_line_edit(container=parent_layout, placeholder_text="Search and/or filter songs", height=40)
+        random_time_str = time_int_to_str(random.randint(100, 500), do_truncate=True)
+
+        random_sign_before = ""
+        random_sign_after = ""
+
+        if random.randint(0, 1) == 0:
+            random_sign_before = [">", "<"][random.randint(0, 2)]
+        else:
+            random_sign_after = [">", "<"][random.randint(0, 2)]
+
+        random_album, random_artist = get_random_album_and_artist()
+        search_field = create_line_edit(container=parent_layout, placeholder_text=f'Search songs and/or filter by length:"{random_sign_before}{random_time_str}{random_sign_after}", album:"{random_album}", or artist:"{random_artist}"', height=40)
 
         parent_layout.addWidget(mix_view_parent)
 

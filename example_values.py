@@ -24,8 +24,7 @@ EXAMPLE_ALBUMS = [
     ("Point of View", "Takanashi Kiara"),
     ("Three Waters and the Check, Please", "Artist"),
     ("Short n' Sweet", "Sabrina Carpenter"),
-    ("Hot Pink", "Doja Cat"),
-    ("Album", "Artist")
+    ("Hot Pink", "Doja Cat")
 ]
 
 def get_random_album_and_artist():

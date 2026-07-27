@@ -1,3 +1,4 @@
+import shlex
 import sys
 from datetime import datetime
 import time
@@ -424,6 +425,17 @@ def string_to_int(string):
         result = 0
 
     return result
+
+def split_string_by_space_treating_text_wrapped_in_double_quotes_as_single_units(input: str) -> list[str]:
+    try:
+        return shlex.split(input)
+    except:
+        pass
+
+    return input.split(" ")
+
+def get_token_value(input: str, token: str) -> str:
+    return input.split(f"{token}:")[1]
 
 from PySide6.QtWidgets import QComboBox
 

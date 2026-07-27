@@ -2,7 +2,8 @@ import math
 
 from PySide6.QtWidgets import QWidget
 
-from baklava import BaklavaLineEdit, time_int_str_to_int
+from baklava import BaklavaLineEdit, time_int_str_to_int, get_token_value, \
+    split_string_by_space_treating_text_wrapped_in_double_quotes_as_single_units
 from mix_utility import MixUtility
 
 class SearchView():
@@ -28,7 +29,7 @@ class SearchView():
             self.mix_view.add_song_to_mix(mp3.filename)
 
     def on_search(self, new_search):
-        search_tokens = new_search.split(" ")
+        search_tokens = split_string_by_space_treating_text_wrapped_in_double_quotes_as_single_units(new_search)
         search_terms = []
 
         min_duration: int = 0
@@ -39,24 +40,25 @@ class SearchView():
         for token in search_tokens:
             if "length:" in token:
                 try:
-                    split_token = token.split("length:")[1].split(" ")[0]
+                    length_value = get_token_value(token, "length")
 
-                    is_ceiling: bool = split_token[0] == "<" or split_token[-1] == ">"
-                    is_floor: bool = split_token[0] == ">" or split_token[-1] == "<"
+                    is_ceiling: bool = length_value[0] == "<" or length_value[-1] == ">"
+                    is_floor: bool = length_value[0] == ">" or length_value[-1] == "<"
 
-                    split_token = split_token.replace("<", "").replace(">", "")
+                    length_value = length_value.replace("<", "").replace(">", "")
 
                     if is_ceiling != is_floor:
                         if is_ceiling:
-                            max_duration = time_int_str_to_int(split_token)
+                            max_duration = time_int_str_to_int(length_value)
                         elif is_floor:
-                            min_duration = time_int_str_to_int(split_token)
+                            min_duration = time_int_str_to_int(length_value)
                 except:
                     pass
             elif "album:" in token:
-                album = token.split("album:")[1].split(" ")[0]
+                album = get_token_value(token, "album")
             elif "artist:" in token:
-                artist = token.split("artist:")[1].split(" ")[0]
+                artist = get_token_value(token, "artist")
+                print(artist)
             else:
                 search_terms.append(token)
 

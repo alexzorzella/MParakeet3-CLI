@@ -1,14 +1,17 @@
+import random
 from pathlib import Path
 
 from PySide6.QtGui import QKeySequence, QShortcut
 from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QInputDialog, QMessageBox
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QTabWidget, QInputDialog, QVBoxLayout
 
-from baklava import set_tooltip
+from baklava import set_tooltip, create_label, resource_path, create_line_edit, time_int_to_str
+from example_values import get_random_album_and_artist
 from import_playlist import get_playlist_title_and_song_names
 from load_file_action import FileLoadAction
 from mix_utility import MixUtility
 from mix_view import MixView
+from search_view import SearchView
 from song_queue import SongQueue
 from threaded_vlc_player import ThreadedVlcPlayer
 
@@ -55,7 +58,12 @@ class MixWindow(QMainWindow):
 
         self.mix_util.player = ThreadedVlcPlayer()
 
-        self.mix_util.song_queue = SongQueue(mix_util=self.mix_util, parent=horizontal_layout, create_new_mix=self.create_new_mix)
+        self.mix_util.queue_search_tabs = QTabWidget()
+        horizontal_layout.addWidget(self.mix_util.queue_search_tabs)
+
+        self.mix_util.song_queue = SongQueue(mix_util=self.mix_util, create_new_mix=self.create_new_mix)
+
+        self.initialize_search_view()
 
     def populate_menu_bar(self):
         menu_bar = self.menuBar()
@@ -89,8 +97,6 @@ class MixWindow(QMainWindow):
         export_mix_as_tracks_shortcut = QShortcut(QKeySequence("Ctrl+E"), self)
         add_song_shortcut = QShortcut(QKeySequence("Ctrl+="), self)
         add_song_shortcut.activated.connect(self.add_song_to_currently_selected_mix)
-
-        self.mix_util.add_song_file_load_action = FileLoadAction(menu=mix_menu, name="&Recent", action=self.add_song_to_currently_selected_mix)
 
         set_tooltip(widget=load_mix_action, text="Load a mix from a .txt file (Ctrl+L)")
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
@@ -128,8 +134,8 @@ class MixWindow(QMainWindow):
     def add_song_to_currently_selected_mix(self):
         self.currently_selected_mix().add_song_to_mix()
 
-    def create_new_mix(self, path: Path | None = None, parent = None, is_queue: bool = False):
-        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent, is_queue=is_queue)
+    def create_new_mix(self, path: Path | None = None, parent = None, is_queue: bool = False, is_search: bool = False):
+        mix_view = MixView(mix_util=self.mix_util, mix_path=path, parent=parent, is_queue=is_queue, is_search=is_search)
 
         if parent is None:
             self.mix_util.mix_tab_views.append(mix_view)
@@ -153,6 +159,29 @@ class MixWindow(QMainWindow):
 
     def export_tracklist_to_txt(self):
         self.currently_selected_mix().save()
+
+    def initialize_search_view(self):
+        parent_layout = QVBoxLayout()
+
+        mix_view_parent = QWidget()
+
+        random_time_str = time_int_to_str(random.randint(100, 500), do_truncate=True)
+
+        random_sign_before = ""
+        random_sign_after = ""
+
+        if random.randint(0, 1) == 0:
+            random_sign_before = [">", "<"][random.randint(0, 1)]
+        else:
+            random_sign_after = [">", "<"][random.randint(0, 1)]
+
+        random_album, random_artist = get_random_album_and_artist()
+        search_field = create_line_edit(container=parent_layout, placeholder_text=f'Search songs and/or filter by length:"{random_sign_before}{random_time_str}{random_sign_after}", album:"{random_album}", and/or artist:"{random_artist}"', height=40)
+
+        parent_layout.addWidget(mix_view_parent)
+
+        search_window_mix_view = MixView(mix_util=self.mix_util, parent=mix_view_parent, is_search=True)
+        self.mix_util.search_view = SearchView(mix_view=search_window_mix_view, mix_util=self.mix_util, parent_layout=parent_layout, search_field=search_field)
 
 def main():
     app = QApplication()

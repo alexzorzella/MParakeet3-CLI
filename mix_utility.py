@@ -18,6 +18,8 @@ class MixUtility:
     currently_selected_tab = 0
     mix_tab_views = None            # This is the list[MixView], but a typehint can't be used with base python util as importing it will lead to a circular dependency
 
+    queue_search_tabs: QTabWidget
+
     list_widget: QListWidget | None = None
     add_song_file_load_action: FileLoadAction | None = None
 
@@ -101,3 +103,9 @@ class MixUtility:
                 names.append(mix_view_name)
 
         return duplicate_names
+
+    def add_track_to_selected_mix(self, filepath):
+        current_mix = self.currently_selected_mix_view()
+
+        if current_mix is not None:
+            current_mix.add_song_to_mix(filepath)

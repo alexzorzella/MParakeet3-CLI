@@ -26,9 +26,11 @@ class MixView:
     tab_index = -1
 
     is_queue: bool = False
+    is_search: bool = False
 
-    def __init__(self, mix_util, mix_path: Path | None = None, parent=None, is_queue: bool = False):
+    def __init__(self, mix_util, mix_path: Path | None = None, parent=None, is_queue: bool = False, is_search: bool=True):
         self.is_queue = is_queue
+        self.is_search = is_search
         self.mix_util = mix_util
         self.update_name(self.mix_util.get_first_available_default_mix_name() if mix_path is None else mix_path.stem)
         self.initialize_gui(parent=parent)
@@ -108,7 +110,7 @@ class MixView:
 
         if parent is None:
             hotbar = QHBoxLayout()
-            height = 30
+            height = 40
 
             create_button(container=hotbar, text="Add Song(s)", height=height, tooltip="Add one or more audio files", connect_to_method=lambda: self.add_song_to_mix())
             create_button(container=hotbar, text="Add Break", height=height, tooltip="Add a break (good for cassettes, CDs)", connect_to_method=self.add_break)
@@ -154,7 +156,8 @@ class MixView:
                     delete_selected_items_and=self.delete_selected_items_and,
                     queue_method=self.queue_selected_songs_and,
                     queue_next_method=self.queue_selected_songs_next_and,
-                    in_queue=self.is_queue)
+                    in_queue=self.is_queue,
+                    in_search=self.is_search)
             )
 
             if index < 0 or index >= self.current_tracklist.length():
@@ -282,6 +285,37 @@ class MixView:
             selected_filepaths.append(append_filepath)
 
         return selected_filepaths
+
+    def filter(self, search_terms, min_duration, max_duration, album, artist):
+        tracklist = self.current_tracklist
+
+        for list_widget_item in tracklist.get_list_of_list_widget_items():
+            song_entry = tracklist.get_song_entry_by_list_widget_item(list_widget_item)
+
+            hidden = False
+
+            if song_entry.length() > max_duration or song_entry.length() < min_duration:
+                hidden = True
+
+            if not hidden:
+                for term in search_terms:
+                    if term.lower() not in song_entry.name().lower():
+                        hidden = True
+                        break
+
+            if not hidden and album is not None:
+                if song_entry.album is None:
+                    hidden = True
+                else:
+                    hidden = album.lower() not in song_entry.album.lower()
+
+            if not hidden and artist is not None:
+                if song_entry.artist is None:
+                    hidden = True
+                else:
+                    hidden = artist.lower() not in song_entry.artist.lower()
+
+            list_widget_item.setHidden(hidden)
 
     def __str__(self):
         return f"MixView '{self.name}' tracklist: {self.current_tracklist}"

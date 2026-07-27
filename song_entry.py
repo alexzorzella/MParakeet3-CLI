@@ -3,7 +3,9 @@ from typing import Callable
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QListWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
+from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
+
 from baklava import create_label, create_button, create_line_edit, time_int_to_str, BaklavaLineEdit, time_int_str_to_int, resource_path
 from globals import AQtAlignCenterLeft, AQtAlignCenterRight, ICON_SIDE_LENGTH, ICON_SIZE, BREAK_SAVE_STR
 from mix_utility import MixUtility
@@ -11,6 +13,10 @@ from mix_utility import MixUtility
 class SongEntry:
     filepath: Path
     mp3: MP3
+
+    song_name: str | None = None
+    artist: str | None = None
+    album: str | None = None
 
     list_widget_item: QListWidgetItem
     widget: QWidget
@@ -24,6 +30,9 @@ class SongEntry:
     last_cached_cumulative_duration: int = 0
     duration_input: BaklavaLineEdit
 
+    in_queue: bool = False
+    in_search: bool = False
+
     def __init__(
             self,
             filepath: Path | None,
@@ -33,12 +42,19 @@ class SongEntry:
             queue_method: Callable | None = None,
             queue_next_method: Callable | None = None,
             break_duration: int | None = None,
-            in_queue: bool = False):
+            in_queue: bool = False,
+            in_search: bool = False):
         self.mix_util = mix_util
 
         if filepath is not None:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
+
+            mp3_data = EasyID3(filepath)
+
+            self.song_name = mp3_data.get("title", [self.filepath.stem])[0]
+            self.album = mp3_data.get("album", [None])[0]
+            self.artist = mp3_data.get("artist", [None])[0]
 
         list_widget_item = QListWidgetItem()
         self.list_widget_item = list_widget_item
@@ -53,8 +69,9 @@ class SongEntry:
             self.is_break = True
             self.break_duration = break_duration
 
-        name = self.name() if not self.is_break else "Break"
-        create_label(container=horizontal_layout, text=name, alignment=AQtAlignCenterLeft, tooltip=name)
+        name_label = create_label(container=horizontal_layout, text=self.list_entry_format(), alignment=AQtAlignCenterLeft, tooltip=self.tooltip_format())
+
+        name_label.setFixedHeight(35)
 
         song_utility_layout = QHBoxLayout()
         horizontal_layout.addLayout(song_utility_layout)
@@ -100,13 +117,22 @@ class SongEntry:
                 create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_start.svg"), icon_color=color, icon_size=size, tooltip="Play Next",
                               connect_to_method=lambda: queue_next_method(filepath))
 
-            create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
-                          connect_to_method=preview_method)
+            if not in_search:
+                create_button(container=container, height=length, width=length, icon_path=resource_path("img/ear.svg"), icon_color=color, icon_size=size, tooltip="Play Transition",
+                              connect_to_method=preview_method)
+            else:
+                create_button(container=container, height=length, width=length, icon_path=resource_path("img/list_plus.svg"), icon_color=color, icon_size=size, tooltip="Add To Mix",
+                              connect_to_method=lambda: self.mix_util.add_track_to_selected_mix(filepath))
 
-        create_button(container=container, height=length, width=length, icon_path=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
-                      connect_to_method=delete_method)
+        if not in_search:
+            create_button(container=container, height=length, width=length, icon_path=resource_path("img/delete.svg"), icon_color=color, icon_size=size, tooltip="Delete",
+                          connect_to_method=delete_method)
 
         self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
+
+        if in_search:
+            self.time_label.hide()
+
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         list_widget_item.setSizeHint(parent_widget.sizeHint())
@@ -145,8 +171,7 @@ class SongEntry:
         self.time_label.setText(time_label_text)
 
     def name(self) -> str:
-        result = self.mp3.get('Title', self.filepath.stem)
-        return result
+        return self.song_name if self.song_name is not None else ""
 
     def absolute_length(self):
         result = self.mp3.info.length if not self.is_break else self.break_duration
@@ -158,6 +183,23 @@ class SongEntry:
 
     def save_format(self) -> str:
         return self.name() if not self.is_break else f"{BREAK_SAVE_STR} {self.break_duration}"
+
+    def list_entry_format(self) -> str:
+        if self.is_break:
+            return "Break"
+
+        result = self.name()
+
+        if self.artist is not None:
+            result += f"\n{self.artist}"
+
+        if self.album is not None:
+            result += f" - {self.album}"
+
+        return result
+
+    def tooltip_format(self) -> str:
+        return self.list_entry_format()
 
     def __str__(self):
         return f"{self.name()}, abs. len: {self.absolute_length()}, len: {self.length()}, filepath: {self.filepath}"

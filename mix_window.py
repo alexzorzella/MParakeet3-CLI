@@ -173,12 +173,12 @@ class MixWindow(QMainWindow):
         random_sign_after = ""
 
         if random.randint(0, 1) == 0:
-            random_sign_before = [">", "<"][random.randint(0, 2)]
+            random_sign_before = [">", "<"][random.randint(0, 1)]
         else:
-            random_sign_after = [">", "<"][random.randint(0, 2)]
+            random_sign_after = [">", "<"][random.randint(0, 1)]
 
         random_album, random_artist = get_random_album_and_artist()
-        search_field = create_line_edit(container=parent_layout, placeholder_text=f'Search songs and/or filter by length:"{random_sign_before}{random_time_str}{random_sign_after}", album:"{random_album}", or artist:"{random_artist}"', height=40)
+        search_field = create_line_edit(container=parent_layout, placeholder_text=f'Search songs and/or filter by length:"{random_sign_before}{random_time_str}{random_sign_after}", album:"{random_album}", and/or artist:"{random_artist}"', height=40)
 
         parent_layout.addWidget(mix_view_parent)
 

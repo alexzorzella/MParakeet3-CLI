@@ -304,10 +304,16 @@ class MixView:
                         break
 
             if not hidden and album is not None:
-                hidden = album.lower() in song_entry.album
+                if song_entry.album is None:
+                    hidden = True
+                else:
+                    hidden = album.lower() in song_entry.album
 
             if not hidden and artist is not None:
-                hidden = artist.lower() in song_entry.artist
+                if song_entry.artist is None:
+                    hidden = True
+                else:
+                    hidden = artist.lower() in song_entry.artist
 
             list_widget_item.setHidden(hidden)
 

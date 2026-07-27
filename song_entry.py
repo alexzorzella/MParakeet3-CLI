@@ -13,8 +13,8 @@ class SongEntry:
     filepath: Path
     mp3: MP3
 
-    artist: str = ""
-    album: str = ""
+    artist: str | None = None
+    album: str | None = None
 
     list_widget_item: QListWidgetItem
     widget: QWidget
@@ -48,14 +48,8 @@ class SongEntry:
             self.filepath = filepath
             self.mp3 = MP3(filepath)
 
-            self.album = self.mp3.get("album", [""])[0]
-            self.artist = self.mp3.get("artist", [""])[0]
-
-            if self.album is None:
-                self.album = ""
-
-            if self.artist is None:
-                self.artist = ""
+            self.album = self.mp3.get("album", [None])[0]
+            self.artist = self.mp3.get("artist", [None])[0]
 
         list_widget_item = QListWidgetItem()
         self.list_widget_item = list_widget_item

@@ -98,8 +98,6 @@ class MixWindow(QMainWindow):
         add_song_shortcut = QShortcut(QKeySequence("Ctrl+="), self)
         add_song_shortcut.activated.connect(self.add_song_to_currently_selected_mix)
 
-        self.mix_util.add_song_file_load_action = FileLoadAction(menu=mix_menu, name="&Recent", action=self.add_song_to_currently_selected_mix)
-
         set_tooltip(widget=load_mix_action, text="Load a mix from a .txt file (Ctrl+L)")
         set_tooltip(widget=export_mix_as_file, text="Export a mix from as a .txt file (Ctrl+S)")
         set_tooltip(widget=export_mix_as_tracks, text="Export a mix as ordered audio file (Ctrl+E)")

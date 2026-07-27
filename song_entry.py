@@ -69,7 +69,9 @@ class SongEntry:
             self.is_break = True
             self.break_duration = break_duration
 
-        create_label(container=horizontal_layout, text=self.list_entry_format(), alignment=AQtAlignCenterLeft, tooltip=self.tooltip_format())
+        name_label = create_label(container=horizontal_layout, text=self.list_entry_format(), alignment=AQtAlignCenterLeft, tooltip=self.tooltip_format())
+
+        name_label.setFixedHeight(35)
 
         song_utility_layout = QHBoxLayout()
         horizontal_layout.addLayout(song_utility_layout)

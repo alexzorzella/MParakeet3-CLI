@@ -127,6 +127,10 @@ class SongEntry:
                           connect_to_method=delete_method)
 
         self.time_label = create_label(container=container, text="00:00:00", alignment=Qt.AlignCenter)
+
+        if in_search:
+            self.time_label.hide()
+
         self.time_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         list_widget_item.setSizeHint(parent_widget.sizeHint())

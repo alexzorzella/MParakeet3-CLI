@@ -14,6 +14,7 @@ class SongEntry:
     filepath: Path
     mp3: MP3
 
+    song_name: str | None = None
     artist: str | None = None
     album: str | None = None
 
@@ -51,6 +52,7 @@ class SongEntry:
 
             mp3_data = EasyID3(filepath)
 
+            self.song_name = mp3_data.get("title", [self.filepath.stem])[0]
             self.album = mp3_data.get("album", [None])[0]
             self.artist = mp3_data.get("artist", [None])[0]
 
@@ -67,9 +69,7 @@ class SongEntry:
             self.is_break = True
             self.break_duration = break_duration
 
-        name = self.name() if not self.is_break else "Break"
-
-        create_label(container=horizontal_layout, text=name, alignment=AQtAlignCenterLeft, tooltip=name)
+        create_label(container=horizontal_layout, text=self.list_entry_format(), alignment=AQtAlignCenterLeft, tooltip=self.tooltip_format())
 
         song_utility_layout = QHBoxLayout()
         horizontal_layout.addLayout(song_utility_layout)
@@ -169,8 +169,7 @@ class SongEntry:
         self.time_label.setText(time_label_text)
 
     def name(self) -> str:
-        result = self.mp3.get('Title', self.filepath.stem)
-        return result
+        return self.song_name if self.song_name is not None else ""
 
     def absolute_length(self):
         result = self.mp3.info.length if not self.is_break else self.break_duration
@@ -182,6 +181,23 @@ class SongEntry:
 
     def save_format(self) -> str:
         return self.name() if not self.is_break else f"{BREAK_SAVE_STR} {self.break_duration}"
+
+    def list_entry_format(self) -> str:
+        if self.is_break:
+            return "Break"
+
+        result = self.name()
+
+        if self.artist is not None:
+            result += f"\n{self.artist}"
+
+        if self.album is not None:
+            result += f" - {self.album}"
+
+        return result
+
+    def tooltip_format(self) -> str:
+        return self.list_entry_format()
 
     def __str__(self):
         return f"{self.name()}, abs. len: {self.absolute_length()}, len: {self.length()}, filepath: {self.filepath}"
